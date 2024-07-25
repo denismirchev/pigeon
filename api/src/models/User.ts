@@ -6,6 +6,11 @@ import moment from 'moment';
 const INVALID_CONSTRUCTOR_PARAM = 'nameOrObj arg must a string or an object ' + 
   'with the appropriate user keys.';
 
+export enum UserRoles {
+  Standard,
+  Admin,
+}
+
 
 // **** Types **** //
 
@@ -14,6 +19,14 @@ export interface IUser {
   name: string;
   email: string;
   created: Date;
+  role: UserRoles;
+  pwdHash?: string;
+}
+
+export interface ISessionUser {
+  id: number;
+  email: string;
+  name: string;
 }
 
 
@@ -26,6 +39,8 @@ function new_(
   name?: string,
   email?: string,
   created?: Date,
+  role?: UserRoles,
+  pwdHash?: string,
   id?: number, // id last cause usually set by db
 ): IUser {
   return {
@@ -33,6 +48,8 @@ function new_(
     name: (name ?? ''),
     email: (email ?? ''),
     created: (created ? new Date(created) : new Date()),
+    role: (role ?? UserRoles.Standard),
+    ...( pwdHash ? { pwdHash } : {}),
   };
 }
 
@@ -60,6 +77,8 @@ function isUser(arg: unknown): boolean {
     'created' in arg && moment(arg.created as string | Date).isValid()
   );
 }
+
+
 
 
 // **** Export default **** //

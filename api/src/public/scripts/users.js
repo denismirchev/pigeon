@@ -49,6 +49,8 @@ document.addEventListener('click', event => {
     submitEdit(ele);
   } else if (ele.matches('.delete-user-btn')) {
     deleteUser(ele);
+  } else if (ele.matches('#logout-btn')) {
+    logoutUser();
   }
 }, false);
 
@@ -127,4 +129,10 @@ function deleteUser(ele) {
 	Http
     .delete('/api/users/delete/' + id)
     .then(() => displayUsers());
+}
+
+function logoutUser() {
+  Http
+    .get('/api/auth/logout')
+    .then(() => window.location.href = '/');
 }

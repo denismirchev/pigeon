@@ -32,12 +32,8 @@ function addOne(user: IUser): Promise<void> {
 async function updateOne(user: IUser): Promise<void> {
   const persists = await UserRepo.persists(user.id);
   if (!persists) {
-    throw new RouteError(
-      HttpStatusCodes.NOT_FOUND,
-      USER_NOT_FOUND_ERR,
-    );
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, USER_NOT_FOUND_ERR);
   }
-  // Return user
   return UserRepo.update(user);
 }
 
@@ -47,12 +43,8 @@ async function updateOne(user: IUser): Promise<void> {
 async function _delete(id: number): Promise<void> {
   const persists = await UserRepo.persists(id);
   if (!persists) {
-    throw new RouteError(
-      HttpStatusCodes.NOT_FOUND,
-      USER_NOT_FOUND_ERR,
-    );
+    throw new RouteError(HttpStatusCodes.NOT_FOUND, USER_NOT_FOUND_ERR);
   }
-  // Delete user
   return UserRepo.delete(id);
 }
 

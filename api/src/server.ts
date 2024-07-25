@@ -16,8 +16,9 @@ import BaseRouter from '@src/routes';
 import Paths from '@src/common/Paths';
 import EnvVars from '@src/common/EnvVars';
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
-import RouteError from '@src/common/RouteError';
 import { NodeEnvs } from '@src/common/misc';
+
+import RouteError from '@src/common/RouteError';
 
 
 // **** Variables **** //
@@ -64,7 +65,7 @@ app.use((
 });
 
 
-// **** Front-End Content **** //
+// ** Front-End Content ** //
 
 // Set views directory (html)
 const viewsDir = path.join(__dirname, 'views');
@@ -74,14 +75,19 @@ app.set('views', viewsDir);
 const staticDir = path.join(__dirname, 'public');
 app.use(express.static(staticDir));
 
-// Nav to users pg by default
+// Nav to login pg by default
 app.get('/', (_: Request, res: Response) => {
-  return res.redirect('/users');
+  res.sendFile('login.html', { root: viewsDir });
 });
 
 // Redirect to login if not logged in.
-app.get('/users', (_: Request, res: Response) => {
-  return res.sendFile('users.html', { root: viewsDir });
+app.get('/users', (req: Request, res: Response) => {
+  const jwt = req.signedCookies[EnvVars.CookieProps.Key];
+  if (!jwt) {
+    res.redirect('/');
+  } else {
+    res.sendFile('users.html', {root: viewsDir});
+  }
 });
 
 
