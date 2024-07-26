@@ -2,7 +2,7 @@ import { Router } from 'express';
 import jetValidator from 'jet-validator';
 
 import Paths from '@src/common/Paths';
-import User from '@src/models/User';
+import User from '@src/models/UserBac';
 
 import adminMw from './middleware/adminMw';
 import AuthRoutes from './AuthRoutes';
@@ -13,7 +13,6 @@ import UserRoutes from './UserRoutes';
 
 const apiRouter = Router(),
   validate = jetValidator();
-
 
 // **** Add AuthRouter **** //
 
@@ -26,6 +25,13 @@ authRouter.post(
   AuthRoutes.login,
 );
 
+// Register user
+authRouter.post(
+    Paths.Auth.Register,
+    validate(['user', User.isUser]),
+    AuthRoutes.register,
+);
+
 // Logout user
 authRouter.get(
   Paths.Auth.Logout,
@@ -34,7 +40,6 @@ authRouter.get(
 
 // Add AuthRouter
 apiRouter.use(Paths.Auth.Base, authRouter);
-
 
 // ** Add UserRouter ** //
 
@@ -69,7 +74,6 @@ userRouter.delete(
 
 // Add UserRouter
 apiRouter.use(Paths.Users.Base, adminMw, userRouter);
-
 
 // **** Export default **** //
 

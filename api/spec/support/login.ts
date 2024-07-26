@@ -1,8 +1,8 @@
 import { Test, Response } from 'supertest';
 import TestAgent from 'supertest/lib/agent';
 
-import User, { UserRoles } from '@src/models/User';
-import UserRepo from '@src/repos/UserRepo';
+import User, { UserRoles } from '@src/models/UserBac';
+import UserRepo from '@src/repos/UserRepoBac';
 import PwdUtil from '@src/util/PwdUtil';
 
 import Paths from './Paths';

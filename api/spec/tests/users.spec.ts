@@ -5,8 +5,8 @@ import insertUrlParams from 'inserturlparams';
 
 import app from '@src/server';
 
-import UserRepo from '@src/repos/UserRepo';
-import User, { IUser } from '@src/models/User';
+import UserRepo from '@src/repos/UserRepoBac';
+import User, { IUser } from '@src/models/UserBac';
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import { USER_NOT_FOUND_ERR } from '@src/services/UserService';
 
