@@ -21,3 +21,17 @@ export const users = mysqlTable('users', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 });
+
+export interface IUser {
+  id?: number;
+  name: string;
+  email: string;
+  passwordHash: string;
+  username: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  profileImageUrl?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
