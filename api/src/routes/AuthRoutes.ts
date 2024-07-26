@@ -12,6 +12,11 @@ interface ILoginReq {
   password: string;
 }
 
+interface IRegisterReq {
+  email: string;
+  password: string;
+  name: string;
+}
 
 // **** Functions **** //
 
@@ -22,6 +27,7 @@ async function login(req: IReq<ILoginReq>, res: IRes) {
   const { email, password } = req.body;
   // Login
   const user = await AuthService.login(email, password);
+
   // Setup Admin Cookie
   await SessionUtil.addSessionData(res, {
     id: user.id,
@@ -29,8 +35,27 @@ async function login(req: IReq<ILoginReq>, res: IRes) {
     name: user.name,
     role: user.role,
   });
-  // Return
+
   return res.status(HttpStatusCodes.OK).end();
+}
+
+/**
+ * Register a new user.
+ */
+async function register(req: IReq<IRegisterReq>, res: IRes) {
+    const { email, password, name } = req.body;
+    // Register
+    const user = await AuthService.register(email, password, name);
+
+    // Setup Admin Cookie
+    await SessionUtil.addSessionData(res, {
+        id: user.id,
+        email: user.name,
+        name: user.name,
+        role: user.role,
+    });
+
+    return res.status(HttpStatusCodes.OK).end();
 }
 
 /**
@@ -41,10 +66,10 @@ function logout(_: IReq, res: IRes) {
   return res.status(HttpStatusCodes.OK).end();
 }
 
-
 // **** Export default **** //
 
 export default {
   login,
   logout,
+  register,
 } as const;

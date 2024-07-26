@@ -3,9 +3,9 @@ import TestAgent from 'supertest/lib/agent';
 
 import app from '@src/server';
 
-import UserRepo from '@src/repos/UserRepo';
+import UserRepo from '@src/repos/UserRepoBac';
 import PwdUtil from '@src/util/PwdUtil';
-import User, { UserRoles } from '@src/models/User';
+import User, { UserRoles } from '@src/models/UserBac';
 import { Errors } from '@src/services/AuthService';
 
 import EnvVars from '@src/common/EnvVars';
