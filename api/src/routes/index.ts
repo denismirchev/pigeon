@@ -27,19 +27,36 @@ authRouter.post(
 
 // Register user
 authRouter.post(
-    Paths.Auth.Register,
-    validate(['user', User.isUser]),
-    AuthRoutes.register,
+  Paths.Auth.Register,
+  validate('name', 'username', 'email', 'password'),
+  AuthRoutes.register,
 );
 
 // Logout user
 authRouter.get(
   Paths.Auth.Logout,
+  validate('token'),
   AuthRoutes.logout,
+);
+
+// Refresh token
+authRouter.post(
+  Paths.Auth.Refresh,
+  validate('token'),
+  AuthRoutes.refreshAccessToken,
 );
 
 // Add AuthRouter
 apiRouter.use(Paths.Auth.Base, authRouter);
+
+
+
+
+
+
+
+
+
 
 // ** Add UserRouter ** //
 

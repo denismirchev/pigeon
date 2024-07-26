@@ -10,6 +10,7 @@ export default {
     Login: '/login',
     Register: '/register',
     Logout: '/logout',
+    Refresh: '/token',
   },
   Users: {
     Base: '/users',
