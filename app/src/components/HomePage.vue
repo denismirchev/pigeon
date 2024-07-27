@@ -15,24 +15,13 @@ export default defineComponent({
   setup() {
     const isLoggedIn = ref(false);
     const router = useRouter();
-    const apiUrl = process.env.API_URL;
+    const apiUrl = process.env.VUE_APP_API_URL;
 
     onMounted(async () => {
-      console.log(apiUrl);
-      try {
-        const response = await axios.get(`${apiUrl}/api/check-login`);
-        isLoggedIn.value = response.data.isLoggedIn;
-      } catch (error) {
-        console.error('Error checking login status:', error);
-        isLoggedIn.value = true;
-      }
 
-      if (!isLoggedIn.value) {
-        router.push('/login');
-      }
     });
 
     return {};
-  }
+  },
 });
 </script>

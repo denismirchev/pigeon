@@ -20,6 +20,6 @@ export default defineComponent({
     setTimeout(() => {
       router.push('/');
     }, 5000);
-  }
+  },
 });
 </script>
