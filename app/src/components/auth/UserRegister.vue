@@ -24,8 +24,8 @@
             <span v-if="!isLoading">Register</span>
             <span v-else class="flex items-center justify-center">
               <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             </span>
           </button>
@@ -53,7 +53,12 @@ export default defineComponent({
     const register = () => {
       isLoading.value = true;
       setTimeout(() => {
-        console.log('Registering:', { name: name.value, email: email.value, password: password.value, confirmPassword: confirmPassword.value });
+        console.log('Registering:', {
+          name: name.value,
+          email: email.value,
+          password: password.value,
+          confirmPassword: confirmPassword.value,
+        });
         isLoading.value = false;
         router.push('/');
       }, 5000);
@@ -65,8 +70,8 @@ export default defineComponent({
       password,
       confirmPassword,
       isLoading,
-      register
+      register,
     };
-  }
+  },
 });
 </script>

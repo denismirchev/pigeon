@@ -28,7 +28,7 @@ export default defineComponent({
   setup() {
     const form = reactive({
       email: '',
-      password: ''
+      password: '',
     });
 
     const login = () => {
@@ -37,8 +37,8 @@ export default defineComponent({
 
     return {
       form,
-      login
+      login,
     };
-  }
+  },
 });
 </script>
