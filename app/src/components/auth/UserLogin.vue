@@ -21,7 +21,10 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue';
+import { defineComponent, inject, reactive, onMounted } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
+import { VueCookies } from "vue-cookies";
 
 export default defineComponent({
   name: 'UserLogin',
@@ -31,8 +34,36 @@ export default defineComponent({
       password: '',
     });
 
-    const login = () => {
-      // Handle login logic here
+    const apiUrl = process.env.VUE_APP_API_URL;
+    const cookies = inject<VueCookies>('$cookies');
+    const router = useRouter();
+
+    onMounted(() => {
+      const hasAccessToken = cookies?.get('accessToken');
+      const hasRefreshToken = cookies?.get('refreshToken');
+
+      if (hasAccessToken && hasRefreshToken) {
+        router.push('/home');
+      }
+    });
+
+    const login = async () => {
+      try {
+        const response = await axios.post(`${apiUrl}/api/auth/login`, {
+          email: form.email,
+          password: form.password,
+        });
+        console.log('Login successful:', response.data);
+
+        // Save tokens to cookies
+        cookies?.set('accessToken', response.data.accessToken);
+        cookies?.set('refreshToken', response.data.refreshToken);
+
+        await router.push('/home');
+      } catch (error) {
+        console.error('Login failed:', error);
+        // Handle login error (e.g., show error message to user)
+      }
     };
 
     return {

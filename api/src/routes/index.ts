@@ -33,7 +33,7 @@ authRouter.post(
 );
 
 // Logout user
-authRouter.get(
+authRouter.post(
   Paths.Auth.Logout,
   validate('token'),
   AuthRoutes.logout,
