@@ -19,7 +19,7 @@ import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import { NodeEnvs } from '@src/common/misc';
 
 import RouteError from '@src/common/RouteError';
-
+import cors from 'cors';
 
 // **** Variables **** //
 
@@ -29,6 +29,7 @@ const app = express();
 // **** Setup **** //
 
 // Basic middleware
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(EnvVars.CookieProps.Secret));
