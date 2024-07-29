@@ -3,21 +3,26 @@
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
       <h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
       <form @submit.prevent="register">
+        <div v-if="errorMessage" class="mb-4 text-red-500 text-sm">{{ errorMessage }}</div>
+        <div class="mb-4">
+          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+          <input v-model="form.username" type="text" id="username" name="username" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        </div>
         <div class="mb-4">
           <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-          <input v-model="name" type="text" id="name" name="name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+          <input v-model="form.name" type="text" id="name" name="name" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="mb-4">
           <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-          <input v-model="email" type="email" id="email" name="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+          <input v-model="form.email" type="email" id="email" name="email" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="mb-4">
           <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-          <input v-model="password" type="password" id="password" name="password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+          <input v-model="form.password" type="password" id="password" name="password" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="mb-4">
           <label for="confirmPassword" class="block text-sm font-medium text-gray-700">Confirm Password</label>
-          <input v-model="confirmPassword" type="password" id="confirmPassword" name="confirmPassword" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+          <input v-model="form.confirmPassword" type="password" id="confirmPassword" name="confirmPassword" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="mb-6">
           <button type="submit" class="w-full px-4 py-2 bg-blue-500 text-white rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" :disabled="isLoading">
@@ -37,39 +42,67 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, inject, reactive, ref } from 'vue';
+import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { VueCookies } from "vue-cookies";
 
 export default defineComponent({
   name: 'UserRegister',
   setup() {
-    const name = ref('');
-    const email = ref('');
-    const password = ref('');
-    const confirmPassword = ref('');
+    const form = reactive({
+      username: '',
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+
     const isLoading = ref(false);
+    const errorMessage = ref('');
+    const apiUrl = process.env.VUE_APP_API_URL;
+    const cookies = inject<VueCookies>('$cookies');
     const router = useRouter();
 
-    const register = () => {
+    const areFieldsEmpty = () => {
+      return !form.username || !form.name || !form.email || !form.password || !form.confirmPassword;
+    };
+
+    const register = async () => {
+      errorMessage.value = '';
+      if (areFieldsEmpty()) {
+        errorMessage.value = 'All fields are required';
+        return;
+      }
+      if (form.password !== form.confirmPassword) {
+        errorMessage.value = 'Passwords do not match';
+        return;
+      }
+
       isLoading.value = true;
-      setTimeout(() => {
-        console.log('Registering:', {
-          name: name.value,
-          email: email.value,
-          password: password.value,
-          confirmPassword: confirmPassword.value,
+      try {
+        await axios.post(`${apiUrl}/api/auth/register`, form);
+        const { data } = await axios.post(`${apiUrl}/api/auth/login`, {
+          email: form.email,
+          password: form.password,
         });
+        cookies?.set('accessToken', data.accessToken);
+        cookies?.set('refreshToken', data.refreshToken, '30d');
+        await router.push('/home');
+      } catch (err: any) {
+        errorMessage.value = err.response?.data?.error || err.message;
+        if (errorMessage.value) {
+          errorMessage.value = errorMessage.value.charAt(0).toUpperCase() + errorMessage.value.slice(1);
+        }
+      } finally {
         isLoading.value = false;
-        router.push('/');
-      }, 5000);
+      }
     };
 
     return {
-      name,
-      email,
-      password,
-      confirmPassword,
+      form,
       isLoading,
+      errorMessage,
       register,
     };
   },
