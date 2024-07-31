@@ -15,7 +15,7 @@ export default {
   Posts: {
     Base: '/posts',
     Create: '/create',
-    Get: '/all',
+    GetAll: '/all',
   },
   Users: {
     Base: '/users',

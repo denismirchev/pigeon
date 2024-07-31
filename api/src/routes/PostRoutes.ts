@@ -29,7 +29,13 @@ async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
   });
 }
 
+async function getAllPosts(_: IReq, res: IRes) {
+  const posts = await PostService.getAllPosts();
+  return res.status(HttpStatusCodes.OK).json({ posts });
+}
+
 export default {
   createPost,
+  getAllPosts
 } as const;
 

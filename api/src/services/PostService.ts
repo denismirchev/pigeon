@@ -13,6 +13,11 @@ async function createPost(userId: number, content: string, attachments?: string)
   return newPost;
 }
 
+async function getAllPosts(): Promise<IPost[]> {
+  return PostRepo.getAll();
+}
+
 export default {
   createPost,
+  getAllPosts,
 };

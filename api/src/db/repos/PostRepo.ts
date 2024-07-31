@@ -1,5 +1,5 @@
 import { db } from '@src/db/setup';
-import {IPost, posts} from '@src/db/models/Post';
+import { IPost, posts } from '@src/db/models/Post';
 
 class PostRepo {
   private db;
@@ -10,6 +10,10 @@ class PostRepo {
 
   public async create(post: IPost) {
     await this.db.insert(posts).values(post);
+  }
+
+  public async getAll() {
+    return await this.db.select().from(posts) as IPost[];
   }
 }
 

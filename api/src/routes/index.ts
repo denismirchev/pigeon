@@ -62,6 +62,11 @@ postRouter.post(
   PostRoutes.createPost,
 );
 
+postRouter.get(
+  Paths.Posts.GetAll,
+  PostRoutes.getAllPosts,
+);
+
 apiRouter.use(Paths.Posts.Base, postRouter);
 
 
