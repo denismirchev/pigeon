@@ -12,6 +12,11 @@ export default {
     Logout: '/logout',
     Refresh: '/token',
   },
+  Posts: {
+    Base: '/posts',
+    Create: '/create',
+    Get: '/all',
+  },
   Users: {
     Base: '/users',
     Get: '/all',

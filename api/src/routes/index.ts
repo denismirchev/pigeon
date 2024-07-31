@@ -7,6 +7,7 @@ import User from '@src/models/UserBac';
 import adminMw from './middleware/adminMw';
 import AuthRoutes from './AuthRoutes';
 import UserRoutes from './UserRoutes';
+import PostRoutes from './PostRoutes';
 
 
 // **** Variables **** //
@@ -50,6 +51,18 @@ authRouter.post(
 apiRouter.use(Paths.Auth.Base, authRouter);
 
 
+
+/// POSTS ROUTES
+
+const postRouter = Router();
+
+postRouter.post(
+  Paths.Posts.Create,
+  validate('userId', 'content'),
+  PostRoutes.createPost,
+);
+
+apiRouter.use(Paths.Posts.Base, postRouter);
 
 
 
