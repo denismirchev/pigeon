@@ -2,7 +2,6 @@
  * Express router paths go here.
  */
 
-
 export default {
   Base: '/api',
   Auth: {
@@ -14,17 +13,17 @@ export default {
   },
   Posts: {
     Base: '/posts',
-    Create: '/create',
-    GetAll: '/all',
+    Create: '/',
+    GetAll: '/',
     GetOne: '/:id',
-    GetByUsername: '/:username/all',
-    Delete: '/delete/:id',
+    Delete: '/:id',
+    GetByUsername: '/users/:username',
   },
   Users: {
     Base: '/users',
-    Get: '/all',
-    Add: '/add',
-    Update: '/update',
-    Delete: '/delete/:id',
+    Get: '/',
+    Add: '/',
+    Update: '/:id',
+    Delete: '/:id',
   },
 } as const;
