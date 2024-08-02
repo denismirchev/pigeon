@@ -8,6 +8,7 @@ import adminMw from './middleware/adminMw';
 import AuthRoutes from './AuthRoutes';
 import UserRoutes from './UserRoutes';
 import PostRoutes from './PostRoutes';
+import authenticateMw from '@src/routes/middleware/authenticateMw';
 
 
 // **** Variables **** //
@@ -67,7 +68,25 @@ postRouter.get(
   PostRoutes.getAllPosts,
 );
 
-apiRouter.use(Paths.Posts.Base, postRouter);
+postRouter.get(
+  Paths.Posts.GetOne,
+  validate(['id', 'number', 'params']),
+  PostRoutes.getOnePost,
+);
+
+postRouter.get(
+  Paths.Posts.GetByUsername,
+  validate(['username', 'string', 'params']),
+  PostRoutes.getUserPosts,
+);
+
+postRouter.delete(
+  Paths.Posts.Delete,
+  validate(['id', 'number', 'params']),
+  PostRoutes.deletePost,
+);
+
+apiRouter.use(Paths.Posts.Base, authenticateMw, postRouter);
 
 
 

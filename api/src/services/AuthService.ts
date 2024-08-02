@@ -37,7 +37,7 @@ export const Errors = {
  * Login a user.
  */
 async function login(email: string, password: string) {
-  const user = await UserRepo.getOne(email);
+  const user = await UserRepo.getUserByEmail(email);
   if (!user) {
     throw new RouteError(
       HttpStatusCodes.UNAUTHORIZED,

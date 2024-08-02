@@ -1,6 +1,6 @@
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 
-import UserService from '@src/services/UserService';
+import UserService from '@src/services/UserServiceBac';
 import { IUser } from '@src/models/UserBac';
 import { IReq, IRes } from './types/express/misc';
 

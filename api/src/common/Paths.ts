@@ -16,6 +16,9 @@ export default {
     Base: '/posts',
     Create: '/create',
     GetAll: '/all',
+    GetOne: '/:id',
+    GetByUsername: '/:username/all',
+    Delete: '/delete/:id',
   },
   Users: {
     Base: '/users',

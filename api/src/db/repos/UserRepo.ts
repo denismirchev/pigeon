@@ -13,11 +13,20 @@ class UserRepo {
     await this.db.insert(users).values(user);
   }
 
-  public async getOne(email: string): Promise<IUser | null> {
+  public async getUserByEmail(email: string): Promise<IUser | null> {
     const [user] = await this.db
       .select()
       .from(users)
       .where(eq(users.email, email));
+
+    return user ? (user as IUser) : null;
+  }
+
+  public async getUserByUsername(username: string): Promise<IUser | null> {
+    const [user] = await this.db
+      .select()
+      .from(users)
+      .where(eq(users.username, username));
 
     return user ? (user as IUser) : null;
   }
