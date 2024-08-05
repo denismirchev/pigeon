@@ -34,7 +34,7 @@ async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
 
 async function getAllPosts(_: IReq, res: IRes) {
   const posts: IPost[] = await PostService.getAllPosts();
-  return res.status(HttpStatusCodes.OK).json({ posts });
+  return res.status(HttpStatusCodes.OK).json([ ...posts ]);
 }
 
 async function getOnePost(req: IReq, res: IRes) {
@@ -82,7 +82,7 @@ async function deletePost(req: IReq, res: IRes) {
       error: 'Unauthorized',
     });
   }
-  
+
   await PostService.deletePostById(postId);
   return res.status(HttpStatusCodes.OK).json({
     message: 'Post deleted successfully',
