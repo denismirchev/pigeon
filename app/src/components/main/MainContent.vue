@@ -9,9 +9,9 @@
     <!-- Render fetched posts -->
     <div v-for="post in posts" :key="post.id" class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
       <div class="flex items-center space-x-4">
-        <img :src="post.profileImage" alt="Profile" class="w-10 h-10 rounded-full">
+        <img :src="post.user.profileImageUrl" alt="Profile" class="w-10 h-10 rounded-full">
         <div>
-          <div class="font-bold">{{ post.userName }}</div>
+          <div class="font-bold">{{ post.user.username }}</div>
           <div class="text-sm text-gray-500">{{ post.userHandle }}</div>
         </div>
       </div>
@@ -43,7 +43,15 @@ export default defineComponent({
       content: string,
       comments: number,
       retweets: number,
-      likes: number
+      likes: number,
+      user: {
+        id: number,
+        username: string,
+        email: string,
+        profileImageUrl: string,
+        createdAt: string,
+        updatedAt: string
+      },
     }>);
 
     const apiUrl = process.env.VUE_APP_API_URL;
@@ -55,8 +63,8 @@ export default defineComponent({
         console.log('Access token:', accessToken);
         const response = await fetch(`${apiUrl}/api/posts`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`
-          }
+            Authorization: `Bearer ${accessToken}`,
+          },
         });
         const data = await response.json();
         console.log('Posts:', data);
@@ -71,8 +79,8 @@ export default defineComponent({
     });
 
     return {
-      posts
+      posts,
     };
-  }
+  },
 });
 </script>
