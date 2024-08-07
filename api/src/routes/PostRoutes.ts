@@ -2,8 +2,7 @@ import { IReq, IRes } from './types/express/misc';
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import PostService from '@src/services/PostService';
 import UserService from '@src/services/UserService';
-import {IPost} from '@src/db/models/Post';
-import {IUser} from '@src/db/models/User';
+import { IPost } from '@src/db/models/Post';
 
 interface ICreatePostReq {
   userId: number;
@@ -34,7 +33,26 @@ async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
 
 async function getAllPosts(_: IReq, res: IRes) {
   const posts: IPost[] = await PostService.getAllPosts();
-  return res.status(HttpStatusCodes.OK).json([ ...posts ]);
+
+  const userIds = posts.map((post) => post.userId);
+  const users = await UserService.getUsersByIds(userIds);
+
+  const postsWithUserData = posts.map((post) => {
+    const user = users.find((u) => u.id === post.userId);
+    if (user) {
+      return {
+        ...post,
+        user: {
+          id: user.id,
+          username: user.username,
+          profileImageUrl: user.profileImageUrl,
+        },
+      };
+    }
+    return null;
+  });
+
+  return res.status(HttpStatusCodes.OK).json(postsWithUserData);
 }
 
 async function getOnePost(req: IReq, res: IRes) {
@@ -45,7 +63,25 @@ async function getOnePost(req: IReq, res: IRes) {
       error: 'Post not found',
     });
   }
-  return res.status(HttpStatusCodes.OK).json(post);
+
+  const user = await UserService.getUserById(post.userId);
+  if (!user) {
+    return res.status(HttpStatusCodes.NOT_FOUND).json({
+      error: 'User not found',
+    });
+  }
+
+  const { userId, ...postWithoutUserId } = post;
+  const response = {
+    ...postWithoutUserId,
+    user: {
+      id: user.id,
+      username: user.username,
+      profileImageUrl: user.profileImageUrl,
+    },
+  };
+
+  return res.status(HttpStatusCodes.OK).json(response);
 }
 
 async function getUserPosts(req: IReq, res: IRes) {
