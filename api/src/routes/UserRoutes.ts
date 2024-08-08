@@ -43,6 +43,11 @@ async function delete_(req: IReq, res: IRes) {
 }
 
 
+function getByToken(req: IReq, res: IRes) {
+  const user = res.locals.user;
+  return res.status(HttpStatusCodes.OK).json({ ...user });
+}
+
 // **** Export default **** //
 
 export default {
@@ -50,4 +55,5 @@ export default {
   add,
   update,
   delete: delete_,
+  getByToken,
 } as const;

@@ -1,7 +1,7 @@
 <template>
   <main class="w-full lg:w-1/2 mb-4 lg:mb-0">
     <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
-      <textarea placeholder="What's happening?" class="w-full border border-gray-200 rounded-lg p-4"></textarea>
+      <textarea placeholder="What's happening?" class="w-full border border-gray-200 rounded-lg p-4" />
       <div class="flex justify-end mt-2">
         <button class="px-4 py-2 bg-blue-500 text-white rounded-full">Tweet</button>
       </div>

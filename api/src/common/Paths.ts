@@ -22,6 +22,7 @@ export default {
   Users: {
     Base: '/users',
     Get: '/',
+    GetByToken: '/user',
     Add: '/',
     Update: '/:id',
     Delete: '/:id',

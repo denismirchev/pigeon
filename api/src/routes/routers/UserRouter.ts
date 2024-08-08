@@ -4,6 +4,7 @@ import jetValidator from 'jet-validator';
 import Paths from '@src/common/Paths';
 import User from '@src/models/UserBac';
 import UserRoutes from '@src/routes/UserRoutes';
+import authenticateMw from '@src/routes/middleware/authenticateMw';
 
 const userRouter = Router();
 const validate = jetValidator();
@@ -26,6 +27,12 @@ userRouter.delete(
   Paths.Users.Delete,
   validate(['id', 'number', 'params']),
   UserRoutes.delete,
+);
+
+userRouter.get(
+  Paths.Users.GetByToken,
+  authenticateMw,
+  UserRoutes.getByToken,
 );
 
 export default userRouter;
