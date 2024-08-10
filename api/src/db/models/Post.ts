@@ -1,8 +1,10 @@
 import {
+  AnyMySqlColumn,
   bigint,
   mysqlTable,
   text,
   timestamp,
+
 } from 'drizzle-orm/mysql-core';
 
 export const posts = mysqlTable('posts', {
@@ -14,6 +16,8 @@ export const posts = mysqlTable('posts', {
   attachments: text('attachments'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+  parentId: bigint('parent_id', { mode: 'number', unsigned: true })
+    .references((): AnyMySqlColumn => posts.id),
 });
 
 export interface IPost {
@@ -23,4 +27,5 @@ export interface IPost {
   attachments?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  parentId?: number;
 }
