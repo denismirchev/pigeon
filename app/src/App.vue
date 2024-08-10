@@ -25,18 +25,15 @@ export default defineComponent({
 
       try {
         const token = cookies.get('accessToken');
-        if (token) {
-          const response = await axios.get(`${apiURL}/api/users/user`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          user.value = response.data;
-          console.log('User data:', response.data);
-        } else {
-          console.error('No access token found in cookies');
-        }
+        const response = await axios.get(`${apiURL}/api/users/user`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        user.value = response.data;
+        console.log('User data:', response.data);
       } catch (error) {
+        console.log('USER IS NOT LOGGED IN');
         console.error('Error fetching user data:', error);
       }
     });

@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue';
+import { defineComponent } from 'vue';
 import Header from '@/components/main/Header.vue';
 import Sidebar from '@/components/main/Sidebar.vue';
 import Widgets from '@/components/main/Widgets.vue';
@@ -23,23 +23,6 @@ export default defineComponent({
     Header,
     Sidebar,
     Widgets,
-  },
-  setup() {
-    const dataFetched = ref(false);
-
-    const fetchData = async () => {
-      if (!dataFetched.value) {
-        // Fetch your data here
-        console.log('Fetching data...AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
-        dataFetched.value = true;
-      }
-    };
-
-    onMounted(() => {
-      fetchData();
-    });
-
-    return {};
   },
 });
 </script>
