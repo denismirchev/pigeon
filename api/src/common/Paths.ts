@@ -16,6 +16,7 @@ export default {
     Create: '/',
     GetAll: '/',
     GetOne: '/:id',
+    GetReplies: '/:id/replies',
     Delete: '/:id',
     GetByUsername: '/users/:username',
   },

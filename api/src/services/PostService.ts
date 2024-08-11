@@ -2,11 +2,12 @@ import { IPost } from '@src/db/models/Post';
 import PostRepo from '@src/db/repos/PostRepo';
 
 // eslint-disable-next-line max-len
-async function createPost(userId: number, content: string, attachments?: string): Promise<IPost> {
+async function createPost(userId: number, content: string, attachments?: string, parentId?: number): Promise<IPost> {
   const newPost: IPost = {
     userId,
     content,
     attachments,
+    parentId,
   };
 
   await PostRepo.create(newPost);
@@ -20,6 +21,10 @@ async function getAllPosts(): Promise<IPost[]> {
 
 async function getOnePost(id: number): Promise<IPost | null> {
   return PostRepo.getOne(id);
+}
+
+async function getPostReplies(id: number): Promise<IPost[]> {
+  return PostRepo.getPostReplies(id);
 }
 
 async function getPostsByUserId(userId: number): Promise<IPost[]> {
@@ -40,4 +45,5 @@ export default {
   getOnePost,
   getPostsByUserId,
   deletePostById,
+  getPostReplies,
 } as const;

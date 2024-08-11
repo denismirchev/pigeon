@@ -12,20 +12,30 @@ postRouter.post(
   validate('userId', 'content'),
   PostRoutes.createPost,
 );
+
 postRouter.get(
   Paths.Posts.GetAll,
   PostRoutes.getAllPosts,
 );
+
 postRouter.get(
   Paths.Posts.GetOne,
   validate(['id', 'number', 'params']),
   PostRoutes.getOnePost,
 );
+
+postRouter.get(
+  Paths.Posts.GetReplies,
+  validate(['id', 'number', 'params']),
+  PostRoutes.getReplies,
+);
+
 postRouter.get(
   Paths.Posts.GetByUsername,
   validate(['username', 'string', 'params']),
   PostRoutes.getUserPosts,
 );
+
 postRouter.delete(
   Paths.Posts.Delete,
   validate(['id', 'number', 'params']),

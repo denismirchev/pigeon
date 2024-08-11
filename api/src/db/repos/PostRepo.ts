@@ -1,6 +1,6 @@
 import { db } from '@src/db/setup';
 import { IPost, posts } from '@src/db/models/Post';
-import { eq } from 'drizzle-orm';
+import {eq, isNull} from 'drizzle-orm';
 
 class PostRepo {
   private db;
@@ -14,7 +14,10 @@ class PostRepo {
   }
 
   public async getAll(): Promise<IPost[]> {
-    return await this.db.select().from(posts) as IPost[];
+    return await this.db
+      .select()
+      .from(posts)
+      .where(isNull(posts.parentId)) as IPost[];
   }
 
   public async getOne(id: number): Promise<IPost | null> {
@@ -31,6 +34,13 @@ class PostRepo {
 
   public async deleteById(id: number): Promise<void> {
     await this.db.delete(posts).where(eq(posts.id, id));
+  }
+
+  public async getPostReplies(id: number): Promise<IPost[]> {
+    return await this.db
+      .select()
+      .from(posts)
+      .where(eq(posts.parentId, id)) as IPost[];
   }
 }
 

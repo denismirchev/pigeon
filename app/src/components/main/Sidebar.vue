@@ -57,7 +57,7 @@ import {
 import { useRouter } from 'vue-router';
 import { useCookies } from 'vue3-cookies';
 import axios from 'axios';
-import {IUser} from "@/types/IUser";
+import {User} from "@/types/User";
 
 export default defineComponent({
   name: 'Sidebar',
@@ -69,7 +69,7 @@ export default defineComponent({
     const dropdownMenu = ref<HTMLElement | null>(null);
     const dropdownButton = ref<HTMLElement | null>(null);
 
-    const user: IUser = inject('user') as IUser;
+    const user: User = inject('user') as User;
 
     const toggleDropdown = (event: Event) => {
       event.stopPropagation();
@@ -79,14 +79,18 @@ export default defineComponent({
     };
 
     const logout = async () => {
-      await axios.post(`${apiUrl}/api/auth/logout`, {
-        token: cookies?.get('refreshToken'),
-      });
+      try {
+        await axios.post(`${apiUrl}/api/auth/logout`, {
+          token: cookies?.get('refreshToken'),
+        });
+      } catch (error) {
+        console.error('Error logging out:', error);
+      } finally {
+        cookies.remove('accessToken');
+        cookies.remove('refreshToken');
 
-      cookies.remove('accessToken');
-      cookies.remove('refreshToken');
-
-      await router.push('/login');
+        await router.push('/login');
+      }
     };
 
     return {
