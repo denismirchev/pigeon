@@ -11,8 +11,7 @@ async function createPost(userId: number, content: string, attachments?: string,
   };
 
   await PostRepo.create(newPost);
-
-  return newPost;
+  return PostRepo.getLast();
 }
 
 async function getAllPosts(): Promise<IPost[]> {

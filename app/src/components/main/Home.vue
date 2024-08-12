@@ -37,10 +37,12 @@ import {
   ref,
   onMounted,
   inject,
+  Ref,
 } from 'vue';
 import { VueCookies } from 'vue-cookies';
 import Layout from '@/components/Layout.vue';
-import axios from "axios";
+import axios from 'axios';
+import { User } from "@/types/User";
 
 export default defineComponent({
   name: 'HomePage',
@@ -69,6 +71,7 @@ export default defineComponent({
     const status = ref('');
     const apiUrl = process.env.VUE_APP_API_URL;
     const cookies = inject<VueCookies>('$cookies');
+    const user = inject('user') as Ref<User>;
 
     const fetchPosts = async () => {
       try {
@@ -93,7 +96,7 @@ export default defineComponent({
         console.log('Access token:', accessToken);
         const response = await axios.post(`${apiUrl}/api/posts`, {
           content: status.value,
-          userId: 1,
+          userId: `${user.value.id}`,
         }, {
           headers: {
             'Content-Type': 'application/json',

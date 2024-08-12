@@ -1,6 +1,6 @@
 import { db } from '@src/db/setup';
 import { IPost, posts } from '@src/db/models/Post';
-import {eq, isNull} from 'drizzle-orm';
+import {desc, eq, isNull} from 'drizzle-orm';
 
 class PostRepo {
   private db;
@@ -9,7 +9,7 @@ class PostRepo {
     this.db = db;
   }
 
-  public async create(post: IPost): Promise<void> {
+  public async create(post: IPost) {
     await this.db.insert(posts).values(post);
   }
 
@@ -41,6 +41,16 @@ class PostRepo {
       .select()
       .from(posts)
       .where(eq(posts.parentId, id)) as IPost[];
+  }
+
+  public async getLast() {
+    const [ post ]  = await this.db
+      .select()
+      .from(posts)
+      .orderBy(desc(posts.id))
+      .limit(1) as IPost[];
+
+    return post;
   }
 }
 

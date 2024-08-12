@@ -28,9 +28,23 @@ async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
     });
   }
 
-  return res.status(HttpStatusCodes.OK).json({
-    message: 'Post created successfully',
-  });
+  const user = await UserService.getUserById(post.userId);
+  if (!user) {
+    return res.status(HttpStatusCodes.NOT_FOUND).json({
+      error: 'User not found',
+    });
+  }
+
+  const response = {
+    ...post,
+    user: {
+      id: user.id,
+      username: user.username,
+      profileImageUrl: user.profileImageUrl,
+    },
+  };
+
+  return res.status(HttpStatusCodes.OK).json(response);
 }
 
 async function getAllPosts(_: IReq, res: IRes) {
