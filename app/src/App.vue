@@ -21,10 +21,14 @@ export default defineComponent({
     provide('user', user);
 
     onMounted(async () => {
+      // Check if the user is logged in
       const apiURL = process.env.VUE_APP_API_URL;
 
       try {
         const token = cookies.get('accessToken');
+        if (!token) {
+          throw new Error('No access token found');
+        }
         const response = await axios.get(`${apiURL}/api/users/user`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -34,7 +38,10 @@ export default defineComponent({
         console.log('User data:', response.data);
       } catch (error) {
         console.log('USER IS NOT LOGGED IN');
-        console.error('Error fetching user data:', error);
+        // console.error('Error fetching user data:', error);
+        cookies.remove('accessToken');
+        // TODO: maybe request logout from the server
+        cookies.remove('refreshToken');
       }
     });
 

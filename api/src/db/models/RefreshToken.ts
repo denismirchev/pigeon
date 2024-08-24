@@ -13,7 +13,7 @@ export const refreshTokens = mysqlTable('refresh_tokens', {
   userId: bigint('user_id', { mode: 'number', unsigned: true })
     .notNull()
     .references(() => users.id),
-  token: varchar('token', { length: 512 }).notNull(),
+  token: varchar('token', { length: 1024 }).notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });

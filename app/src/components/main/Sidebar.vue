@@ -48,16 +48,11 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  inject,
-  watch, onMounted,
-} from 'vue';
+import { defineComponent, ref, inject, watch, onMounted, Ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCookies } from 'vue3-cookies';
 import axios from 'axios';
-import {User} from "@/types/User";
+import { User } from '@/types/User';
 
 export default defineComponent({
   name: 'Sidebar',
@@ -69,7 +64,7 @@ export default defineComponent({
     const dropdownMenu = ref<HTMLElement | null>(null);
     const dropdownButton = ref<HTMLElement | null>(null);
 
-    const user: User = inject('user') as User;
+    const user = inject<Ref<User>>('user') as Ref<User>;
 
     const toggleDropdown = (event: Event) => {
       event.stopPropagation();
@@ -92,6 +87,11 @@ export default defineComponent({
         await router.push('/login');
       }
     };
+
+    watch(user, (newUser, oldUser) => {
+      console.log('User updated:', newUser);
+      // Add any additional logic to handle user updates here
+    });
 
     return {
       toggleDropdown,

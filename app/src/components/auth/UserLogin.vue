@@ -71,6 +71,7 @@ export default defineComponent({
         const { data } = await axios.post(`${apiUrl}/api/auth/login`, form);
         cookies?.set('accessToken', data.accessToken);
         cookies?.set('refreshToken', data.refreshToken, '30d');
+        console.log('Logged in:', data);
         await router.push('/home');
       } catch (error: any) {
         if (error.response?.status === 401) {
