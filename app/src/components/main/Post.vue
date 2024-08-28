@@ -70,8 +70,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
+import {defineComponent, PropType, ref, watch} from 'vue';
 import { Post } from "@/types/Post";
+import {likePost, unlikePost} from "@/api/post";
 
 export default defineComponent({
   name: 'PostComponent',
@@ -80,16 +81,23 @@ export default defineComponent({
     isLink: { type: Boolean, default: false },
   },
   setup(props) {
-    const liked = ref(false);
-    const likesCount = ref(1);
-    // const likesCount = ref(props.post.likes);
+    // if (!props.)
+    const liked = ref(props.post.liked);
+    const likesCount = ref(props.post.likesCount);
     const likedAnimation = ref(false);
+
+    watch(() => props.post, () => {
+      liked.value = props.post.liked;
+      likesCount.value = props.post.likesCount;
+    });
 
     const toggleLike = () => {
       if (liked.value) {
-        likesCount.value--;
+        unlikePost(props.post.id);
+        likesCount.value -= 1;
       } else {
-        likesCount.value++;
+        likePost(props.post.id);
+        likesCount.value += 1;
       }
 
       liked.value = !liked.value;

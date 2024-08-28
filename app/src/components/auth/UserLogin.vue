@@ -30,10 +30,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, reactive, ref, onMounted } from 'vue';
+import {
+  defineComponent, inject, reactive, ref, onMounted, provide,
+} from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import { VueCookies } from "vue-cookies";
+import { VueCookies } from 'vue-cookies';
+import { User } from '@/types/User';
+import { getUserFromAccessToken } from '@/api/auth';
 
 export default defineComponent({
   name: 'UserLogin',
@@ -55,9 +59,7 @@ export default defineComponent({
       }
     });
 
-    const areFieldsEmpty = () => {
-      return !form.email || !form.password;
-    };
+    const areFieldsEmpty = () => !form.email || !form.password;
 
     const login = async () => {
       errorMessage.value = '';
@@ -71,13 +73,13 @@ export default defineComponent({
         const { data } = await axios.post(`${apiUrl}/api/auth/login`, form);
         cookies?.set('accessToken', data.accessToken);
         cookies?.set('refreshToken', data.refreshToken, '30d');
-        console.log('Logged in:', data);
-        await router.push('/home');
+        // TODO: use router.push('/home') instead of page reload and fix user provide func
+        router.go(0);
       } catch (error: any) {
         if (error.response?.status === 401) {
           errorMessage.value = 'Invalid email or password';
         } else {
-          errorMessage.value = 'Login failed: ' + (error.response?.data?.message || error.message);
+          errorMessage.value = `Login failed: ${error.response?.data?.message || error.message}`;
         }
       } finally {
         isLoading.value = false;

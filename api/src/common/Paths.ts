@@ -19,6 +19,8 @@ export default {
     GetReplies: '/:id/replies',
     Delete: '/:id',
     GetByUsername: '/users/:username',
+    Like: '/:id/like',
+    Unlike: '/:id/unlike',
   },
   Users: {
     Base: '/users',

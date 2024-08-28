@@ -42,4 +42,16 @@ postRouter.delete(
   PostRoutes.deletePost,
 );
 
+postRouter.post(
+  Paths.Posts.Like,
+  validate(['id', 'number', 'params']),
+  PostRoutes.likePost,
+);
+
+postRouter.post(
+  Paths.Posts.Unlike,
+  validate(['id', 'number', 'params']),
+  PostRoutes.unlikePost,
+);
+
 export default postRouter;

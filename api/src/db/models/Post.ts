@@ -4,7 +4,6 @@ import {
   mysqlTable,
   text,
   timestamp,
-
 } from 'drizzle-orm/mysql-core';
 
 export const posts = mysqlTable('posts', {
@@ -18,6 +17,12 @@ export const posts = mysqlTable('posts', {
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
   parentId: bigint('parent_id', { mode: 'number', unsigned: true })
     .references((): AnyMySqlColumn => posts.id),
+  likesCount: bigint('likes_count', { mode: 'number', unsigned: true })
+    .default(0),
+  commentsCount: bigint('comments_count', { mode: 'number', unsigned: true })
+    .default(0),
+  repostsCount: bigint('reposts_count', { mode: 'number', unsigned: true })
+    .default(0),
 });
 
 export interface IPost {
@@ -28,4 +33,7 @@ export interface IPost {
   createdAt?: Date;
   updatedAt?: Date;
   parentId?: number;
+  likesCount?: number;
+  commentsCount?: number;
+  repostsCount?: number;
 }

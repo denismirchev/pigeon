@@ -1,5 +1,7 @@
 import { IPost } from '@src/db/models/Post';
 import PostRepo from '@src/db/repos/PostRepo';
+import {ILike} from '@src/db/models/Like';
+import LikeRepo from '@src/db/repos/LikeRepo';
 
 // eslint-disable-next-line max-len
 async function createPost(userId: number, content: string, attachments?: string, parentId?: number): Promise<IPost> {
@@ -38,6 +40,35 @@ async function deletePostById(id: number): Promise<void> {
   await PostRepo.deleteById(id);
 }
 
+async function likePost(postId: number, userId: number): Promise<void> {
+  const newLike: ILike = {
+    postId,
+    userId,
+  };
+  try {
+    await LikeRepo.create(newLike);
+  } catch (e) {
+    // TODO: handle errors
+    throw new Error('Failed to like post');
+  }
+  await PostRepo.incLikeCount(postId);
+}
+
+async function unlikePost(postId: number, userId: number): Promise<void> {
+  if (!(await LikeRepo.get(postId, userId))) {
+    throw new Error('Like not found');
+  }
+
+  await LikeRepo.delete(postId, userId);
+  await PostRepo.decLikeCount(postId);
+}
+
+async function isPostLikedByUser(postId: number, userId: number)
+  : Promise<boolean> {
+
+  return !!await LikeRepo.get(postId, userId);
+}
+
 export default {
   createPost,
   getAllPosts,
@@ -45,4 +76,7 @@ export default {
   getPostsByUserId,
   deletePostById,
   getPostReplies,
+  likePost,
+  unlikePost,
+  isPostLikedByUser,
 } as const;

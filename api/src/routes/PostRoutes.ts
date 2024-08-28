@@ -87,6 +87,11 @@ async function getOnePost(req: IReq, res: IRes) {
     });
   }
 
+  if (!res.locals.user?.id) {
+    throw new Error('User not found');
+  }
+  const liked = await PostService.isPostLikedByUser(id, res.locals.user?.id);
+
   const { userId, ...postWithoutUserId } = post;
   const response = {
     ...postWithoutUserId,
@@ -95,6 +100,7 @@ async function getOnePost(req: IReq, res: IRes) {
       username: user.username,
       profileImageUrl: user.profileImageUrl,
     },
+    liked,
   };
 
   return res.status(HttpStatusCodes.OK).json(response);
@@ -107,8 +113,19 @@ async function getReplies(req: IReq, res: IRes) {
   const userIds = replies.map((reply) => reply.userId);
   const users = await UserService.getUsersByIds(userIds);
 
-  const repliesWithUserData = replies.map((reply) => {
+  // add liked field to each reply
+  if (!res.locals.user?.id) {
+    throw new Error('User not found');
+  }
+
+  const userId = res.locals.user.id;
+
+  const repliesWithUserData = await Promise.all(replies.map(async (reply) => {
     const user = users.find((u) => u.id === reply.userId);
+    if (!reply.id) {
+      throw new Error('Reply not found');
+    }
+    const liked = await PostService.isPostLikedByUser(reply.id, userId);
     if (user) {
       return {
         ...reply,
@@ -117,10 +134,11 @@ async function getReplies(req: IReq, res: IRes) {
           username: user.username,
           profileImageUrl: user.profileImageUrl,
         },
+        liked,
       };
     }
     return null;
-  });
+  }));
 
   return res.status(HttpStatusCodes.OK).json(repliesWithUserData);
 }
@@ -166,6 +184,49 @@ async function deletePost(req: IReq, res: IRes) {
   });
 }
 
+async function likePost(req: IReq, res: IRes) {
+  const user = res.locals.user;
+  if (!user) {
+      return res.status(HttpStatusCodes.UNAUTHORIZED).json({
+      error: 'Unauthorized',
+      });
+  }
+
+  const postId = Number(req.params.id);
+  // const post = await PostService.getOnePost(postId);
+  // if (!post) {
+  //   return res.status(HttpStatusCodes.NOT_FOUND).json({
+  //    error: 'Post not found',
+  //   });
+  // }
+
+  await PostService.likePost(postId, user.id);
+  return res.status(HttpStatusCodes.OK).json({
+    message: 'Post liked successfully',
+  });
+}
+
+async function unlikePost(req: IReq, res: IRes) {
+  const user = res.locals.user;
+  if (!user) {
+    return res.status(HttpStatusCodes.UNAUTHORIZED).json({
+      error: 'Unauthorized',
+    });
+  }
+
+  const postId = Number(req.params.id);
+  const post = await PostService.getOnePost(postId);
+  if (!post) {
+    return res.status(HttpStatusCodes.NOT_FOUND).json({
+      error: 'Post not found',
+    });
+  }
+
+  await PostService.unlikePost(postId, user.id);
+  return res.status(HttpStatusCodes.OK).json({
+    message: 'Post unliked successfully',
+  });
+}
 
 
 export default {
@@ -175,5 +236,7 @@ export default {
   getUserPosts,
   deletePost,
   getReplies,
+  likePost,
+  unlikePost,
 } as const;
 

@@ -3,45 +3,30 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  provide,
-  onMounted,
-} from 'vue';
-import axios from 'axios';
-import { useCookies } from 'vue3-cookies';
+import { defineComponent, onMounted, provide, ref } from 'vue';
+import { getUserFromAccessToken, logout } from '@/api/auth';
+import { User } from '@/types/User';
 
 export default defineComponent({
   name: 'App',
   setup() {
-    const { cookies } = useCookies();
-    const user = ref(null);
+    const user = ref<User>();
 
     provide('user', user);
 
     onMounted(async () => {
-      // Check if the user is logged in
-      const apiURL = process.env.VUE_APP_API_URL;
-
+      // Check if the access token is still valid
+      // If it is, fetch the user data
+      // If it's not, log the user out
       try {
-        const token = cookies.get('accessToken');
-        if (!token) {
-          throw new Error('No access token found');
-        }
-        const response = await axios.get(`${apiURL}/api/users/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        user.value = response.data;
-        console.log('User data:', response.data);
+        user.value = await getUserFromAccessToken();
       } catch (error) {
-        console.log('USER IS NOT LOGGED IN');
-        // console.error('Error fetching user data:', error);
-        cookies.remove('accessToken');
-        // TODO: maybe request logout from the server
-        cookies.remove('refreshToken');
+        // console.error(error);
+        try {
+          await logout();
+        } catch (logoutError) {
+          // console.error(logoutError);
+        }
       }
     });
 

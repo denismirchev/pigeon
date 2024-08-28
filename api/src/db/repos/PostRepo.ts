@@ -1,6 +1,6 @@
 import { db } from '@src/db/setup';
 import { IPost, posts } from '@src/db/models/Post';
-import {desc, eq, isNull} from 'drizzle-orm';
+import { desc, eq, isNull, sql } from 'drizzle-orm';
 
 class PostRepo {
   private db;
@@ -51,6 +51,30 @@ class PostRepo {
       .limit(1) as IPost[];
 
     return post;
+  }
+
+  public async incLikeCount(id: number) {
+    await this.db.update(posts)
+      .set({ likesCount: sql`${posts.likesCount} + 1` })
+      .where(eq(posts.id, id));
+  }
+
+  public async decLikeCount(id: number) {
+    await this.db.update(posts)
+      .set({ likesCount: sql`${posts.likesCount} - 1` })
+      .where(eq(posts.id, id));
+  }
+
+  public async incCommentCount(id: number) {
+    await this.db.update(posts)
+      .set({ commentsCount: sql`${posts.commentsCount} + 1` })
+      .where(eq(posts.id, id));
+  }
+
+  public async decCommentCount(id: number) {
+    await this.db.update(posts)
+      .set({ commentsCount: sql`${posts.commentsCount} - 1` })
+      .where(eq(posts.id, id));
   }
 }
 
