@@ -53,9 +53,19 @@ async function getAllPosts(_: IReq, res: IRes) {
   const userIds = posts.map((post) => post.userId);
   const users = await UserService.getUsersByIds(userIds);
 
-  const postsWithUserData = posts.map((post) => {
+  if (!res.locals.user?.id) {
+    throw new Error('User not found');
+  }
+
+  const userId = res.locals.user.id;
+
+  const postsWithUserData = await Promise.all(posts.map(async (post) => {
     const user = users.find((u) => u.id === post.userId);
     if (user) {
+      if (!post.id) {
+        throw new Error('Post not found');
+      }
+      const liked = await PostService.isPostLikedByUser(post.id, userId);
       return {
         ...post,
         user: {
@@ -63,10 +73,11 @@ async function getAllPosts(_: IReq, res: IRes) {
           username: user.username,
           profileImageUrl: user.profileImageUrl,
         },
+        liked,
       };
     }
     return null;
-  });
+  }));
 
   return res.status(HttpStatusCodes.OK).json(postsWithUserData);
 }

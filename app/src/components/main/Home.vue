@@ -8,25 +8,8 @@
       </div>
     </div>
     <!-- Render fetched posts -->
-    <div v-for="post in posts" :key="post.id" class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
-      <router-link :to="`/${post.user.username}/${post.id}`" class="block hover:bg-gray-100 hover:shadow-lg transition duration-300">
-        <div class="flex items-center space-x-4">
-          <img :src="post.user.profileImageUrl || 'https://via.placeholder.com/150'" :alt="'Profile'" class="w-10 h-10 rounded-full">
-          <div>
-            <div class="font-bold">{{ post.user.username }}</div>
-            <div class="text-sm text-gray-500">{{ post.userHandle }}</div>
-          </div>
-        </div>
-        <div class="mt-4">
-          {{ post.content }}
-        </div>
-        <div class="flex justify-between mt-4 text-gray-500">
-          <span>💬 {{ post.comments }}</span>
-          <span>🔁 {{ post.retweets }}</span>
-          <span>❤️ {{ post.likes }}</span>
-          <span>📤</span>
-        </div>
-      </router-link>
+    <div v-for="post in posts" :key="post.id">
+      <PostComponent :post="post" :isLink="true" />
     </div>
   </Layout>
 </template>
@@ -43,10 +26,12 @@ import { VueCookies } from 'vue-cookies';
 import Layout from '@/components/Layout.vue';
 import axios from 'axios';
 import { User } from "@/types/User";
+import PostComponent from "@/components/main/Post.vue";
 
 export default defineComponent({
   name: 'HomePage',
   components: {
+    PostComponent,
     Layout,
   },
   setup() {
