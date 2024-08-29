@@ -11,7 +11,7 @@
       <div v-else class="text-gray-500 text-center mt-4">Loading post...</div>
 
       <!-- Comments Section -->
-      <RepliesSection v-if="post" :newReply="newReply" @resizeTextarea="resizeTextarea" />
+      <RepliesSection v-if="post" :newReply="newReply" :post="post" @resizeTextarea="resizeTextarea" />
     </div>
   </Layout>
 </template>

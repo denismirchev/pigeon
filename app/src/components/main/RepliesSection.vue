@@ -52,11 +52,16 @@ import { useCookies } from 'vue3-cookies';
 import { User } from '@/types/User';
 import { Reply } from '@/types/Reply';
 import PostComponent from '@/components/main/Post.vue';
+import {Post} from "@/types/Post";
 
 export default defineComponent({
   name: 'RepliesSection',
   components: { PostComponent },
-  setup() {
+  props: {
+    newReply: { type: String, required: true },
+    post: { type: Object as () => Post, required: true },
+  },
+  setup(props) {
     const replies = ref<Reply[]>([]);
     const newReply = ref<string>('');
     const route = useRoute();
@@ -96,6 +101,7 @@ export default defineComponent({
         );
         replies.value.unshift(data);
         newReply.value = '';
+        props.post.repliesCount += 1;
       } catch (error) {
         console.error('Error posting reply:', error);
       }

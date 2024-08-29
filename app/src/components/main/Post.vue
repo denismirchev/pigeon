@@ -25,7 +25,7 @@
     <div class="flex justify-between mt-4 text-gray-500">
       <span @click.stop>
         <img src="@/assets/icons/reply.svg" alt="Reply" class="w-5 h-5 inline-block" />
-        <span class="ml-2">0</span>
+        <span class="ml-2">{{ post.repliesCount }}</span>
       </span>
       <span @click.stop>
         <img src="@/assets/icons/repost.svg" alt="Repost" class="w-5 h-5 inline-block" />

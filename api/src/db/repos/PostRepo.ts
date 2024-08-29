@@ -65,15 +65,15 @@ class PostRepo {
       .where(eq(posts.id, id));
   }
 
-  public async incCommentCount(id: number) {
+  public async incReplyCount(id: number) {
     await this.db.update(posts)
-      .set({ commentsCount: sql`${posts.commentsCount} + 1` })
+      .set({ repliesCount: sql`${posts.repliesCount} + 1` })
       .where(eq(posts.id, id));
   }
 
-  public async decCommentCount(id: number) {
+  public async decReplyCount(id: number) {
     await this.db.update(posts)
-      .set({ commentsCount: sql`${posts.commentsCount} - 1` })
+      .set({ repliesCount: sql`${posts.repliesCount} - 1` })
       .where(eq(posts.id, id));
   }
 }

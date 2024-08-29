@@ -13,6 +13,10 @@ async function createPost(userId: number, content: string, attachments?: string,
   };
 
   await PostRepo.create(newPost);
+  if (parentId) {
+    await PostRepo.incReplyCount(parentId);
+  }
+
   return PostRepo.getLast();
 }
 

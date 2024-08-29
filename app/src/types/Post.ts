@@ -7,7 +7,7 @@ export interface Post {
   updatedAt?: Date;
   parentId?: number;
   likesCount: number;
-  commentsCount: number;
+  repliesCount: number;
   repostsCount: number;
   liked?: boolean;
   user: {
