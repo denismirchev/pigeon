@@ -1,30 +1,44 @@
-/**
- * Setup express server.
- */
-
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import path from 'path';
 import helmet from 'helmet';
 import express, { Request, Response, NextFunction } from 'express';
 import logger from 'jet-logger';
+import cors from 'cors';
+import multer from 'multer';
+import fs from 'fs';
 
 import 'express-async-errors';
 
 import BaseRouter from '@src/routes';
-
 import Paths from '@src/common/Paths';
 import EnvVars from '@src/common/EnvVars';
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import { NodeEnvs } from '@src/common/misc';
 
 import RouteError from '@src/common/RouteError';
-import cors from 'cors';
 
 // **** Variables **** //
 
 const app = express();
 
+// Set up storage options for multer
+const storage = multer.diskStorage({
+  destination: (req: Request, file: any, cb: any) => {
+    const uploadPath = path.join(__dirname, 'public/uploads');
+    // Ensure the uploads directory exists
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req: Request, file: any, cb: any) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+// Initialize multer with the storage options
+const upload = multer({ storage: storage });
 
 // **** Setup **** //
 
@@ -44,16 +58,26 @@ if (EnvVars.NodeEnv === NodeEnvs.Production.valueOf()) {
   app.use(helmet());
 }
 
+// ** File Upload Route ** //
+app.post('/upload', upload.single('file'), (req: Request, res: Response) => {
+  try {
+    res.json({ message: 'File uploaded successfully!' });
+  } catch (error) {
+    logger.err('Error while uploading file:', error);
+    res.status(500).json({ message: 'Failed to upload file.' });
+  }
+});
+
 // Add APIs, must be after middleware
 app.use(Paths.Base, BaseRouter);
 
 // Add error handler
 app.use((
-  err: Error,
-  _: Request,
-  res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction,
+    err: Error,
+    _: Request,
+    res: Response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    next: NextFunction,
 ) => {
   if (EnvVars.NodeEnv !== NodeEnvs.Test.valueOf()) {
     logger.err(err, true);
@@ -64,7 +88,6 @@ app.use((
   }
   return res.status(status).json({ error: err.message });
 });
-
 
 // ** Front-End Content ** //
 
@@ -87,10 +110,9 @@ app.get('/users', (req: Request, res: Response) => {
   if (!jwt) {
     res.redirect('/');
   } else {
-    res.sendFile('users.html', {root: viewsDir});
+    res.sendFile('users.html', { root: viewsDir });
   }
 });
-
 
 // **** Export default **** //
 
