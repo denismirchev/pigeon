@@ -20,6 +20,9 @@ interface IUpdatePostReq {
 
 async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
   const { userId, content, attachments, parentId } = req.body;
+
+  console.log('userId', userId);
+
   const post = await PostService
     .createPost(userId, content, attachments, parentId);
   if (!post) {

@@ -59,7 +59,7 @@ if (EnvVars.NodeEnv === NodeEnvs.Production.valueOf()) {
 }
 
 // ** File Upload Route ** //
-app.post('/upload', upload.single('file'), (req: Request, res: Response) => {
+app.post('/upload', upload.any(), (req: Request, res: Response) => {
   try {
     res.json({ message: 'File uploaded successfully!' });
   } catch (error) {
