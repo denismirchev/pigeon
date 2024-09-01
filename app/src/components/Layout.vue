@@ -13,9 +13,9 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Header from '@/components/main/Header.vue';
-import Sidebar from '@/components/main/Sidebar.vue';
-import Widgets from '@/components/main/Widgets.vue';
+import Header from '@/components/layout/Header.vue';
+import Sidebar from '@/components/layout/Sidebar.vue';
+import Widgets from '@/components/layout/Widgets.vue';
 
 export default defineComponent({
   name: 'HomePage',
