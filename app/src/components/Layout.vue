@@ -8,6 +8,7 @@
       </main>
       <Widgets />
     </div>
+    <Footer />
   </div>
 </template>
 
@@ -16,10 +17,12 @@ import { defineComponent } from 'vue';
 import Header from '@/components/layout/Header.vue';
 import Sidebar from '@/components/layout/Sidebar.vue';
 import Widgets from '@/components/layout/Widgets.vue';
+import Footer from "@/components/layout/Footer.vue";
 
 export default defineComponent({
   name: 'HomePage',
   components: {
+    Footer,
     Header,
     Sidebar,
     Widgets,

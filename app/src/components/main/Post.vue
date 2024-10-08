@@ -6,7 +6,7 @@
           <img :src="post.user.profileImageUrl || 'https://via.placeholder.com/150'" alt="Profile" class="w-10 h-10 rounded-full" />
           <div>
             <div class="font-bold">{{ post.user.username }}</div>
-            <div class="text-sm text-gray-500">{{ post.userHandle }}</div>
+            <div class="text-sm text-gray-500">@{{ post.user.username }}</div>
           </div>
         </div>
         <div class="mt-4">{{ post.content }}</div>
