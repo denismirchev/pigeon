@@ -13,7 +13,7 @@ import {
   defineComponent,
   ref,
   onMounted,
-  watch,
+  watch, provide,
 } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
@@ -60,6 +60,7 @@ export default defineComponent({
 
     const addNewReply = (newPost: Post) => {
       replies.value.unshift(newPost);
+      props.post.repliesCount++;
     };
 
     onMounted(fetchReplies);
