@@ -21,7 +21,7 @@ import {
 } from 'vue';
 import { VueCookies } from 'vue-cookies';
 import Layout from '@/components/Layout.vue';
-import PostComponent from '@/components/main/Post.vue';
+import PostComponent from '@/components/main/PostComponent.vue';
 import TweetBox from '@/components/main/TweetBox.vue';
 import { Post } from '@/types/Post';
 
@@ -33,7 +33,7 @@ export default defineComponent({
     TweetBox,
   },
   setup() {
-    const posts = ref([]);
+    const posts = ref<Post[]>([]);
     const status = ref('');
     const apiUrl = process.env.VUE_APP_API_URL;
     const cookies = inject<VueCookies>('$cookies');

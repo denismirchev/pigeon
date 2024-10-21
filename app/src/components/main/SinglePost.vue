@@ -19,7 +19,7 @@
 <script lang="ts">
 import { defineComponent, ref, onMounted, inject, watch, Ref } from 'vue';
 import Layout from '@/components/Layout.vue';
-import Post from './Post.vue';
+import Post from './PostComponent.vue';
 import RepliesSection from './RepliesSection.vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';

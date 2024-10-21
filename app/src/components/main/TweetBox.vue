@@ -2,7 +2,7 @@
   <!-- Textarea for Tweet Status -->
   <textarea
     id="status"
-    placeholder="What's happening?"
+    :placeholder="isReply ? 'Reply...' : 'What\'s happening?'"
     class="w-full border border-gray-200 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-gray-700 resize-none"
     v-model="status"
   />
@@ -15,14 +15,7 @@
         for="file-upload"
         class="cursor-pointer inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold rounded-lg shadow-lg hover:from-green-500 hover:to-blue-600 transition-all duration-300 ease-in-out"
       >
-        <input
-          id="file-upload"
-          type="file"
-          accept=".jpg, .jpeg, .png, .gif, .mp4"
-          multiple
-          class="hidden"
-          @change="handleFileUpload"
-        />
+        <input id="file-upload" type="file" accept=".jpg, .jpeg, .png, .gif, .mp4" multiple class="hidden" @change="handleFileUpload" />
         Upload Files
       </label>
     </div>
@@ -33,7 +26,7 @@
       class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out"
       @click="postTweet"
     >
-      Tweet
+      {{ isReply ? 'Reply' : 'Tweet' }}
     </button>
   </div>
 
@@ -80,7 +73,6 @@ import {
   ref,
   inject,
   Ref,
-  onMounted,
   nextTick,
 } from 'vue';
 import axios from 'axios';
@@ -91,8 +83,14 @@ import mediumZoom from 'medium-zoom';
 
 export default defineComponent({
   name: 'TweetBox',
+  props: {
+    parentId: {
+      type: Number,
+      default: null,
+    },
+  },
   emits: ['tweetPosted'],
-  setup(_, { emit }) {
+  setup(props, { emit }) {
     const status = ref('');
     const { cookies } = useCookies();
     const user = inject('user') as Ref<User>;
@@ -101,12 +99,18 @@ export default defineComponent({
     const selectedFiles = ref<File[]>([]);
     const mediaPreviews = ref<any>([]);
 
+    const isReply = props.parentId != null;
+
     const postTweet = async () => {
       try {
         const accessToken = cookies.get('accessToken');
         const formData = new FormData();
         formData.append('content', status.value);
         formData.append('userId', `${user.value.id}`);
+
+        if (props.parentId) {
+          formData.append('parentId', `${props.parentId}`);
+        }
 
         selectedFiles.value.forEach((file) => {
           formData.append('files', file);
@@ -155,15 +159,10 @@ export default defineComponent({
       mediaPreviews.value.splice(index, 1);
     };
 
-    onMounted(() => {
-      mediumZoom('.zoomable-image', {
-        background: 'rgba(0, 0, 0, 0.7)', // Set background to transparent dark color
-      });
-    });
-
     return {
       status,
       mediaPreviews,
+      isReply,
       postTweet,
       handleFileUpload,
       removeFile,
