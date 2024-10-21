@@ -22,6 +22,34 @@
       </div>
       <div class="mt-4">{{ post.content }}</div>
     </div>
+    <!-- Media Preview with Medium Zoom for images -->
+    <div class="mt-4 flex space-x-4" v-if="mediaPreviews.length">
+      <div
+          v-for="(media, index) in mediaPreviews"
+          :key="index"
+          class="relative w-32 h-32 border border-gray-300 rounded-lg overflow-hidden"
+      >
+        <!-- Image Preview with Medium Zoom -->
+        <img
+            v-if="media.type.startsWith('image/')"
+            :src="media.url"
+            alt="Media Preview"
+            class="w-full h-full object-contain zoomable-image"
+            ref="zoomableImage"
+            v-zoom
+        />
+        <!-- Video Preview -->
+        <video
+            v-else
+            controls
+            class="w-full h-full object-cover"
+        >
+          <source :src="media.url" type="video/mp4" />
+          <track kind="captions" srclang="en" label="English captions" src="" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    </div>
     <div class="flex justify-between mt-4 text-gray-500">
       <span @click.stop>
         <img src="@/assets/icons/reply.svg" alt="Reply" class="w-5 h-5 inline-block" />
@@ -32,7 +60,7 @@
         <span class="ml-2">0</span>
       </span>
       <span
-          :class="{'text-red-500': liked, 'animate-like': likedAnimation}"
+          :class="{ 'text-red-500': liked, 'animate-like': likedAnimation }"
           @click.stop="toggleLike"
           class="cursor-pointer flex items-center"
       >
@@ -70,9 +98,10 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, PropType, ref, watch} from 'vue';
+import { defineComponent, PropType, ref, onMounted, nextTick, watch } from 'vue';
+import mediumZoom from 'medium-zoom'; // Import medium-zoom
 import { Post } from "@/types/Post";
-import {likePost, unlikePost} from "@/api/post";
+import { likePost, unlikePost } from "@/api/post";
 
 export default defineComponent({
   name: 'PostComponent',
@@ -81,15 +110,18 @@ export default defineComponent({
     isLink: { type: Boolean, default: false },
   },
   setup(props) {
-    // if (!props.)
     const liked = ref(props.post.liked);
     const likesCount = ref(props.post.likesCount);
     const likedAnimation = ref(false);
+    const attachments = ref(props.post.attachments?.split(','));
+    const mediaPreviews = ref<any[]>([]);
 
-    watch(() => props.post, () => {
-      liked.value = props.post.liked;
-      likesCount.value = props.post.likesCount;
-    });
+    const apiUrl = process.env.VUE_APP_API_URL;
+
+    mediaPreviews.value = attachments.value?.map((attachment) => ({
+      url: `${apiUrl}/uploads/${attachment}`,
+      type: attachment.endsWith('.mp4') ? 'video/mp4' : 'image/jpeg', // Adjust type based on your needs
+    })) || [];
 
     const toggleLike = () => {
       if (liked.value) {
@@ -109,11 +141,22 @@ export default defineComponent({
       }, 500); // Duration of the animation in ms
     };
 
+    watch(() => props.post, () => {
+      liked.value = props.post.liked;
+      likesCount.value = props.post.likesCount;
+      attachments.value = props.post.attachments?.split(',');
+      mediaPreviews.value = attachments.value?.map((attachment) => ({
+        url: `${apiUrl}/uploads/${attachment}`,
+        type: attachment.endsWith('.mp4') ? 'video/mp4' : 'image/jpeg',
+      })) || [];
+    });
+
     return {
       liked,
       likesCount,
       likedAnimation,
       toggleLike,
+      mediaPreviews,
     };
   },
 });
@@ -130,10 +173,13 @@ export default defineComponent({
   100% {
     transform: scale(1);
   }
-
 }
 
 .animate-like {
   animation: like-bounce 0.5s ease;
+}
+
+.zoomable-image {
+  z-index: 1;
 }
 </style>

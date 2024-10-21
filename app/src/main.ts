@@ -3,7 +3,11 @@ import VueCookies from 'vue-cookies';
 import App from './App.vue';
 import router from './router';
 import './assets/style.css';
+import mediumZoom from './plugins/medium-zoom';
 
-console.log(process.env);
+const app = createApp(App);
 
-createApp(App).use(VueCookies, { expires: '7d' }).use(router).mount('#app');
+app.use(VueCookies, { expires: '7d' });
+app.use(router);
+app.use(mediumZoom);
+app.mount('#app');

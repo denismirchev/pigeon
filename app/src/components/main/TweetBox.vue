@@ -73,13 +73,11 @@ import {
   ref,
   inject,
   Ref,
-  nextTick,
 } from 'vue';
 import axios from 'axios';
 import { useCookies } from 'vue3-cookies';
 import { User } from '@/types/User';
 import { Post } from '@/types/Post';
-import mediumZoom from 'medium-zoom';
 
 export default defineComponent({
   name: 'TweetBox',
@@ -146,11 +144,6 @@ export default defineComponent({
           url: URL.createObjectURL(file),
           type: file.type,
         }));
-        nextTick(() => {
-          mediumZoom('.zoomable-image', {
-            background: 'rgba(0, 0, 0, 0.7)', // Set background to transparent dark color
-          });
-        });
       }
     };
 
