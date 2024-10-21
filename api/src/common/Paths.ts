@@ -16,6 +16,7 @@ export default {
     Create: '/',
     GetAll: '/',
     GetOne: '/:id',
+    GetOneAttachments: '/:id/attachments',
     GetReplies: '/:id/replies',
     Delete: '/:id',
     GetByUsername: '/users/:username',

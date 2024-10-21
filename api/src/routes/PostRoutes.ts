@@ -19,9 +19,14 @@ interface IUpdatePostReq {
 }
 
 async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
-  const { userId, content, attachments, parentId } = req.body;
+  const { userId, content, parentId } = req.body;
 
-  console.log('userId', userId);
+  // TODO add file formatting
+  let attachments;
+  const files = req.files as Express.Multer.File[];
+  if (files && files.length > 0) {
+    attachments = files.map((file) => file.filename).join(',');
+  }
 
   const post = await PostService
     .createPost(userId, content, attachments, parentId);

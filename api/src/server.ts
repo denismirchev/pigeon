@@ -89,6 +89,8 @@ app.use((
   return res.status(status).json({ error: err.message });
 });
 
+app.use(express.static('public'));
+
 // **** Export default **** //
 
 export default app;

@@ -113,7 +113,7 @@ export default defineComponent({
         }
 
         selectedFiles.value.forEach((file) => {
-          formData.append('files', file);
+          formData.append('attachments', file);
         });
 
         const response = await axios.post(`${apiUrl}/api/posts`, formData, {
