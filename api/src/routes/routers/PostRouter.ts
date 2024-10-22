@@ -51,6 +51,12 @@ postRouter.get(
 );
 
 postRouter.get(
+  Paths.Posts.GetOneParents,
+  validate(['id', 'number', 'params']),
+  PostRoutes.getParents,
+);
+
+postRouter.get(
   Paths.Posts.GetReplies,
   validate(['id', 'number', 'params']),
   PostRoutes.getReplies,

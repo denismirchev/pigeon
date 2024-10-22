@@ -1,5 +1,5 @@
-import { IPost } from '@src/db/models/Post';
-import { ILike } from '@src/db/models/Like';
+import {IPost} from '@src/db/models/Post';
+import {ILike} from '@src/db/models/Like';
 import PostRepo from '@src/db/repos/PostRepo';
 import LikeRepo from '@src/db/repos/LikeRepo';
 
@@ -77,6 +77,14 @@ async function isPostLikedByUser(postId: number, userId: number)
   return !!await LikeRepo.get(postId, userId);
 }
 
+async function getOneParents(id: number): Promise<IPost[]> {
+  const post = await PostRepo.getOne(id);
+  if (!post) {
+    throw new Error('Post not found');
+  }
+  return PostRepo.getOneParents(id);
+}
+
 export default {
   createPost,
   getAllPosts,
@@ -87,4 +95,5 @@ export default {
   likePost,
   unlikePost,
   isPostLikedByUser,
+  getOneParents,
 } as const;

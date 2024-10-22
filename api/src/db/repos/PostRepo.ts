@@ -25,6 +25,22 @@ class PostRepo {
     return post ? (post as IPost) : null;
   }
 
+  public async getOneParents(id: number): Promise<IPost[]> {
+    const parents = await this.db.execute(sql`
+      WITH RECURSIVE ParentPosts AS (
+          SELECT * FROM posts WHERE id = ${id}
+          UNION ALL
+          SELECT p.* FROM posts p
+          INNER JOIN ParentPosts pp ON p.id = pp.parent_id
+      )
+      SELECT * FROM ParentPosts;
+  `) as unknown as never[];
+
+    const res: IPost[] = parents[0];
+    res.shift();
+    return res;
+  }
+
   public async getByUserId(userId: number): Promise<IPost[]> {
     return await this.db
       .select()

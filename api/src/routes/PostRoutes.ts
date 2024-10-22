@@ -304,6 +304,18 @@ async function unlikePost(req: IReq, res: IRes) {
   });
 }
 
+const getParents = async (req: IReq, res: IRes) => {
+  const id = Number(req.params.id);
+  const post = await PostService.getOnePost(id);
+  if (!post) {
+    return res.status(HttpStatusCodes.NOT_FOUND).json({
+      error: 'Post not found',
+    });
+  }
+
+  const parents = await PostService.getOneParents(id);
+  return res.status(HttpStatusCodes.OK).json(parents);
+};
 
 export default {
   createPost,
@@ -314,5 +326,6 @@ export default {
   getReplies,
   likePost,
   unlikePost,
+  getParents,
 } as const;
 
