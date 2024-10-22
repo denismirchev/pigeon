@@ -1,19 +1,23 @@
 import { IPost } from '@src/db/models/Post';
+import { ILike } from '@src/db/models/Like';
 import PostRepo from '@src/db/repos/PostRepo';
-import {ILike} from '@src/db/models/Like';
 import LikeRepo from '@src/db/repos/LikeRepo';
 
-// eslint-disable-next-line max-len
-async function createPost(userId: number, content: string, attachments?: string, parentId?: number): Promise<IPost> {
-  const newPost: IPost = {
-    userId,
-    content,
-    attachments,
-    parentId,
-  };
+async function createPost(
+  userId: number,
+  content: string,
+  attachments?: string,
+  parentId?: number,
+  repostId?: number,
+): Promise<IPost> {
+  if (parentId && repostId) {
+    throw new Error('Post cannot be both a reply and a repost');
+  }
 
-  await PostRepo.create(newPost);
-  if (parentId) {
+  await PostRepo.create({ userId, content, attachments, parentId, repostId });
+  if (repostId) {
+    await PostRepo.incRepostCount(repostId);
+  } else if (parentId) {
     await PostRepo.incReplyCount(parentId);
   }
 

@@ -76,6 +76,18 @@ class PostRepo {
       .set({ repliesCount: sql`${posts.repliesCount} - 1` })
       .where(eq(posts.id, id));
   }
+
+  public async incRepostCount(id: number) {
+    await this.db.update(posts)
+      .set({ repostsCount: sql`${posts.repostsCount} + 1` })
+      .where(eq(posts.id, id));
+  }
+
+  public async decRepostCount(id: number) {
+    await this.db.update(posts)
+      .set({ repostsCount: sql`${posts.repostsCount} - 1` })
+      .where(eq(posts.id, id));
+  }
 }
 
 export default new PostRepo();

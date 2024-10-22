@@ -17,6 +17,8 @@ export const posts = mysqlTable('posts', {
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
   parentId: bigint('parent_id', { mode: 'number', unsigned: true })
     .references((): AnyMySqlColumn => posts.id),
+  repostId: bigint('repost_id', { mode: 'number', unsigned: true })
+    .references((): AnyMySqlColumn => posts.id),
   likesCount: bigint('likes_count', { mode: 'number', unsigned: true })
     .default(0),
   repliesCount: bigint('replies_count', { mode: 'number', unsigned: true })
@@ -33,6 +35,7 @@ export interface IPost {
   createdAt?: Date;
   updatedAt?: Date;
   parentId?: number;
+  repostId?: number;
   likesCount?: number;
   repliesCount?: number;
   repostsCount?: number;

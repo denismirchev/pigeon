@@ -9,6 +9,7 @@ interface ICreatePostReq {
   content: string;
   attachments?: string;
   parentId?: number;
+  repostId?: number;
 }
 
 interface IUpdatePostReq {
@@ -19,7 +20,13 @@ interface IUpdatePostReq {
 }
 
 async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
-  const { userId, content, parentId } = req.body;
+  const { userId, content, parentId, repostId } = req.body;
+
+  if (parentId && repostId) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({
+      error: 'Post cannot be both a reply and a repost',
+    });
+  }
 
   // TODO add file formatting
   let attachments;
@@ -29,7 +36,7 @@ async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
   }
 
   const post = await PostService
-    .createPost(userId, content, attachments, parentId);
+    .createPost(userId, content, attachments, parentId, repostId);
   if (!post) {
     return res.status(HttpStatusCodes.BAD_REQUEST).json({
       error: 'Failed to create post',
