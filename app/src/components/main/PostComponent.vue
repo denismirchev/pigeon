@@ -150,6 +150,7 @@ export default defineComponent({
 
     const handleRepost = (post: Post) => {
       console.log('Repost with quote:', post);
+      props.post.repostsCount += 1;
       closeRepostModal();
     };
 

@@ -144,6 +144,30 @@ async function getOnePost(req: IReq, res: IRes) {
   const liked = await PostService.isPostLikedByUser(id, res.locals.user?.id);
 
   const { userId, ...postWithoutUserId } = post;
+
+  let repostedPost = null;
+  if (post.repostId) {
+    repostedPost = await PostService.getOnePost(post.repostId);
+    if (!repostedPost) {
+      throw new Error('Reposted post not found');
+    }
+    // get user data for reposted post
+    const repostedUser = await UserService.getUserById(repostedPost.userId);
+
+    if (!repostedUser) {
+      throw new Error('Reposted user not found');
+    }
+
+    repostedPost = {
+      ...repostedPost,
+      user: {
+        id: repostedUser.id,
+        username: repostedUser.username,
+        profileImageUrl: repostedUser.profileImageUrl,
+      },
+    };
+  }
+
   const response = {
     ...postWithoutUserId,
     user: {
@@ -152,6 +176,7 @@ async function getOnePost(req: IReq, res: IRes) {
       profileImageUrl: user.profileImageUrl,
     },
     liked,
+    repostedPost,
   };
 
   return res.status(HttpStatusCodes.OK).json(response);
