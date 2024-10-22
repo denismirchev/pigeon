@@ -86,6 +86,10 @@ export default defineComponent({
       type: Number,
       default: null,
     },
+    repostId: {
+      type: Number,
+      default: null,
+    },
   },
   emits: ['tweetPosted'],
   setup(props, { emit }) {
@@ -108,6 +112,10 @@ export default defineComponent({
 
         if (props.parentId) {
           formData.append('parentId', `${props.parentId}`);
+        }
+
+        if (props.repostId) {
+          formData.append('repostId', `${props.repostId}`);
         }
 
         selectedFiles.value.forEach((file) => {

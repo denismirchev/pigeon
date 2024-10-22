@@ -81,6 +81,30 @@ async function getAllPosts(_: IReq, res: IRes) {
         throw new Error('Post not found');
       }
       const liked = await PostService.isPostLikedByUser(post.id, userId);
+
+      let repostedPost = null;
+      if (post.repostId) {
+        repostedPost = await PostService.getOnePost(post.repostId);
+        if (!repostedPost) {
+          throw new Error('Reposted post not found');
+        }
+        // get user data for reposted post
+        const repostedUser = await UserService.getUserById(repostedPost.userId);
+
+        if (!repostedUser) {
+          throw new Error('Reposted user not found');
+        }
+
+        repostedPost = {
+          ...repostedPost,
+          user: {
+            id: repostedUser.id,
+            username: repostedUser.username,
+            profileImageUrl: repostedUser.profileImageUrl,
+          },
+        };
+      }
+
       return {
         ...post,
         user: {
@@ -89,6 +113,7 @@ async function getAllPosts(_: IReq, res: IRes) {
           profileImageUrl: user.profileImageUrl,
         },
         liked,
+        repostedPost,
       };
     }
     return null;

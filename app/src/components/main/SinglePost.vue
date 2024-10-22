@@ -5,7 +5,7 @@
       <router-link to="/home" class="text-blue-500 hover:underline">← Back to Home</router-link>
 
       <!-- Display Single Post -->
-      <Post v-if="post" :post="post" />
+      <Post v-if="post" :post="post" :is-repost="true" :quote="'hello'" />
 
       <!-- Loading Message -->
       <div v-else class="text-gray-500 text-center mt-4">Loading post...</div>
