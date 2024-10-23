@@ -1,10 +1,15 @@
 <template>
   <Layout>
-    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+    <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4 relative">
       <!-- Back Button -->
       <router-link to="/home" class="text-blue-500 hover:underline">← Back to Home</router-link>
 
       <!-- Display Single Post -->
+      <div class="parent-posts-line">
+        <Post v-if="post" :post="post" :is-repost="true" :quote="'hello'" />
+        <Post v-if="post" :post="post" :is-repost="true" :quote="'hello'" />
+      </div>
+
       <Post v-if="post" :post="post" :is-repost="true" :quote="'hello'" />
 
       <!-- Loading Message -->
@@ -73,3 +78,20 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.parent-posts-line {
+  position: relative;
+  padding-left: 20px;
+}
+
+.parent-posts-line::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #ccc;
+}
+</style>
