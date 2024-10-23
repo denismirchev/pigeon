@@ -1,5 +1,5 @@
-import {IPost} from '@src/db/models/Post';
-import {ILike} from '@src/db/models/Like';
+import { IPost } from '@src/db/models/Post';
+import { ILike } from '@src/db/models/Like';
 import PostRepo from '@src/db/repos/PostRepo';
 import LikeRepo from '@src/db/repos/LikeRepo';
 

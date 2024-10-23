@@ -12,13 +12,6 @@ interface ICreatePostReq {
   repostId?: number;
 }
 
-interface IUpdatePostReq {
-  id: number;
-  userId: number;
-  content: string;
-  attachments?: string;
-}
-
 async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
   const { userId, content, parentId, repostId } = req.body;
 
@@ -314,7 +307,26 @@ const getParents = async (req: IReq, res: IRes) => {
   }
 
   const parents = await PostService.getOneParents(id);
-  return res.status(HttpStatusCodes.OK).json(parents);
+
+  const parentsWithUserData = await Promise.all(parents.map(async (parent) => {
+    const user = await UserService.getUserById(parent.userId);
+    // console.log(user);
+    if (user) {
+      return {
+        ...parent,
+        user: {
+          id: user.id,
+          username: user.username,
+          profileImageUrl: user.profileImageUrl,
+        },
+      };
+    }
+    return null;
+  }));
+
+  // console.log(parentsWithUserData);
+
+  return res.status(HttpStatusCodes.OK).json(parentsWithUserData);
 };
 
 export default {

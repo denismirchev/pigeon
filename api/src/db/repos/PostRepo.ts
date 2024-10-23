@@ -27,18 +27,18 @@ class PostRepo {
 
   public async getOneParents(id: number): Promise<IPost[]> {
     const parents = await this.db.execute(sql`
-      WITH RECURSIVE ParentPosts AS (
-          SELECT * FROM posts WHERE id = ${id}
-          UNION ALL
-          SELECT p.* FROM posts p
-          INNER JOIN ParentPosts pp ON p.id = pp.parent_id
-      )
-      SELECT * FROM ParentPosts;
+       WITH RECURSIVE ParentPosts AS (
+            SELECT * FROM posts WHERE id = ${id}
+            UNION ALL
+            SELECT p.* FROM posts p
+            INNER JOIN ParentPosts pp ON p.id = pp.parent_id
+        )
+        SELECT * FROM ParentPosts;
   `) as unknown as never[];
 
-    const res: IPost[] = parents[0];
+    const res: never[] = parents[0];
     res.shift();
-    return res;
+    return this.convertKeysToCamelCase(res) as IPost[];
   }
 
   public async getByUserId(userId: number): Promise<IPost[]> {
@@ -103,6 +103,24 @@ class PostRepo {
     await this.db.update(posts)
       .set({ repostsCount: sql`${posts.repostsCount} - 1` })
       .where(eq(posts.id, id));
+  }
+
+  private toCamelCase(snakeCaseString: string): string {
+    return snakeCaseString.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+  }
+
+  private convertKeysToCamelCase(obj: unknown): unknown {
+    if (Array.isArray(obj)) {
+      return obj.map(v => this.convertKeysToCamelCase(v));
+    } else if (obj && typeof obj === 'object' && obj.constructor === Object) {
+      return Object.keys(obj).reduce((result, key) => {
+        result[this.toCamelCase(key)] = this.convertKeysToCamelCase(
+          (obj as Record<string, unknown>)[key],
+        );
+        return result;
+      }, {} as Record<string, unknown>);
+    }
+    return obj;
   }
 }
 
