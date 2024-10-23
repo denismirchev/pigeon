@@ -13,11 +13,14 @@ class PostRepo {
     await this.db.insert(posts).values(post);
   }
 
-  public async getAll(): Promise<IPost[]> {
+  public async getAll(offset?: number, limit?: number): Promise<IPost[]> {
     return await this.db
       .select()
       .from(posts)
-      .where(isNull(posts.parentId)) as IPost[];
+      .where(isNull(posts.parentId))
+      .orderBy(desc(posts.createdAt))
+      .offset(offset ? offset : 0)
+      .limit(limit ? limit : 10) as IPost[];
   }
 
   public async getOne(id: number): Promise<IPost | null> {
@@ -52,11 +55,15 @@ class PostRepo {
     await this.db.delete(posts).where(eq(posts.id, id));
   }
 
-  public async getPostReplies(id: number): Promise<IPost[]> {
+  public async getPostReplies(id: number, offset?: number, limit?: number)
+    : Promise<IPost[]> {
     return await this.db
       .select()
       .from(posts)
-      .where(eq(posts.parentId, id)) as IPost[];
+      .where(eq(posts.parentId, id))
+      .orderBy(desc(posts.createdAt))
+      .offset(offset ? offset : 0)
+      .limit(limit ? limit : 10) as IPost[];
   }
 
   public async getLast() {

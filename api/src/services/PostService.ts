@@ -24,16 +24,16 @@ async function createPost(
   return PostRepo.getLast();
 }
 
-async function getAllPosts(): Promise<IPost[]> {
-  return PostRepo.getAll();
+async function getAllPosts(offset?: number, limit?: number): Promise<IPost[]> {
+  return PostRepo.getAll(offset, limit);
 }
 
 async function getOnePost(id: number): Promise<IPost | null> {
   return PostRepo.getOne(id);
 }
 
-async function getPostReplies(id: number): Promise<IPost[]> {
-  return PostRepo.getPostReplies(id);
+async function getPostReplies(id: number, offset?: number, limit?: number): Promise<IPost[]> {
+  return PostRepo.getPostReplies(id, offset, limit);
 }
 
 async function getPostsByUserId(userId: number): Promise<IPost[]> {

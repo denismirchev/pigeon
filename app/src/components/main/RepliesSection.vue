@@ -5,6 +5,7 @@
     <div v-for="reply in replies" :key="reply.id">
       <PostComponent :post="reply" :isLink="true" />
     </div>
+    <div v-if="loading" class="loading-indicator">Loading...</div>
   </div>
 </template>
 
@@ -13,7 +14,7 @@ import {
   defineComponent,
   ref,
   onMounted,
-  watch, provide,
+  watch,
 } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
@@ -34,46 +35,74 @@ export default defineComponent({
     const route = useRoute();
     const { cookies } = useCookies();
     const textarea = ref<HTMLTextAreaElement | null>(null);
+    const pageOffset = ref(0);
+    const loading = ref(false);
+    const reachedEnd = ref(false);
 
     const apiUrl = process.env.VUE_APP_API_URL;
 
-    const fetchReplies = async () => {
+    const fetchReplies = async (offset = 0) => {
+      loading.value = true;
       try {
         const accessToken = cookies.get('accessToken');
-        const { data } = await axios.get(`${apiUrl}/api/posts/${route.params.id}/replies`, {
+        const { data } = await axios.get(`${apiUrl}/api/posts/${route.params.id}/replies?offset=${offset}`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
-        replies.value = data.reverse();
+        if (!data || data.length < 10) {
+          reachedEnd.value = true;
+        }
+        if (offset === 0) {
+          replies.value = data;
+        } else {
+          replies.value = [...replies.value, ...data];
+        }
       } catch (error) {
         console.error('Error fetching replies:', error);
+      } finally {
+        loading.value = false;
       }
     };
 
-    const autoResizeTextarea = () => {
-      if (textarea.value) {
-        textarea.value.style.height = 'auto';
-        textarea.value.style.height = `${textarea.value.scrollHeight}px`;
+    const handleScroll = () => {
+      if (reachedEnd.value) {
+        return;
+      }
+
+      const bottom = document.body.offsetHeight - 500;
+      if ((window.innerHeight + window.scrollY) >= bottom && !loading.value) {
+        pageOffset.value += 10;
+        fetchReplies(pageOffset.value);
       }
     };
-
-    const formatReplyContent = (content: string) => content.replace(/\n/g, '<br>');
 
     const addNewReply = (newPost: Post) => {
       replies.value.unshift(newPost);
-      props.post.repliesCount++;
+      props.post.repliesCount += 1;
     };
 
-    onMounted(fetchReplies);
+    onMounted(() => {
+      fetchReplies();
+      window.addEventListener('scroll', handleScroll);
+    });
 
-    watch(route, fetchReplies);
+    watch(route, () => fetchReplies());
 
     return {
       replies,
       textarea,
-      autoResizeTextarea,
-      formatReplyContent,
+      loading,
       addNewReply,
+      reachedEnd,
     };
   },
 });
 </script>
+
+<style scoped>
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  color: #666;
+}
+</style>

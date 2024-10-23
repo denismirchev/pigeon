@@ -55,8 +55,11 @@ async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
   return res.status(HttpStatusCodes.OK).json(response);
 }
 
-async function getAllPosts(_: IReq, res: IRes) {
-  const posts: IPost[] = await PostService.getAllPosts();
+async function getAllPosts(req: IReq, res: IRes) {
+  const offset = Number(req.query.offset);
+  const limit = Number(req.query.limit);
+
+  const posts: IPost[] = await PostService.getAllPosts(offset, limit);
 
   const userIds = posts.map((post) => post.userId);
   const users = await UserService.getUsersByIds(userIds);
@@ -176,8 +179,11 @@ async function getOnePost(req: IReq, res: IRes) {
 }
 
 async function getReplies(req: IReq, res: IRes) {
+  const offset = Number(req.query.offset);
+  const limit = Number(req.query.limit);
+
   const id = Number(req.params.id);
-  const replies = await PostService.getPostReplies(id);
+  const replies = await PostService.getPostReplies(id, offset, limit);
 
   const userIds = replies.map((reply) => reply.userId);
   const users = await UserService.getUsersByIds(userIds);
