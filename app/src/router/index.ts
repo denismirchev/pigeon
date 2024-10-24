@@ -6,6 +6,7 @@ import RouteNotFound from '@/components/RouteNotFound.vue';
 import SinglePost from '@/components/main/SinglePost.vue';
 import { inject } from 'vue';
 import { VueCookies } from 'vue-cookies';
+import SettingsPage from '@/components/main/SettingsPage.vue';
 
 const routes = [
   { path: '/', redirect: '/home' }, // Redirect root path to /home
@@ -13,6 +14,7 @@ const routes = [
   { path: '/register', component: UserRegister },
   { path: '/home', component: Home },
   { path: '/:username/:id', component: SinglePost },
+  { path: '/settings', component: SettingsPage },
   { path: '/:pathMatch(.*)*', component: RouteNotFound }, // Catch-all route for 404
 ];
 
