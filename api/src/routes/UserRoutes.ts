@@ -5,7 +5,11 @@ import { IUser } from '@src/models/UserBac';
 import { IReq, IRes } from './types/express/misc';
 
 
+
+
 // **** Functions **** //
+
+
 
 /**
  * Get all users.
@@ -27,10 +31,14 @@ async function add(req: IReq<{ user: IUser }>, res: IRes) {
 /**
  * Update one user.
  */
-async function update(req: IReq<{user: IUser}>, res: IRes) {
-  const { user } = req.body;
-  await UserService.updateOne(user);
-  return res.status(HttpStatusCodes.OK).end();
+
+function update(req: IReq, res: IRes) {
+  // check if request type is PUT
+
+
+
+  const user = res.locals.user;
+  return res.status(HttpStatusCodes.OK).json('winnn!');
 }
 
 /**

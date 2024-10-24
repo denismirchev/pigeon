@@ -9,6 +9,7 @@ import authenticateMw from '@src/routes/middleware/authenticateMw';
 const userRouter = Router();
 const validate = jetValidator();
 
+// Initialize multer with the storage options
 userRouter.get(
   Paths.Users.Get,
   UserRoutes.getAll,
@@ -20,11 +21,11 @@ userRouter.post(
   UserRoutes.add,
 );
 
-userRouter.put(
-  Paths.Users.Update,
-  validate(['user', User.isUser]),
-  UserRoutes.update,
-);
+// userRouter.put(
+//   Paths.Users.Update,
+//   validate(['user', User.isUser]),
+//   UserRoutes.update,
+// );
 
 userRouter.delete(
   Paths.Users.Delete,
@@ -36,6 +37,12 @@ userRouter.get(
   Paths.Users.GetByToken,
   authenticateMw,
   UserRoutes.getByToken,
+);
+
+userRouter.patch(
+  Paths.Users.Update,
+  authenticateMw,
+  UserRoutes.update,
 );
 
 export default userRouter;

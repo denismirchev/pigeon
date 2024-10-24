@@ -28,7 +28,7 @@ export default {
     Get: '/',
     GetByToken: '/user',
     Add: '/',
-    Update: '/:id',
+    Update: '/',
     Delete: '/:id',
   },
 } as const;
