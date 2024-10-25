@@ -1,7 +1,7 @@
 import * as e from 'express';
 
 import { ISessionUser } from '@src/models/UserBac';
-import {IUser} from '@src/models/User';
+import { IUser } from '@src/db/models/User';
 
 
 // **** Express **** //

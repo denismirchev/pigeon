@@ -1,53 +1,46 @@
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 
-import UserService from '@src/services/UserServiceBac';
-import { IUser } from '@src/models/UserBac';
 import { IReq, IRes } from './types/express/misc';
+import UserService from '@src/services/UserService';
 
-
-
-
-// **** Functions **** //
-
-
-
-/**
- * Get all users.
- */
-async function getAll(_: IReq, res: IRes) {
-  const users = await UserService.getAll();
-  return res.status(HttpStatusCodes.OK).json({ users });
+interface IUpdatePostReq {
+  username?: string;
+  nickname?: string;
+  bio?: string;
+  profileImageUrl?: string;
+  location?: string;
+  website?: string;
+  email?: string;
 }
 
-/**
- * Add one user.
- */
-async function add(req: IReq<{ user: IUser }>, res: IRes) {
-  const { user } = req.body;
-  await UserService.addOne(user);
-  return res.status(HttpStatusCodes.CREATED).end();
-}
+async function update(req: IReq<IUpdatePostReq>, res: IRes) {
+  const profileImageUrl = req.file?.filename;
 
-/**
- * Update one user.
- */
+  const username = req.body.username;
+  const nickname = req.body.nickname;
+  const bio = req.body.bio;
+  const location = req.body.location;
+  const website = req.body.website;
+  const email = req.body.email;
 
-function update(req: IReq, res: IRes) {
-  // check if request type is PUT
-
-
+  const updates = {
+    profileImageUrl,
+    username,
+    name: nickname,
+    bio,
+    location,
+    website,
+    email,
+  };
 
   const user = res.locals.user;
-  return res.status(HttpStatusCodes.OK).json('winnn!');
-}
+  if (!user || !user.id) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json('User not found');
+  }
 
-/**
- * Delete one user.
- */
-async function delete_(req: IReq, res: IRes) {
-  const id = +req.params.id;
-  await UserService.delete(id);
-  return res.status(HttpStatusCodes.OK).end();
+  const updatedUser = await UserService.updateUser(user.id, updates);
+
+  return res.status(HttpStatusCodes.OK).json(updatedUser);
 }
 
 
@@ -59,9 +52,9 @@ function getByToken(req: IReq, res: IRes) {
 // **** Export default **** //
 
 export default {
-  getAll,
-  add,
+  getAll: () => {},
+  add: () => {},
   update,
-  delete: delete_,
+  delete: () => {},
   getByToken,
 } as const;

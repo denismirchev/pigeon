@@ -2,67 +2,13 @@
   <Layout>
     <div class="settings-container max-w-lg mx-auto p-6 bg-white border border-gray-300 rounded-lg shadow-md">
       <h2 class="text-2xl font-bold mb-6">Settings</h2>
-      <form @submit.prevent="updateSettings">
-        <div class="form-group mb-4">
-          <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-          <div class="relative">
-            <input
-                type="text"
-                id="username"
-                v-model="username"
-                :readonly="!isEditingUsername"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-              <i
-                  v-if="!isEditingUsername"
-                  class="fas fa-edit cursor-pointer text-gray-500"
-                  @click="editUsername"
-              ></i>
-              <i
-                  v-else
-                  class="fas fa-check cursor-pointer text-green-500"
-                  @click="submitUsername"
-              ></i>
-              <i
-                  v-else
-                  class="fas fa-times cursor-pointer text-red-500 ml-2"
-                  @click="cancelEditUsername"
-              ></i>
-            </div>
-          </div>
-        </div>
-        <div class="form-group mb-4">
-          <label for="nickname" class="block text-sm font-medium text-gray-700">Nickname</label>
-          <div class="relative">
-            <input
-                type="text"
-                id="nickname"
-                v-model="nickname"
-                :readonly="!isEditingNickname"
-                required
-                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-              <i
-                  v-if="!isEditingNickname"
-                  class="fas fa-edit cursor-pointer text-gray-500"
-                  @click="isEditingNickname = true"
-              ></i>
-              <i
-                  v-else
-                  class="fas fa-check cursor-pointer text-green-500"
-                  @click="submitNickname"
-              ></i>
-              <i
-                  v-else
-                  class="fas fa-times cursor-pointer text-red-500 ml-2"
-                  @click="cancelEditNickname"
-              ></i>
-            </div>
-          </div>
-        </div>
+      <form v-if="user" @submit.prevent>
+        <SettingsTextInputField v-model="user.name" :label="'Edit nickname'" />
+        <SettingsTextInputField v-model="user.username" :label="'Edit username'" />
+        <SettingsTextInputField v-model="user.email" :label="'Edit email'" />
+        <SettingsTextInputField v-model="user.location" :label="'Edit location'" />
+        <SettingsTextInputField v-model="user.bio" :label="'Edit bio'" />
+        <SettingsTextInputField v-model="user.website" :label="'Edit website'" />
         <div class="form-group mb-4">
           <label for="profilePicture" class="block text-sm font-medium text-gray-700">Profile Picture</label>
           <div class="flex items-center">
@@ -72,6 +18,7 @@
         </div>
         <button @click="submit" type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save Changes</button>
       </form>
+      <div v-else class="text-gray-500 text-center mt-4">Loading...</div>
     </div>
 
     <!-- Modal for Image Cropper -->
@@ -85,8 +32,8 @@
           :minWidth="100"
         />
         <div class="mt-4 flex justify-end">
-          <button @click="closeCropperModal" class="px-4 py-2 bg-red-500 text-white rounded-md mr-2">Cancel</button>
-          <button @click="confirmCrop" class="px-4 py-2 bg-green-500 text-white rounded-md">Confirm</button>
+          <button type="button" @click="closeCropperModal" class="px-4 py-2 bg-red-500 text-white rounded-md mr-2">Cancel</button>
+          <button type="button" @click="confirmCrop" class="px-4 py-2 bg-green-500 text-white rounded-md">Confirm</button>
         </div>
       </div>
     </div>
@@ -94,36 +41,40 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, inject, Ref, ref, watch} from 'vue';
+import {
+  defineComponent, inject, onMounted, Ref, ref, watch,
+} from 'vue';
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import Layout from '@/components/Layout.vue';
+import SettingsTextInputField from '@/components/main/SettingsTextInputField.vue';
 import { useCookies } from 'vue3-cookies';
-import {User} from "@/types/User";
-import axios from "axios";
+import { User } from '@/types/User';
+import axios from 'axios';
+
+import { useToast } from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+// eslint-disable-next-line import/no-cycle
+import router from '@/router';
 
 export default defineComponent({
   name: 'SettingsPage',
-  components: { Layout, Cropper },
+  components: { Layout, Cropper, SettingsTextInputField },
   setup() {
     const { cookies } = useCookies();
-    const originalUsername = ref('ff');
-    const username = ref(originalUsername.value);
-    const nickname = ref('');
     const profilePicture = ref<File | null>(null);
     const imageSrc = ref<string | null>(null);
-    const isEditingUsername = ref(false);
-    const isEditingNickname = ref(false);
     const showCropperModal = ref(false);
+    const croppedImage = ref<string | null>(null);
 
-    const user = inject('user') as Ref<User>;
-    watch(user, (newValue) => {
-      originalUsername.value = newValue.username;
-      username.value = newValue.username;
-      nickname.value = newValue.name;
+    const originalUser = inject('user') as Ref<User>;
+    const user = ref<User>();
+
+    const apiUrl = process.env.VUE_APP_API_URL;
+    watch(originalUser, (newValue) => {
+      user.value = { ...newValue };
+      croppedImage.value = `${apiUrl}/uploads/pfps/${newValue.profileImageUrl}`;
     });
-
-
 
     const onFileChange = (event: Event) => {
       const target = event.target as HTMLInputElement;
@@ -137,8 +88,6 @@ export default defineComponent({
       }
     };
 
-    const croppedImage = ref<string | null>(null);
-
     const onCropChange = (cropData: any) => {
       const { canvas } = cropData;
       if (canvas) {
@@ -150,83 +99,75 @@ export default defineComponent({
       }
     };
 
-    const editUsername = () => {
-      isEditingUsername.value = true;
-    };
-
-    const submitUsername = () => {
-      isEditingUsername.value = false;
-      // Add logic to submit the updated username
-    };
-
-    const cancelEditUsername = () => {
-      isEditingUsername.value = false;
-      username.value = originalUsername.value;
-    };
-
-    const submitNickname = () => {
-      isEditingNickname.value = false;
-      // Add logic to submit the updated nickname
-    };
-
-    const cancelEditNickname = () => {
-      isEditingNickname.value = false;
-      // Add logic to revert the nickname changes if needed
-    };
-
     const closeCropperModal = () => {
       showCropperModal.value = false;
     };
 
     const confirmCrop = () => {
       showCropperModal.value = false;
-      // Add logic to handle the cropped image
+      if (croppedImage.value) {
+        fetch(croppedImage.value)
+          .then((res) => res.blob())
+          .then((blob) => {
+            console.log('Blob:', blob);
+            profilePicture.value = new File([blob], 'profile-picture.png', { type: 'image/png' });
+          });
+      }
     };
 
-    const apiUrl = process.env.VUE_APP_API_URL;
-
     const submit = async () => {
+      if (!user.value) {
+        return;
+      }
+
       try {
         const accessToken = cookies.get('accessToken');
-
         const formData = new FormData();
-        if (croppedImage.value) {
-          formData.append('profilePicture', croppedImage.value);
+
+        formData.append('nickname', user.value.name ?? '');
+        formData.append('username', user.value.username ?? '');
+        formData.append('email', user.value.email ?? '');
+        formData.append('location', user.value.location ?? '');
+        formData.append('bio', user.value.bio ?? '');
+        formData.append('website', user.value.website ?? '');
+
+        if (profilePicture.value) {
+          formData.append('profileImageUrl', profilePicture.value);
         }
 
-        const response = await axios.patch(`${apiUrl}/api/users`, formData, {
+        await axios.patch(`${apiUrl}/api/users`, formData, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'multipart/form-data',
           },
         });
 
-        console.log('Settings updated:', response.data);
-        // Add logic to submit the form data
+        useToast().success('User settings updated successfully!', {
+          duration: 2000,
+          position: 'bottom-right',
+        });
+
+        router.go(0);
       } catch (error) {
         console.error('Error submitting form:', error);
       }
     };
 
+    onMounted(() => {
+      user.value = { ...originalUser.value };
+    });
+
     return {
-      username,
-      nickname,
       profilePicture,
       imageSrc,
       onFileChange,
       onCropChange,
-      isEditingUsername,
-      isEditingNickname,
-      editUsername,
-      submitUsername,
-      cancelEditUsername,
-      submitNickname,
-      cancelEditNickname,
       croppedImage,
       showCropperModal,
       closeCropperModal,
       confirmCrop,
       submit,
+      user,
     };
   },
 });

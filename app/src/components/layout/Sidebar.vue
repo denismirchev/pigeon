@@ -24,7 +24,7 @@
       <div class="relative px-4 py-2 mt-10">
         <div class="flex items-center justify-between space-x-2">
           <div class="flex items-center space-x-2">
-            <img :src="user?.avatar || 'https://via.placeholder.com/150'" alt="User Avatar" class="w-10 h-10 rounded-full">
+            <img :src="`http://localhost:3000/uploads/pfps/${user?.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="User Avatar" class="w-10 h-10 rounded-full">
             <div>
               <span class="block font-medium">{{ user?.name || 'Loading...' }}</span>
             </div>
@@ -37,7 +37,7 @@
 
             <!-- Dropdown Menu -->
             <div ref="dropdownMenu" class="dropdown hidden absolute right-0 top-full mt-2 w-48 bg-white border rounded-lg shadow-lg">
-              <router-link to="/profile" class="block px-4 py-2 hover:bg-gray-100">View Profile</router-link>
+              <router-link to="/settings" class="block px-4 py-2 hover:bg-gray-100">Settings</router-link>
               <button @click="logout" class="w-full text-left px-4 py-2 hover:bg-gray-100">Logout</button>
             </div>
           </div>
@@ -66,7 +66,7 @@ export default defineComponent({
     const dropdownMenu = ref<HTMLElement | null>(null);
     const dropdownButton = ref<HTMLElement | null>(null);
 
-    const user = inject<Ref<User>>('user') as Ref<User>;
+    const user = inject('user') as Ref<User>;
     console.log('User!111111111111111111111111111111111111:', user);
 
     const toggleDropdown = (event: Event) => {

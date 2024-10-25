@@ -49,6 +49,10 @@ class UserRepo {
 
     return fetchedUsers as IUser[];
   }
+
+  public async updateUser(id: number, updates: Partial<IUser>): Promise<void> {
+    await this.db.update(users).set(updates).where(eq(users.id, id));
+  }
 }
 
 export default new UserRepo();
