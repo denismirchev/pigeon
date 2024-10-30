@@ -58,10 +58,7 @@ async function getByUsername(req: IReq, res: IRes) {
 // **** Export default **** //
 
 export default {
-  getAll: () => {},
-  add: () => {},
-  update: () => {},
-  delete: () => {},
+  update,
   getByToken,
   getByUsername,
 } as const;

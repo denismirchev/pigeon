@@ -22,3 +22,4 @@ export const DB_URL = env.DB_URL;
 export const ACCESS_TOKEN_SECRET = env.ACCESS_TOKEN_SECRET;
 export const REFRESH_TOKEN_SECRET = env.REFRESH_TOKEN_SECRET;
 export const ROOT_DIR = process.cwd();
+export const DEFAULT_POSTS_LIMIT = Number(env.DEFAULT_POSTS_LIMIT) || 10;

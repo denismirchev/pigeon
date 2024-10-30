@@ -25,27 +25,28 @@ async function createPost(
 }
 
 async function getAllPosts(offset?: number, limit?: number): Promise<IPost[]> {
-  return PostRepo.getAll(offset, limit);
+  return PostRepo.getPosts(undefined, offset, limit);
+  // return PostRepo.getAll(offset, limit);
 }
 
 async function getOnePost(id: number): Promise<IPost | null> {
-  return PostRepo.getOne(id);
+  return PostRepo.getPost(id);
 }
 
 async function getPostReplies(id: number, offset?: number, limit?: number): Promise<IPost[]> {
-  return PostRepo.getPostReplies(id, offset, limit);
+  return PostRepo.getPosts(id, offset, limit);
 }
 
 async function getPostsByUserId(userId: number): Promise<IPost[]> {
-  return PostRepo.getByUserId(userId);
+  return PostRepo.getPostByUserId(userId);
 }
 
 async function deletePostById(id: number): Promise<void> {
-  const post = await PostRepo.getOne(id);
+  const post = await PostRepo.getPost(id);
   if (!post) {
     throw new Error('Post not found');
   }
-  await PostRepo.deleteById(id);
+  await PostRepo.deletePostById(id);
 }
 
 async function likePost(postId: number, userId: number): Promise<void> {
@@ -78,11 +79,11 @@ async function isPostLikedByUser(postId: number, userId: number)
 }
 
 async function getOneParents(id: number): Promise<IPost[]> {
-  const post = await PostRepo.getOne(id);
+  const post = await PostRepo.getPost(id);
   if (!post) {
     throw new Error('Post not found');
   }
-  return PostRepo.getOneParents(id);
+  return PostRepo.getPostParents(id);
 }
 
 export default {

@@ -3,6 +3,7 @@ import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import PostService from '@src/services/PostService';
 import UserService from '@src/services/UserService';
 import { IPost } from '@src/db/models/Post';
+import {DEFAULT_POSTS_LIMIT} from '@src/config';
 
 interface ICreatePostReq {
   userId: number;
@@ -56,8 +57,8 @@ async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
 }
 
 async function getAllPosts(req: IReq, res: IRes) {
-  const offset = Number(req.query.offset);
-  const limit = Number(req.query.limit);
+  const offset = req.query.offset ? Number(req.query.offset) : 0;
+  const limit = req.query.limit ? Number(req.query.limit) : DEFAULT_POSTS_LIMIT;
 
   const posts: IPost[] = await PostService.getAllPosts(offset, limit);
 
@@ -226,8 +227,6 @@ async function getUserPosts(req: IReq, res: IRes) {
       error: 'User not found',
     });
   }
-
-  console.log(user);
 
   const posts = await PostService.getPostsByUserId(user.id);
   return res.status(HttpStatusCodes.OK).json(posts);

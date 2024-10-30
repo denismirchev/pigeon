@@ -1,6 +1,7 @@
 import { db } from '@src/db/setup';
 import { IPost, posts } from '@src/db/models/Post';
-import { desc, eq, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, isNull, notInArray, sql } from 'drizzle-orm';
+import { DEFAULT_POSTS_LIMIT } from '@src/config';
 
 class PostRepo {
   private db;
@@ -13,22 +14,41 @@ class PostRepo {
     await this.db.insert(posts).values(post);
   }
 
-  public async getAll(offset?: number, limit?: number): Promise<IPost[]> {
+  public async getPosts(
+    parentId?: number,
+    offset: number = 0,
+    limit: number = DEFAULT_POSTS_LIMIT,
+    excludedIds: number[] = [],
+  ): Promise<IPost[]> {
+    const query = db
+      .select()
+      .from(posts)
+      .offset(offset)
+      .limit(limit)
+      .orderBy(desc(posts.createdAt));
+
+    const conditions = parentId
+      ? and(eq(posts.parentId, parentId), notInArray(posts.id, excludedIds))
+      : and(isNull(posts.parentId), notInArray(posts.id, excludedIds));
+
+    query.where(conditions);
+
+    return query as Promise<IPost[]>;
+  }
+
+  public async getPost(id: number): Promise<IPost | null> {
+    const [post] = await this.db.select().from(posts).where(eq(posts.id, id));
+    return post as IPost || null;
+  }
+
+  public async getPostByUserId(userId: number): Promise<IPost[]> {
     return await this.db
       .select()
       .from(posts)
-      .where(isNull(posts.parentId))
-      .orderBy(desc(posts.createdAt))
-      .offset(offset ? offset : 0)
-      .limit(limit ? limit : 10) as IPost[];
+      .where(eq(posts.userId, userId)) as IPost[];
   }
 
-  public async getOne(id: number): Promise<IPost | null> {
-    const [post] = await this.db.select().from(posts).where(eq(posts.id, id));
-    return post ? (post as IPost) : null;
-  }
-
-  public async getOneParents(id: number): Promise<IPost[]> {
+  public async getPostParents(id: number): Promise<IPost[]> {
     const parents = await this.db.execute(sql`
        WITH RECURSIVE ParentPosts AS (
             SELECT * FROM posts WHERE id = ${id}
@@ -44,14 +64,7 @@ class PostRepo {
     return this.convertKeysToCamelCase(res) as IPost[];
   }
 
-  public async getByUserId(userId: number): Promise<IPost[]> {
-    return await this.db
-      .select()
-      .from(posts)
-      .where(eq(posts.userId, userId)) as IPost[];
-  }
-
-  public async deleteById(id: number): Promise<void> {
+  public async deletePostById(id: number): Promise<void> {
     await this.db.delete(posts).where(eq(posts.id, id));
   }
 
