@@ -227,6 +227,8 @@ async function getUserPosts(req: IReq, res: IRes) {
     });
   }
 
+  console.log(user);
+
   const posts = await PostService.getPostsByUserId(user.id);
   return res.status(HttpStatusCodes.OK).json(posts);
 }

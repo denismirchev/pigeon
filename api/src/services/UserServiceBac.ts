@@ -48,6 +48,10 @@ async function _delete(id: number): Promise<void> {
   return UserRepo.delete(id);
 }
 
+async function getByUsername(username: string): Promise<IUser | null> {
+  return UserRepo.getByUsername(username);
+}
+
 
 // **** Export default **** //
 

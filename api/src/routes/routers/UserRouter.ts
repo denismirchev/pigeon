@@ -38,4 +38,10 @@ userRouter.get(
   UserRoutes.getByToken,
 );
 
+userRouter.get(
+  Paths.Users.GetByUsername,
+  validate(['username', 'string', 'params']),
+  UserRoutes.getByUsername,
+);
+
 export default userRouter;
