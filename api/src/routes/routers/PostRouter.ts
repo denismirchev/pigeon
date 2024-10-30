@@ -23,10 +23,10 @@ const storage = multer.diskStorage({
       fs.mkdirSync(uploadPath, { recursive: true });
     }
     cb(null, uploadPath);
-},
-    filename: (req: Request, file: any, cb: any) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    },
+  },
+  filename: (req: Request, file: any, cb: any) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
 });
 
 // Initialize multer with the storage options

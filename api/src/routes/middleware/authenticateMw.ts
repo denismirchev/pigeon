@@ -1,7 +1,9 @@
-import {NextFunction, Request, Response} from 'express';
+import { NextFunction, Request, Response } from 'express';
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import jwt from 'jsonwebtoken';
-import {ACCESS_TOKEN_SECRET} from '@src/config';
+import { ACCESS_TOKEN_SECRET } from '@src/config';
+import UserService from '@src/services/UserService';
+import { IUser } from '@src/db/models/User';
 
 function authenticateMw(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.header('Authorization');
@@ -12,13 +14,16 @@ function authenticateMw(req: Request, res: Response, next: NextFunction) {
     });
   }
 
-  jwt.verify(token, ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) {
+  jwt.verify(token, ACCESS_TOKEN_SECRET, async (err, user) => {
+    const userId = (user as IUser).id;
+
+    if (err || !user || !userId) {
       return res.status(HttpStatusCodes.FORBIDDEN).json({
         error: 'Unauthorized',
       });
     }
-    res.locals.user = user;
+
+    res.locals.user = await UserService.getUserById(userId);
     next();
   });
 }

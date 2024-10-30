@@ -29,7 +29,7 @@ export default {
     GetByUsername: '/:username',
     GetByToken: '/user',
     Add: '/',
-    Update: '/:id',
+    Update: '/',
     Delete: '/:id',
   },
 } as const;

@@ -264,9 +264,9 @@ async function deletePost(req: IReq, res: IRes) {
 async function likePost(req: IReq, res: IRes) {
   const user = res.locals.user;
   if (!user) {
-      return res.status(HttpStatusCodes.UNAUTHORIZED).json({
+    return res.status(HttpStatusCodes.UNAUTHORIZED).json({
       error: 'Unauthorized',
-      });
+    });
   }
 
   const postId = Number(req.params.id);
@@ -276,6 +276,10 @@ async function likePost(req: IReq, res: IRes) {
   //    error: 'Post not found',
   //   });
   // }
+
+  if (!user.id) {
+    throw new Error('User not found');
+  }
 
   await PostService.likePost(postId, user.id);
   return res.status(HttpStatusCodes.OK).json({
@@ -297,6 +301,10 @@ async function unlikePost(req: IReq, res: IRes) {
     return res.status(HttpStatusCodes.NOT_FOUND).json({
       error: 'Post not found',
     });
+  }
+
+  if (!user.id) {
+    throw new Error('User not found');
   }
 
   await PostService.unlikePost(postId, user.id);

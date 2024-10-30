@@ -4,3 +4,4 @@ dist/
 **/db/migrations/
 .env
 **/uploads/
+.idea/
