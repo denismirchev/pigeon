@@ -1,8 +1,9 @@
 import { db } from '@src/db/setup';
-import { IPost, posts } from '@src/db/models/Post';
+import {IPost, IPostJoins, posts} from '@src/db/models/Post';
 import { and, desc, eq, isNull, notInArray, sql } from 'drizzle-orm';
 import { DEFAULT_POSTS_LIMIT } from '@src/config';
-import {users} from '@src/models/User';
+import {users} from '@src/db/models/User';
+import {likes} from '@src/db/models/Like';
 
 class PostRepo {
   private db;
@@ -20,26 +21,39 @@ class PostRepo {
     offset: number = 0,
     limit: number = DEFAULT_POSTS_LIMIT,
     excludedIds: number[] = [],
-  ): Promise<IPost[]> {
-    const query = db
-      .select()
-      .from(posts)
-      .offset(offset)
-      .limit(limit)
-      .orderBy(desc(posts.createdAt));
-
+  ): Promise<IPostJoins[]> {
     const conditions = parentId
       ? and(eq(posts.parentId, parentId), notInArray(posts.id, excludedIds))
       : and(isNull(posts.parentId), notInArray(posts.id, excludedIds));
 
-    query.where(conditions);
+    const query = await db
+      .select()
+      .from(posts)
+      .where(conditions)
+      .innerJoin(users, eq(posts.userId, users.id))
+      .leftJoin(likes, and(
+        eq(posts.id, likes.postId),
+        eq(likes.userId, posts.userId)),
+      )
+      .offset(offset)
+      .limit(limit)
+      .orderBy(desc(posts.createdAt));
 
-    return query as Promise<IPost[]>;
+    return query as IPostJoins[];
   }
 
-  public async getPost(id: number): Promise<IPost | null> {
-    const [post] = await this.db.select().from(posts).where(eq(posts.id, id));
-    return post as IPost || null;
+  public async getPost(id: number): Promise<IPostJoins | null> {
+    const [post] = await this.db
+      .select()
+      .from(posts)
+      .where(eq(posts.id, id))
+      .innerJoin(users, eq(posts.userId, users.id))
+      .leftJoin(likes, and(
+        eq(posts.id, likes.postId),
+        eq(likes.userId, posts.userId),
+      ));
+
+    return post as IPostJoins || null;
   }
 
   public async getPostByUserId(userId: number): Promise<IPost[]> {
@@ -70,14 +84,15 @@ class PostRepo {
     await this.db.delete(posts).where(eq(posts.id, id));
   }
 
-  public async getLast(): Promise<IPost | null> {
+  public async getLast(): Promise<IPostJoins | null> {
     const [post] = await this.db
       .select()
       .from(posts)
+      .innerJoin(users, eq(posts.userId, users.id))
       .orderBy(desc(posts.id))
       .limit(1);
 
-    return post as IPost || null;
+    return post as IPostJoins || null;
   }
 
   public async incLikeCount(id: number) {

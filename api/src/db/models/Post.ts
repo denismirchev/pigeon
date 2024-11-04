@@ -1,11 +1,8 @@
 import {
-  AnyMySqlColumn,
-  bigint,
-  mysqlTable,
-  text,
-  timestamp,
+  AnyMySqlColumn, bigint, mysqlTable, text, timestamp,
 } from 'drizzle-orm/mysql-core';
-import { IUser } from '@src/models/User';
+import {IUser} from '@src/db/models/User';
+import {ILike} from '@src/db/models/Like';
 
 export const posts = mysqlTable('posts', {
   id: bigint('id', { mode: 'number', unsigned: true })
@@ -41,9 +38,17 @@ export interface IPost {
   repostsCount?: number;
   userId: number;
   user?: {
-    id: number;
+    id?: number;
     username: string;
     nickname: string;
     profileImageUrl?: string;
   };
+  // this is for the current user
+  liked?: boolean;
+}
+
+export interface IPostJoins {
+  posts: IPost;
+  users: IUser;
+  likes?: ILike;
 }

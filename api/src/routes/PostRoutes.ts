@@ -40,67 +40,12 @@ async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
   return res.status(HttpStatusCodes.OK).json(post);
 }
 
-async function getAllPosts(req: IReq, res: IRes) {
-  const offset = req.query.offset ? Number(req.query.offset) : 0;
-  const limit = req.query.limit ? Number(req.query.limit) : DEFAULT_POSTS_LIMIT;
+async function getMainPosts(req: IReq, res: IRes) {
+  const offset = Number(req.query.offset) || 0;
+  const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
 
-  const posts: IPost[] = await PostService.getPosts(undefined, offset, limit);
-
-  const userIds = posts.map((post) => post.userId);
-  const users = await UserService.getUsersByIds(userIds);
-
-  if (!res.locals.user?.id) {
-    throw new Error('User not found');
-  }
-
-  const userId = res.locals.user.id;
-
-  const postsWithUserData = await Promise.all(posts.map(async (post) => {
-    const user = users.find((u) => u.id === post.userId);
-    if (user) {
-      if (!post.id) {
-        throw new Error('Post not found');
-      }
-      const liked = await PostService.isPostLikedByUser(post.id, userId);
-
-      let repostedPost = null;
-      if (post.repostId) {
-        repostedPost = await PostService.getPost(post.repostId);
-        if (!repostedPost) {
-          throw new Error('Reposted post not found');
-        }
-        // get user data for reposted post
-        const repostedUser = await UserService.getUserById(repostedPost.userId);
-
-        if (!repostedUser) {
-          throw new Error('Reposted user not found');
-        }
-
-        repostedPost = {
-          ...repostedPost,
-          user: {
-            id: repostedUser.id,
-            username: repostedUser.username,
-            profileImageUrl: repostedUser.profileImageUrl,
-          },
-        };
-      }
-
-      return {
-        ...post,
-        user: {
-          id: user.id,
-          username: user.username,
-          profileImageUrl: user.profileImageUrl,
-        },
-        liked,
-        repostedPost,
-      };
-    }
-    return null;
-  }));
-
-  return res.status(HttpStatusCodes.OK).json(postsWithUserData);
+  const posts = await PostService.getPosts(undefined, offset, limit);
+  return res.status(HttpStatusCodes.OK).json(posts);
 }
 
 async function getOnePost(req: IReq, res: IRes) {
@@ -330,7 +275,7 @@ const getParents = async (req: IReq, res: IRes) => {
 
 export default {
   createPost,
-  getAllPosts,
+  getAllPosts: getMainPosts,
   getOnePost,
   getUserPosts,
   deletePost,

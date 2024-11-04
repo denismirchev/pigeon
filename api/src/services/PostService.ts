@@ -1,8 +1,7 @@
-import { IPost } from '@src/db/models/Post';
-import { ILike } from '@src/db/models/Like';
+import {IPost, IPostJoins} from '@src/db/models/Post';
+import {ILike} from '@src/db/models/Like';
 import PostRepo from '@src/db/repos/PostRepo';
 import LikeRepo from '@src/db/repos/LikeRepo';
-import UserService from '@src/services/UserService';
 
 class PostService {
   public async createPost(
@@ -11,30 +10,13 @@ class PostService {
     attachments?: string,
     parentId?: number,
     repostId?: number,
-  ): Promise<IPost> {
+  ): Promise<IPost | null> {
     if (parentId && repostId) {
       throw new Error('Post cannot be both a reply and a repost');
     }
 
     await PostRepo.create({ userId, content, attachments, parentId, repostId });
-
-    const post = await PostRepo.getLast();
-    if (!post) {
-      throw new Error('Failed to create post');
-    }
-
-    // Add user info to post
-    const user = await UserService.getUserById(post.userId);
-    if (!user || !user.id) {
-      throw new Error('User not found');
-    }
-
-    post.user = {
-      id: user.id,
-      username: user.username,
-      nickname: user.name,
-      profileImageUrl: user.profileImageUrl,
-    };
+    const postData = await PostRepo.getLast();
 
     if (repostId) {
       await PostRepo.incRepostCount(repostId);
@@ -42,7 +24,7 @@ class PostService {
       await PostRepo.incReplyCount(parentId);
     }
 
-    return post;
+    return postData ? this.formatPostData(postData) : null;
   }
 
   public async getPosts(
@@ -51,11 +33,15 @@ class PostService {
     limit?: number,
     excludedIds?: number[],
   ): Promise<IPost[]> {
-    return PostRepo.getPosts(parentId, offset, limit, excludedIds);
+    const postsData = await PostRepo
+      .getPosts(parentId, offset, limit, excludedIds);
+
+    return postsData.map((postData) => this.formatPostData(postData));
   }
 
   public async getPost(id: number): Promise<IPost | null> {
-    return PostRepo.getPost(id);
+    const postData = await PostRepo.getPost(id);
+    return postData ? this.formatPostData(postData) : null;
   }
 
   public async getUserPosts(userId: number): Promise<IPost[]> {
@@ -100,6 +86,19 @@ class PostService {
 
   public async getPostParents(id: number): Promise<IPost[]> {
     return PostRepo.getPostParents(id);
+  }
+
+  private formatPostData(postData: IPostJoins): IPost {
+    return {
+      ...postData.posts,
+      user: {
+        id: postData.users.id,
+        username: postData.users.username,
+        nickname: postData.users.name,
+        profileImageUrl: postData.users.profileImageUrl,
+      },
+      liked: !!postData.likes,
+    };
   }
 }
 
