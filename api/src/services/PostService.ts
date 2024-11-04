@@ -2,99 +2,105 @@ import { IPost } from '@src/db/models/Post';
 import { ILike } from '@src/db/models/Like';
 import PostRepo from '@src/db/repos/PostRepo';
 import LikeRepo from '@src/db/repos/LikeRepo';
+import UserService from '@src/services/UserService';
 
-async function createPost(
-  userId: number,
-  content: string,
-  attachments?: string,
-  parentId?: number,
-  repostId?: number,
-): Promise<IPost> {
-  if (parentId && repostId) {
-    throw new Error('Post cannot be both a reply and a repost');
+class PostService {
+  public async createPost(
+    userId: number,
+    content: string,
+    attachments?: string,
+    parentId?: number,
+    repostId?: number,
+  ): Promise<IPost> {
+    if (parentId && repostId) {
+      throw new Error('Post cannot be both a reply and a repost');
+    }
+
+    await PostRepo.create({ userId, content, attachments, parentId, repostId });
+
+    const post = await PostRepo.getLast();
+    if (!post) {
+      throw new Error('Failed to create post');
+    }
+
+    // Add user info to post
+    const user = await UserService.getUserById(post.userId);
+    if (!user || !user.id) {
+      throw new Error('User not found');
+    }
+
+    post.user = {
+      id: user.id,
+      username: user.username,
+      nickname: user.name,
+      profileImageUrl: user.profileImageUrl,
+    };
+
+    if (repostId) {
+      await PostRepo.incRepostCount(repostId);
+    } else if (parentId) {
+      await PostRepo.incReplyCount(parentId);
+    }
+
+    return post;
   }
 
-  await PostRepo.create({ userId, content, attachments, parentId, repostId });
-  if (repostId) {
-    await PostRepo.incRepostCount(repostId);
-  } else if (parentId) {
-    await PostRepo.incReplyCount(parentId);
+  public async getPosts(
+    parentId?: number,
+    offset?: number,
+    limit?: number,
+    excludedIds?: number[],
+  ): Promise<IPost[]> {
+    return PostRepo.getPosts(parentId, offset, limit, excludedIds);
   }
 
-  return PostRepo.getLast();
-}
-
-async function getAllPosts(offset?: number, limit?: number): Promise<IPost[]> {
-  return PostRepo.getPosts(undefined, offset, limit);
-  // return PostRepo.getAll(offset, limit);
-}
-
-async function getOnePost(id: number): Promise<IPost | null> {
-  return PostRepo.getPost(id);
-}
-
-async function getPostReplies(id: number, offset?: number, limit?: number): Promise<IPost[]> {
-  return PostRepo.getPosts(id, offset, limit);
-}
-
-async function getPostsByUserId(userId: number): Promise<IPost[]> {
-  return PostRepo.getPostByUserId(userId);
-}
-
-async function deletePostById(id: number): Promise<void> {
-  const post = await PostRepo.getPost(id);
-  if (!post) {
-    throw new Error('Post not found');
-  }
-  await PostRepo.deletePostById(id);
-}
-
-async function likePost(postId: number, userId: number): Promise<void> {
-  const newLike: ILike = {
-    postId,
-    userId,
-  };
-  try {
-    await LikeRepo.create(newLike);
-  } catch (e) {
-    // TODO: handle errors
-    throw new Error('Failed to like post');
-  }
-  await PostRepo.incLikeCount(postId);
-}
-
-async function unlikePost(postId: number, userId: number): Promise<void> {
-  if (!(await LikeRepo.get(postId, userId))) {
-    throw new Error('Like not found');
+  public async getPost(id: number): Promise<IPost | null> {
+    return PostRepo.getPost(id);
   }
 
-  await LikeRepo.delete(postId, userId);
-  await PostRepo.decLikeCount(postId);
-}
-
-async function isPostLikedByUser(postId: number, userId: number)
-  : Promise<boolean> {
-
-  return !!await LikeRepo.get(postId, userId);
-}
-
-async function getOneParents(id: number): Promise<IPost[]> {
-  const post = await PostRepo.getPost(id);
-  if (!post) {
-    throw new Error('Post not found');
+  public async getUserPosts(userId: number): Promise<IPost[]> {
+    return PostRepo.getPostByUserId(userId);
   }
-  return PostRepo.getPostParents(id);
+
+  public async deletePost(id: number): Promise<void> {
+    const post = await PostRepo.getPost(id);
+    if (!post) {
+      throw new Error('Post not found');
+    }
+    await PostRepo.deletePostById(id);
+  }
+
+  public async likePost(postId: number, userId: number): Promise<void> {
+    const newLike: ILike = {
+      postId,
+      userId,
+    };
+    try {
+      await LikeRepo.create(newLike);
+    } catch (e) {
+      // TODO: handle errors
+      throw new Error('Failed to like post');
+    }
+    await PostRepo.incLikeCount(postId);
+  }
+
+  public async unlikePost(postId: number, userId: number): Promise<void> {
+    if (!(await LikeRepo.get(postId, userId))) {
+      throw new Error('Like not found');
+    }
+
+    await LikeRepo.delete(postId, userId);
+    await PostRepo.decLikeCount(postId);
+  }
+
+  public async isPostLikedByUser(postId: number, userId: number)
+    : Promise<boolean> {
+    return !!await LikeRepo.get(postId, userId);
+  }
+
+  public async getPostParents(id: number): Promise<IPost[]> {
+    return PostRepo.getPostParents(id);
+  }
 }
 
-export default {
-  createPost,
-  getAllPosts,
-  getOnePost,
-  getPostsByUserId,
-  deletePostById,
-  getPostReplies,
-  likePost,
-  unlikePost,
-  isPostLikedByUser,
-  getOneParents,
-} as const;
+export default new PostService();

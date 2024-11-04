@@ -2,6 +2,7 @@ import { db } from '@src/db/setup';
 import { IPost, posts } from '@src/db/models/Post';
 import { and, desc, eq, isNull, notInArray, sql } from 'drizzle-orm';
 import { DEFAULT_POSTS_LIMIT } from '@src/config';
+import {users} from '@src/models/User';
 
 class PostRepo {
   private db;
@@ -49,14 +50,15 @@ class PostRepo {
   }
 
   public async getPostParents(id: number): Promise<IPost[]> {
+    // the sql statement is correct
     const parents = await this.db.execute(sql`
-       WITH RECURSIVE ParentPosts AS (
-            SELECT * FROM posts WHERE id = ${id}
-            UNION ALL
-            SELECT p.* FROM posts p
-            INNER JOIN ParentPosts pp ON p.id = pp.parent_id
+      WITH RECURSIVE ParentPosts AS (
+        SELECT * FROM posts WHERE id = ${id}
+        UNION ALL
+          SELECT p.* FROM posts p
+          INNER JOIN ParentPosts pp ON p.id = pp.parent_id
         )
-        SELECT * FROM ParentPosts;
+      SELECT * FROM ParentPosts;
   `) as unknown as never[];
 
     const res: never[] = parents[0];
@@ -68,25 +70,14 @@ class PostRepo {
     await this.db.delete(posts).where(eq(posts.id, id));
   }
 
-  public async getPostReplies(id: number, offset?: number, limit?: number)
-    : Promise<IPost[]> {
-    return await this.db
-      .select()
-      .from(posts)
-      .where(eq(posts.parentId, id))
-      .orderBy(desc(posts.createdAt))
-      .offset(offset ? offset : 0)
-      .limit(limit ? limit : 10) as IPost[];
-  }
-
-  public async getLast() {
-    const [ post ]  = await this.db
+  public async getLast(): Promise<IPost | null> {
+    const [post] = await this.db
       .select()
       .from(posts)
       .orderBy(desc(posts.id))
-      .limit(1) as IPost[];
+      .limit(1);
 
-    return post;
+    return post as IPost || null;
   }
 
   public async incLikeCount(id: number) {

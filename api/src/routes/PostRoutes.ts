@@ -3,12 +3,11 @@ import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import PostService from '@src/services/PostService';
 import UserService from '@src/services/UserService';
 import { IPost } from '@src/db/models/Post';
-import {DEFAULT_POSTS_LIMIT} from '@src/config';
+import { DEFAULT_POSTS_LIMIT } from '@src/config';
 
 interface ICreatePostReq {
   userId: number;
   content: string;
-  attachments?: string;
   parentId?: number;
   repostId?: number;
 }
@@ -31,36 +30,21 @@ async function createPost(req: IReq<ICreatePostReq>, res: IRes) {
 
   const post = await PostService
     .createPost(userId, content, attachments, parentId, repostId);
+
   if (!post) {
     return res.status(HttpStatusCodes.BAD_REQUEST).json({
       error: 'Failed to create post',
     });
   }
 
-  const user = await UserService.getUserById(post.userId);
-  if (!user) {
-    return res.status(HttpStatusCodes.NOT_FOUND).json({
-      error: 'User not found',
-    });
-  }
-
-  const response = {
-    ...post,
-    user: {
-      id: user.id,
-      username: user.username,
-      profileImageUrl: user.profileImageUrl,
-    },
-  };
-
-  return res.status(HttpStatusCodes.OK).json(response);
+  return res.status(HttpStatusCodes.OK).json(post);
 }
 
 async function getAllPosts(req: IReq, res: IRes) {
   const offset = req.query.offset ? Number(req.query.offset) : 0;
   const limit = req.query.limit ? Number(req.query.limit) : DEFAULT_POSTS_LIMIT;
 
-  const posts: IPost[] = await PostService.getAllPosts(offset, limit);
+  const posts: IPost[] = await PostService.getPosts(undefined, offset, limit);
 
   const userIds = posts.map((post) => post.userId);
   const users = await UserService.getUsersByIds(userIds);
@@ -81,7 +65,7 @@ async function getAllPosts(req: IReq, res: IRes) {
 
       let repostedPost = null;
       if (post.repostId) {
-        repostedPost = await PostService.getOnePost(post.repostId);
+        repostedPost = await PostService.getPost(post.repostId);
         if (!repostedPost) {
           throw new Error('Reposted post not found');
         }
@@ -121,7 +105,7 @@ async function getAllPosts(req: IReq, res: IRes) {
 
 async function getOnePost(req: IReq, res: IRes) {
   const id = Number(req.params.id);
-  const post = await PostService.getOnePost(id);
+  const post = await PostService.getPost(id);
   if (!post) {
     return res.status(HttpStatusCodes.NOT_FOUND).json({
       error: 'Post not found',
@@ -144,7 +128,7 @@ async function getOnePost(req: IReq, res: IRes) {
 
   let repostedPost = null;
   if (post.repostId) {
-    repostedPost = await PostService.getOnePost(post.repostId);
+    repostedPost = await PostService.getPost(post.repostId);
     if (!repostedPost) {
       throw new Error('Reposted post not found');
     }
@@ -184,7 +168,7 @@ async function getReplies(req: IReq, res: IRes) {
   const limit = Number(req.query.limit);
 
   const id = Number(req.params.id);
-  const replies = await PostService.getPostReplies(id, offset, limit);
+  const replies = await PostService.getPosts(id, offset, limit);
 
   const userIds = replies.map((reply) => reply.userId);
   const users = await UserService.getUsersByIds(userIds);
@@ -228,7 +212,7 @@ async function getUserPosts(req: IReq, res: IRes) {
     });
   }
 
-  const posts = await PostService.getPostsByUserId(user.id);
+  const posts = await PostService.getUserPosts(user.id);
   return res.status(HttpStatusCodes.OK).json(posts);
 }
 
@@ -241,7 +225,7 @@ async function deletePost(req: IReq, res: IRes) {
   }
 
   const postId = Number(req.params.id);
-  const post = await PostService.getOnePost(postId);
+  const post = await PostService.getPost(postId);
   if (!post) {
     return res.status(HttpStatusCodes.NOT_FOUND).json({
       error: 'Post not found',
@@ -254,7 +238,7 @@ async function deletePost(req: IReq, res: IRes) {
     });
   }
 
-  await PostService.deletePostById(postId);
+  await PostService.deletePost(postId);
   return res.status(HttpStatusCodes.OK).json({
     message: 'Post deleted successfully',
   });
@@ -295,7 +279,7 @@ async function unlikePost(req: IReq, res: IRes) {
   }
 
   const postId = Number(req.params.id);
-  const post = await PostService.getOnePost(postId);
+  const post = await PostService.getPost(postId);
   if (!post) {
     return res.status(HttpStatusCodes.NOT_FOUND).json({
       error: 'Post not found',
@@ -314,14 +298,14 @@ async function unlikePost(req: IReq, res: IRes) {
 
 const getParents = async (req: IReq, res: IRes) => {
   const id = Number(req.params.id);
-  const post = await PostService.getOnePost(id);
+  const post = await PostService.getPost(id);
   if (!post) {
     return res.status(HttpStatusCodes.NOT_FOUND).json({
       error: 'Post not found',
     });
   }
 
-  const parents = await PostService.getOneParents(id);
+  const parents = await PostService.getPostParents(id);
 
   const parentsWithUserData = await Promise.all(parents.map(async (parent) => {
     const user = await UserService.getUserById(parent.userId);
@@ -355,4 +339,3 @@ export default {
   unlikePost,
   getParents,
 } as const;
-

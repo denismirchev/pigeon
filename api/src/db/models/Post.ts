@@ -5,6 +5,7 @@ import {
   text,
   timestamp,
 } from 'drizzle-orm/mysql-core';
+import { IUser } from '@src/models/User';
 
 export const posts = mysqlTable('posts', {
   id: bigint('id', { mode: 'number', unsigned: true })
@@ -29,7 +30,6 @@ export const posts = mysqlTable('posts', {
 
 export interface IPost {
   id?: number;
-  userId: number;
   content: string;
   attachments?: string;
   createdAt?: Date;
@@ -39,4 +39,11 @@ export interface IPost {
   likesCount?: number;
   repliesCount?: number;
   repostsCount?: number;
+  userId: number;
+  user?: {
+    id: number;
+    username: string;
+    nickname: string;
+    profileImageUrl?: string;
+  };
 }
