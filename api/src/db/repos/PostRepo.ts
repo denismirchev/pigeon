@@ -4,6 +4,7 @@ import { and, desc, eq, isNull, notInArray, sql } from 'drizzle-orm';
 import { DEFAULT_POSTS_LIMIT } from '@src/config';
 import {users} from '@src/db/models/User';
 import {likes} from '@src/db/models/Like';
+import {alias} from 'drizzle-orm/mysql-core';
 
 class PostRepo {
   private db;
@@ -35,6 +36,12 @@ class PostRepo {
         eq(posts.id, likes.postId),
         eq(likes.userId, posts.userId)),
       )
+      .leftJoin(alias(posts, 'repost'),
+        eq(posts.repostId, alias(posts, 'repost').id),
+      )
+      .leftJoin(alias(users, 'repostUser'),
+        eq(alias(posts, 'repost').userId, users.id),
+      )
       .offset(offset)
       .limit(limit)
       .orderBy(desc(posts.createdAt));
@@ -51,7 +58,13 @@ class PostRepo {
       .leftJoin(likes, and(
         eq(posts.id, likes.postId),
         eq(likes.userId, posts.userId),
-      ));
+      ))
+      .leftJoin(alias(posts, 'repost'),
+        eq(posts.repostId, alias(posts, 'repost').id),
+      )
+      .leftJoin(alias(users, 'repostUser'),
+        eq(alias(posts, 'repost').userId, users.id),
+      );
 
     return post as IPostJoins || null;
   }

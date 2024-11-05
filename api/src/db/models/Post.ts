@@ -39,10 +39,11 @@ export interface IPost {
   userId: number;
   user?: {
     id?: number;
-    username: string;
-    nickname: string;
+    username?: string;
+    nickname?: string;
     profileImageUrl?: string;
   };
+  repost?: IPost;
   // this is for the current user
   liked?: boolean;
 }
@@ -51,4 +52,6 @@ export interface IPostJoins {
   posts: IPost;
   users: IUser;
   likes?: ILike;
+  repost?: IPost;
+  repostUser?: IUser;
 }

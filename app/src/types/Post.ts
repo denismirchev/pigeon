@@ -15,5 +15,5 @@ export interface Post {
     username: string;
     profileImageUrl: string;
   };
-  repostedPost?: Post;
+  repost?: Post;
 }

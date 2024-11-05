@@ -30,14 +30,14 @@
     </div>
 
     <!-- Reposted Content, if available -->
-    <div v-if="post.repostedPost" class="mt-5">
+    <div v-if="post.repost" class="mt-5">
       <div class="italic text-gray-700">
-        <span class="font-bold">{{ post.repostedPost.user.username }}</span> reposted:
+        <span class="font-bold">{{ post.repost.user.username }}</span> reposted:
       </div>
-      <router-link :to="`/${post.repostedPost.user.username}/${post.repostedPost.id}`" class="no-underline ">
+      <router-link :to="`/${post.repost.user.username}/${post.repost.id}`" class="no-underline ">
         <div class="p-4 border border-gray-300 rounded-lg bg-gray-50 mb-4 hover-effect">
-          <div class="text-sm text-gray-500">@{{ post.repostedPost.user.username }}</div>
-          <div class="mt-4">{{ post.repostedPost.content }}</div>
+          <div class="text-sm text-gray-500">@{{ post.repost.user.username }}</div>
+          <div class="mt-4">{{ post.repost.content }}</div>
 
           <!-- Media Previews for reposted content -->
           <div class="mt-4 flex space-x-4" v-if="repostedMediaPreviews.length">
@@ -116,7 +116,7 @@ export default defineComponent({
     const showRepostModal = ref(false);
 
     const attachments = ref(props.post.attachments?.split(','));
-    const repostedAttachments = ref(props.post.repostedPost?.attachments?.split(','));
+    const repostedAttachments = ref(props.post.repost?.attachments?.split(','));
 
     const apiUrl = process.env.VUE_APP_API_URL;
 
@@ -159,7 +159,7 @@ export default defineComponent({
       liked.value = props.post.liked;
       likesCount.value = props.post.likesCount;
       attachments.value = props.post.attachments?.split(',');
-      repostedAttachments.value = props.post.repostedPost?.attachments?.split(',');
+      repostedAttachments.value = props.post.repost?.attachments?.split(',');
     });
 
     const isClicked = (event: MouseEvent) => {

@@ -2,7 +2,6 @@ import { IReq, IRes } from './types/express/misc';
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import PostService from '@src/services/PostService';
 import UserService from '@src/services/UserService';
-import { IPost } from '@src/db/models/Post';
 import { DEFAULT_POSTS_LIMIT } from '@src/config';
 
 interface ICreatePostReq {
@@ -50,6 +49,7 @@ async function getMainPosts(req: IReq, res: IRes) {
 
 async function getOnePost(req: IReq, res: IRes) {
   const id = Number(req.params.id);
+
   const post = await PostService.getPost(id);
   if (!post) {
     return res.status(HttpStatusCodes.NOT_FOUND).json({
@@ -57,95 +57,16 @@ async function getOnePost(req: IReq, res: IRes) {
     });
   }
 
-  const user = await UserService.getUserById(post.userId);
-  if (!user) {
-    return res.status(HttpStatusCodes.NOT_FOUND).json({
-      error: 'User not found',
-    });
-  }
-
-  if (!res.locals.user?.id) {
-    throw new Error('User not found');
-  }
-  const liked = await PostService.isPostLikedByUser(id, res.locals.user?.id);
-
-  const { userId, ...postWithoutUserId } = post;
-
-  let repostedPost = null;
-  if (post.repostId) {
-    repostedPost = await PostService.getPost(post.repostId);
-    if (!repostedPost) {
-      throw new Error('Reposted post not found');
-    }
-    // get user data for reposted post
-    const repostedUser = await UserService.getUserById(repostedPost.userId);
-
-    if (!repostedUser) {
-      throw new Error('Reposted user not found');
-    }
-
-    repostedPost = {
-      ...repostedPost,
-      user: {
-        id: repostedUser.id,
-        username: repostedUser.username,
-        profileImageUrl: repostedUser.profileImageUrl,
-      },
-    };
-  }
-
-  const response = {
-    ...postWithoutUserId,
-    user: {
-      id: user.id,
-      username: user.username,
-      profileImageUrl: user.profileImageUrl,
-    },
-    liked,
-    repostedPost,
-  };
-
-  return res.status(HttpStatusCodes.OK).json(response);
+  return res.status(HttpStatusCodes.OK).json(post);
 }
 
 async function getReplies(req: IReq, res: IRes) {
   const offset = Number(req.query.offset);
   const limit = Number(req.query.limit);
-
   const id = Number(req.params.id);
+
   const replies = await PostService.getPosts(id, offset, limit);
-
-  const userIds = replies.map((reply) => reply.userId);
-  const users = await UserService.getUsersByIds(userIds);
-
-  // add liked field to each reply
-  if (!res.locals.user?.id) {
-    throw new Error('User not found');
-  }
-
-  const userId = res.locals.user.id;
-
-  const repliesWithUserData = await Promise.all(replies.map(async (reply) => {
-    const user = users.find((u) => u.id === reply.userId);
-    if (!reply.id) {
-      throw new Error('Reply not found');
-    }
-    const liked = await PostService.isPostLikedByUser(reply.id, userId);
-    if (user) {
-      return {
-        ...reply,
-        user: {
-          id: user.id,
-          username: user.username,
-          profileImageUrl: user.profileImageUrl,
-        },
-        liked,
-      };
-    }
-    return null;
-  }));
-
-  return res.status(HttpStatusCodes.OK).json(repliesWithUserData);
+  return res.status(HttpStatusCodes.OK).json(replies);
 }
 
 async function getUserPosts(req: IReq, res: IRes) {

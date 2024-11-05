@@ -1,5 +1,5 @@
-import {IPost, IPostJoins} from '@src/db/models/Post';
-import {ILike} from '@src/db/models/Like';
+import { IPost, IPostJoins } from '@src/db/models/Post';
+import { ILike } from '@src/db/models/Like';
 import PostRepo from '@src/db/repos/PostRepo';
 import LikeRepo from '@src/db/repos/LikeRepo';
 
@@ -89,6 +89,15 @@ class PostService {
   }
 
   private formatPostData(postData: IPostJoins): IPost {
+    const repost = postData.repost && postData.repostUser ? {
+      ...postData.repost,
+      user: {
+        id: postData.repostUser.id,
+        username: postData.repostUser.username,
+        profileImageUrl: postData.repostUser.profileImageUrl,
+      },
+    } : undefined;
+
     return {
       ...postData.posts,
       user: {
@@ -98,6 +107,7 @@ class PostService {
         profileImageUrl: postData.users.profileImageUrl,
       },
       liked: !!postData.likes,
+      repost,
     };
   }
 }
