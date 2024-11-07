@@ -121,12 +121,12 @@ export default defineComponent({
     const apiUrl = process.env.VUE_APP_API_URL;
 
     mediaPreviews.value = attachments.value?.map((attachment) => ({
-      url: `${apiUrl}/uploads/${attachment}`,
+      url: `${apiUrl}/uploads/attachments/${attachment}`,
       type: attachment.endsWith('.mp4') ? 'video/mp4' : 'image/jpeg',
     })) || [];
 
     repostedMediaPreviews.value = repostedAttachments.value?.map((attachment) => ({
-      url: `${apiUrl}/uploads/${attachment}`,
+      url: `${apiUrl}/uploads/attachments/${attachment}`,
       type: attachment.endsWith('.mp4') ? 'video/mp4' : 'image/jpeg',
     })) || [];
 

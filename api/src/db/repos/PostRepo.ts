@@ -1,10 +1,10 @@
 import { db } from '@src/db/setup';
-import {IPost, IPostJoins, posts} from '@src/db/models/Post';
+import { IPost, IPostJoins, posts } from '@src/db/models/Post';
 import { and, desc, eq, isNull, notInArray, sql } from 'drizzle-orm';
 import { DEFAULT_POSTS_LIMIT } from '@src/config';
-import {users} from '@src/db/models/User';
-import {likes} from '@src/db/models/Like';
-import {alias} from 'drizzle-orm/mysql-core';
+import { users } from '@src/db/models/User';
+import { likes } from '@src/db/models/Like';
+import { alias } from 'drizzle-orm/mysql-core';
 
 class PostRepo {
   private db;
@@ -13,16 +13,16 @@ class PostRepo {
     this.db = db;
   }
 
-  public async create(post: IPost) {
+  public create = async (post: IPost) => {
     await this.db.insert(posts).values(post);
-  }
+  };
 
-  public async getPosts(
+  public getPosts = async (
     parentId?: number,
     offset: number = 0,
     limit: number = DEFAULT_POSTS_LIMIT,
     excludedIds: number[] = [],
-  ): Promise<IPostJoins[]> {
+  ): Promise<IPostJoins[]> => {
     const conditions = parentId
       ? and(eq(posts.parentId, parentId), notInArray(posts.id, excludedIds))
       : and(isNull(posts.parentId), notInArray(posts.id, excludedIds));
@@ -47,9 +47,9 @@ class PostRepo {
       .orderBy(desc(posts.createdAt));
 
     return query as IPostJoins[];
-  }
+  };
 
-  public async getPost(id: number): Promise<IPostJoins | null> {
+  public getPost = async (id: number): Promise<IPostJoins | null> => {
     const [post] = await this.db
       .select()
       .from(posts)
@@ -67,37 +67,68 @@ class PostRepo {
       );
 
     return post as IPostJoins || null;
-  }
+  };
 
-  public async getPostByUserId(userId: number): Promise<IPost[]> {
+  public getPostByUserId = async (userId: number): Promise<IPost[]> => {
     return await this.db
       .select()
       .from(posts)
       .where(eq(posts.userId, userId)) as IPost[];
-  }
+  };
 
-  public async getPostParents(id: number): Promise<IPost[]> {
-    // the sql statement is correct
+  /* eslint-disable */
+  public getPostParents = async (id: number): Promise<IPost[]> => {
     const parents = await this.db.execute(sql`
       WITH RECURSIVE ParentPosts AS (
         SELECT * FROM posts WHERE id = ${id}
         UNION ALL
           SELECT p.* FROM posts p
           INNER JOIN ParentPosts pp ON p.id = pp.parent_id
-        )
-      SELECT * FROM ParentPosts;
+      )
+      SELECT ParentPosts.*, 
+        users.username AS user_username,
+        users.name AS user_nickname,
+        users.profile_image_url AS user_profile_image_url,
+        likes.id AS like_id
+      FROM ParentPosts
+      LEFT JOIN users ON ParentPosts.user_id = users.id
+      LEFT JOIN likes ON ParentPosts.id = likes.post_id AND ParentPosts.user_id = likes.user_id;
   `) as unknown as never[];
 
-    const res: never[] = parents[0];
-    res.shift();
-    return this.convertKeysToCamelCase(res) as IPost[];
-  }
+    const response: any[] = parents[0];
+    response.shift();
 
-  public async deletePostById(id: number): Promise<void> {
+    const result = response.map((post) => {
+      const {
+        user_id,
+        user_username,
+        user_nickname,
+        user_profile_image_url,
+        like_id,
+        ...rest
+      } = post;
+
+      return {
+        ...rest,
+        user: {
+          id: user_id,
+          username: user_username,
+          nickname: user_nickname,
+          profileImageUrl: user_profile_image_url,
+        },
+        liked: !!like_id,
+      };
+    });
+
+    return this.convertKeysToCamelCase(result) as IPost[];
+  };
+  /* eslint-enable */
+
+  public deletePostById = async (id: number): Promise<void> => {
     await this.db.delete(posts).where(eq(posts.id, id));
-  }
+  };
 
-  public async getLast(): Promise<IPostJoins | null> {
+  public getLast = async (): Promise<IPostJoins | null> => {
     const [post] = await this.db
       .select()
       .from(posts)
@@ -106,49 +137,49 @@ class PostRepo {
       .limit(1);
 
     return post as IPostJoins || null;
-  }
+  };
 
-  public async incLikeCount(id: number) {
+  public incLikeCount = async (id: number) => {
     await this.db.update(posts)
       .set({ likesCount: sql`${posts.likesCount} + 1` })
       .where(eq(posts.id, id));
-  }
+  };
 
-  public async decLikeCount(id: number) {
+  public decLikeCount = async (id: number) => {
     await this.db.update(posts)
       .set({ likesCount: sql`${posts.likesCount} - 1` })
       .where(eq(posts.id, id));
-  }
+  };
 
-  public async incReplyCount(id: number) {
+  public incReplyCount = async (id: number) => {
     await this.db.update(posts)
       .set({ repliesCount: sql`${posts.repliesCount} + 1` })
       .where(eq(posts.id, id));
-  }
+  };
 
-  public async decReplyCount(id: number) {
+  public decReplyCount = async (id: number) => {
     await this.db.update(posts)
       .set({ repliesCount: sql`${posts.repliesCount} - 1` })
       .where(eq(posts.id, id));
-  }
+  };
 
-  public async incRepostCount(id: number) {
+  public incRepostCount = async (id: number) => {
     await this.db.update(posts)
       .set({ repostsCount: sql`${posts.repostsCount} + 1` })
       .where(eq(posts.id, id));
-  }
+  };
 
-  public async decRepostCount(id: number) {
+  public decRepostCount = async (id: number) => {
     await this.db.update(posts)
       .set({ repostsCount: sql`${posts.repostsCount} - 1` })
       .where(eq(posts.id, id));
-  }
+  };
 
-  private toCamelCase(snakeCaseString: string): string {
+  private toCamelCase = (snakeCaseString: string): string => {
     return snakeCaseString.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-  }
+  };
 
-  private convertKeysToCamelCase(obj: unknown): unknown {
+  private convertKeysToCamelCase = (obj: unknown): unknown => {
     if (Array.isArray(obj)) {
       return obj.map(v => this.convertKeysToCamelCase(v));
     } else if (obj && typeof obj === 'object' && obj.constructor === Object) {
@@ -160,7 +191,7 @@ class PostRepo {
       }, {} as Record<string, unknown>);
     }
     return obj;
-  }
+  };
 }
 
 export default new PostRepo();
