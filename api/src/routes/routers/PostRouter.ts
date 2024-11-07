@@ -8,7 +8,6 @@ import { createStorage } from '@src/routes/routers/utils';
 
 const postRouter = Router();
 const validate = jetValidator();
-
 const uploadAttachments = multer({
   storage: createStorage('public/uploads/attachments'),
 });
