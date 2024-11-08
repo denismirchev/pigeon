@@ -88,6 +88,7 @@ class PostService {
       ...postData.repost,
       user: {
         id: postData.repostUser.id,
+        nickname: postData.repostUser.name,
         username: postData.repostUser.username,
         profileImageUrl: postData.repostUser.profileImageUrl,
       },

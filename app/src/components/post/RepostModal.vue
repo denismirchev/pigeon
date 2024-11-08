@@ -1,7 +1,7 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" @click="close">
-    <div class="bg-white rounded-lg p-4 w-96 relative" @click.stop>
-      <button @click="close" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl">
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" @click="close" @keydown.enter="close" @keydown.space="close" tabindex="0">
+    <div class="bg-white rounded-lg p-4 w-96 relative" @click.stop tabindex="0">
+      <button @click="close" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-2xl" type="button">
         &times;
       </button>
       <h3 class="font-bold text-lg mb-2">Repost</h3>
@@ -13,9 +13,9 @@
 <script lang="ts">
 import { defineComponent, ref, PropType } from 'vue';
 import { Post } from '@/types/Post';
-import TweetBox from "@/components/main/TweetBox.vue";
+import TweetBox from '@/components/main/TweetBox.vue';
 
-import {useToast} from 'vue-toast-notification';
+import { useToast } from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';
 
 export default defineComponent({
@@ -25,7 +25,7 @@ export default defineComponent({
     post: { type: Object as PropType<Post>, required: true },
   },
   emits: ['close', 'repost'],
-  setup(props, { emit }) {
+  setup(_, { emit }) {
     const quote = ref('');
 
     const close = () => {
@@ -48,9 +48,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-.large-font {
-  font-size: 1.5rem;
-}
-</style>

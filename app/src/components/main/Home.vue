@@ -21,7 +21,7 @@ import {
 } from 'vue';
 import { VueCookies } from 'vue-cookies';
 import Layout from '@/components/Layout.vue';
-import PostComponent from '@/components/main/PostComponent.vue';
+import PostComponent from '@/components/post/PostComponent.vue';
 import TweetBox from '@/components/main/TweetBox.vue';
 import { Post } from '@/types/Post';
 

@@ -13,6 +13,7 @@ export interface Post {
   user: {
     id: number;
     username: string;
+    nickname: string;
     profileImageUrl: string;
   };
   repost?: Post;

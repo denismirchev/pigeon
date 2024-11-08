@@ -22,7 +22,7 @@
 import { defineComponent, ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Layout from '@/components/Layout.vue';
-import PostComponent from '@/components/main/PostComponent.vue';
+import PostComponent from '@/components/post/PostComponent.vue';
 import { Post } from '@/types/Post';
 import { User } from '@/types/User';
 import { useCookies } from 'vue3-cookies';

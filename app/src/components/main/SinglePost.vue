@@ -38,7 +38,7 @@ import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { useCookies } from 'vue3-cookies';
 import RepliesSection from './RepliesSection.vue';
-import Post from './PostComponent.vue';
+import Post from '../post/PostComponent.vue';
 
 export default defineComponent({
   name: 'SinglePostPage',
