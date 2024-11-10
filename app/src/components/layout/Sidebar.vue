@@ -3,20 +3,15 @@
     <div class="sticky top-0 left-0 w-full lg:w-full" style="transform: translateY(0);">
       <nav class="space-y-2">
         <router-link to="/home" class="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-gray-200">
-          <span class="text-xl">🏠</span>
+          <span class="text-xl">
+            <img src="../../assets/icons/home.svg" alt="Home" class="w-6 h-6" />
+          </span>
           <span>Home</span>
         </router-link>
-        <router-link to="/explore" class="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-gray-200">
-          <span class="text-xl">🔍</span>
-          <span>Explore</span>
-        </router-link>
-        <router-link to="/notifications" class="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-gray-200">
-          <span class="text-xl">🔔</span>
-          <span>Notifications</span>
-        </router-link>
-        <router-link to="/messages" class="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-gray-200">
-          <span class="text-xl">✉️</span>
-          <span>Messages</span>
+        <router-link :to="`/${user?.username}`" class="flex items-center space-x-2 px-4 py-2 rounded-full hover:bg-gray-200">          <span class="text-xl">
+            <img src="../../assets/icons/profile.svg" alt="Profile" class="w-6 h-6" />
+          </span>
+          <span>Profile</span>
         </router-link>
       </nav>
 

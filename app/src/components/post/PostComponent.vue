@@ -72,7 +72,9 @@
         </svg>
         <span class="ml-2">{{ postRef.likesCount }}</span>
       </span>
-      <span @click.stop>📤</span>
+      <span @click.stop="sharePost" @keydown.enter="sharePost" @keydown.space="sharePost" tabindex="0">
+        <img src="../../assets/icons/share.svg" alt="Repost" class="w-5 h-5 inline-block" />
+      </span>
     </div>
 
     <!-- Repost Modal -->
@@ -94,6 +96,9 @@ import { likePost, unlikePost } from '@/api/post';
 import router from '@/router';
 import RepostModal from '@/components/post/RepostModal.vue';
 import MediaPreview from '@/components/post/MediaPreview.vue';
+
+import { useToast } from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
 
 export default defineComponent({
   name: 'PostComponent',
@@ -148,6 +153,15 @@ export default defineComponent({
       }
     };
 
+    const sharePost = async () => {
+      const postLink = `${window.location.origin}/${postRef.value.user.username}/${postRef.value.id}`;
+      await navigator.clipboard.writeText(postLink);
+      useToast().success('Post link copied!', {
+        duration: 1000,
+        position: 'bottom-right',
+      });
+    };
+
     return {
       postRef,
       showRepostModal,
@@ -156,6 +170,7 @@ export default defineComponent({
       closeRepostModal,
       handleRepost,
       isPostClicked,
+      sharePost,
     };
   },
 });
