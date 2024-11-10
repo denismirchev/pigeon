@@ -1,92 +1,126 @@
 <template>
   <Layout>
-    <div class="profile-container max-w-lg mx-auto p-6 bg-white border border-gray-300 rounded-lg shadow-md">
-      <div class="profile-header mb-4" v-if="user">
-        <img :src="user.profileImageUrl ? user.profileImageUrl : 'https://via.placeholder.com/150'" alt="Profile Picture" class="w-24 h-24 rounded-full mx-auto" />
-        <h1 class="text-2xl font-semibold text-center mt-2">{{ user.username }}</h1>
-        <p class="text-center text-gray-600">{{ user.name }}</p>
-      </div>
-      <div class="posts-container">
-        <h2 class="text-xl font-semibold mb-4">Posts</h2>
-        <div v-for="post in posts" :key="post.id" class="post mb-4">
-          {{post.id}}
-<!--          <PostComponent :post="post" :isLink="false" />-->
+    <div class="user-info border border-gray-300 p-4 rounded-lg" v-if="user">
+      <div class="flex items-start justify-between w-full user-info">
+        <div class="flex items-center space-x-6">
+          <img :src="`${$apiUrl}/uploads/pfps/${user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-16 h-16 rounded-full" />
+          <div>
+            <div class="text-xl font-bold">{{ user.name }}</div>
+            <div class="text-lg text-gray-500">@{{ user.username }}</div>
+          </div>
         </div>
-        <div v-if="loading" class="loading-indicator">Loading...</div>
+        <div class="flex flex-col space-y-2 text-right">
+          <p v-if="user.bio">Bio: <strong>{{ user.bio }}</strong></p>
+          <p v-if="user.location">Location: <strong>{{ user.location }}</strong></p>
+          <a v-if="user.website" :href="`${user.website}`" target="_blank" rel="noopener noreferrer" class="text-blue-500">{{ user.website }}</a>
+        </div>
       </div>
     </div>
+    <div class="my-4 border-t border-gray-400"></div>
+    <div v-for="post in posts" :key="post.id">
+      <PostComponent :post="post" :isLink="true" />
+    </div>
+    <div v-if="loading" class="loading-indicator">Loading...</div>
   </Layout>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { defineComponent, inject, onMounted, ref, } from 'vue';
+import { VueCookies } from 'vue-cookies';
 import Layout from '@/components/Layout.vue';
 import PostComponent from '@/components/post/PostComponent.vue';
+import TweetBox from '@/components/main/TweetBox.vue';
 import { Post } from '@/types/Post';
+import { useRoute } from 'vue-router';
 import { User } from '@/types/User';
-import { useCookies } from 'vue3-cookies';
 
 export default defineComponent({
   name: 'UserProfilePage',
   components: {
-    Layout,
     PostComponent,
+    Layout,
+    TweetBox,
   },
   setup() {
-    const route = useRoute();
-    const username = ref(route.params.username as string);
-    const { cookies } = useCookies();
-
-    const user = ref<User>();
     const posts = ref<Post[]>([]);
+    const pageOffset = ref(0);
     const loading = ref(false);
     const apiUrl = process.env.VUE_APP_API_URL;
+    const cookies = inject<VueCookies>('$cookies');
 
-    const fetchUserProfile = async () => {
-      try {
-        const response = await fetch(`${apiUrl}/api/users/${username.value}`);
-        const data = await response.json();
-        user.value = data;
-        console.log(data);
-      } catch (error) {
-        console.error('Error fetching user profile:', error);
-      }
-    };
+    const route = useRoute();
+    const username = ref(route.params.username as string);
 
-    const fetchUserPosts = async () => {
+    const user = ref<User>();
+
+    let reachedEnd = false;
+
+    const fetchPosts = async (offset = 0) => {
       loading.value = true;
       try {
-        const accessToken = cookies.get('accessToken');
-        const response = await fetch(`${apiUrl}/api/posts/users/${username.value}`, {
+        const accessToken = cookies?.get('accessToken');
+        const response = await fetch(`${apiUrl}/api/posts/users/${username.value}?offset=${offset}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         });
         const data = await response.json();
-        posts.value = data;
-        console.log(data);
+        if (!data || data.length < 10) {
+          console.log('Reached end of posts');
+          reachedEnd = true;
+        }
+        if (offset === 0) {
+          posts.value = data;
+        } else {
+          posts.value = [...posts.value, ...data];
+        }
       } catch (error) {
-        console.error('Error fetching user posts:', error);
+        console.error('Error fetching posts:', error);
       } finally {
         loading.value = false;
       }
     };
 
-    onMounted(() => {
-      fetchUserProfile();
-      fetchUserPosts();
-    });
+    const fetchUser = async () => {
+      try {
+        const accessToken = cookies?.get('accessToken');
+        const response = await fetch(`${apiUrl}/api/users/${username.value}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        user.value = await response.json();
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
 
-    watch(() => route.params.username, (newUsername) => {
-      username.value = newUsername as string;
-      fetchUserProfile();
-      fetchUserPosts();
+    const addNewPost = (newPost: Post) => {
+      posts.value.unshift(newPost);
+    };
+
+    const handleScroll = () => {
+      if (reachedEnd) {
+        return;
+      }
+
+      const bottom = document.body.offsetHeight - 500;
+      if ((window.innerHeight + window.scrollY) >= bottom && !loading.value) {
+        pageOffset.value += 10;
+        fetchPosts(pageOffset.value);
+      }
+    };
+
+    onMounted(() => {
+      fetchPosts();
+      fetchUser();
+      window.addEventListener('scroll', handleScroll);
     });
 
     return {
       user,
       posts,
+      addNewPost,
       loading,
     };
   },
@@ -94,9 +128,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.profile-container {
-  text-align: center;
-}
 .loading-indicator {
   text-align: center;
   padding: 20px;

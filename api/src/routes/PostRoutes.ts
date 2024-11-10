@@ -62,8 +62,8 @@ class PostRoutes {
   };
 
   public getReplies = async (req: IReq, res: IRes) => {
-    const offset = Number(req.query.offset);
-    const limit = Number(req.query.limit);
+    const offset = Number(req.query.offset) || 0;
+    const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
     const id = Number(req.params.id);
 
     const replies = await PostService.getPosts(id, offset, limit);
@@ -72,6 +72,9 @@ class PostRoutes {
 
   public getUserPosts = async (req: IReq, res: IRes) => {
     const username = req.params.username;
+    const offset = Number(req.query.offset) || 0;
+    const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
+
     const user = await UserService.getUserByUsername(username);
     if (!user || !user.id) {
       return res.status(HttpStatusCodes.NOT_FOUND).json({
@@ -79,7 +82,7 @@ class PostRoutes {
       });
     }
 
-    const posts = await PostService.getUserPosts(user.id);
+    const posts = await PostService.getUserPosts(user.id, offset, limit);
     return res.status(HttpStatusCodes.OK).json(posts);
   };
 

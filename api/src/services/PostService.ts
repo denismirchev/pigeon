@@ -44,8 +44,9 @@ class PostService {
     return postData ? this.formatPostData(postData) : null;
   };
 
-  public getUserPosts = async (userId: number): Promise<IPost[]> => {
-    return PostRepo.getPostByUserId(userId);
+  public getUserPosts = async (userId: number, offset?: number, limit?: number, excludedIds?: number[]): Promise<IPost[]> => {
+    const postsData = await PostRepo.getPostsByUserId(userId, offset, limit, excludedIds);
+    return postsData.map((postData) => this.formatPostData(postData));
   };
 
   public deletePost = async (id: number): Promise<void> => {

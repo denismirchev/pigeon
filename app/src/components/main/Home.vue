@@ -34,7 +34,6 @@ export default defineComponent({
   },
   setup() {
     const posts = ref<Post[]>([]);
-    const status = ref('');
     const pageOffset = ref(0);
     const loading = ref(false);
     const apiUrl = process.env.VUE_APP_API_URL;
@@ -90,7 +89,6 @@ export default defineComponent({
 
     return {
       posts,
-      status,
       addNewPost,
       loading,
     };

@@ -69,11 +69,36 @@ class PostRepo {
     return post as IPostJoins || null;
   };
 
-  public getPostByUserId = async (userId: number): Promise<IPost[]> => {
-    return await this.db
+  public getPostsByUserId = async (
+    userId: number,
+    offset: number = 0,
+    limit: number = DEFAULT_POSTS_LIMIT,
+    excludedIds: number[] = [],
+  ): Promise<IPostJoins[]> => {
+    const query = await db
       .select()
       .from(posts)
-      .where(eq(posts.userId, userId)) as IPost[];
+      .where(and(
+        eq(posts.userId, userId),
+        isNull(posts.parentId),
+        notInArray(posts.id, excludedIds)
+      ))
+      .innerJoin(users, eq(posts.userId, users.id))
+      .leftJoin(likes, and(
+        eq(posts.id, likes.postId),
+        eq(likes.userId, posts.userId)),
+      )
+      .leftJoin(alias(posts, 'repost'),
+        eq(posts.repostId, alias(posts, 'repost').id),
+      )
+      .leftJoin(alias(users, 'repostUser'),
+        eq(alias(posts, 'repost').userId, users.id),
+      )
+      .offset(offset)
+      .limit(limit)
+      .orderBy(desc(posts.createdAt));
+
+    return query as IPostJoins[];
   };
 
   /* eslint-disable */
