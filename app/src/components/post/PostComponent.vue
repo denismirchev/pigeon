@@ -7,13 +7,13 @@
     tabindex="0"
   >
     <!-- Original Post Content -->
-    <div class="flex items-center space-x-4">
-      <img :src="`http://localhost:3000/uploads/pfps/${postRef.user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-10 h-10 rounded-full" />
+    <router-link :to="`/${postRef.user.username}`" class="flex items-center space-x-4 user-info hover-darker-effect p-1 rounded-l">
+      <img :src="`${$apiUrl}/uploads/pfps/${postRef.user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-10 h-10 rounded-full" />
       <div>
         <div class="font-bold">{{ postRef.user.nickname }}</div>
         <div class="text-sm text-gray-500">@{{ postRef.user.username }}</div>
       </div>
-    </div>
+    </router-link>
     <div class="mt-4">{{ postRef.content }}</div>
     <div v-if="postRef.attachments" class="mt-4 flex space-x-4">
       <MediaPreview :media="postRef.attachments" />
@@ -25,13 +25,13 @@
         <span class="font-bold">{{ postRef.repost.user.username }}</span> reposted:
       </div>
       <div class="p-4 border border-gray-300 rounded-lg bg-gray-50 mb-4 hover-effect">
-        <div class="flex items-center space-x-4">
-          <img :src="`http://localhost:3000/uploads/pfps/${postRef.repost.user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-10 h-10 rounded-full" />
+        <router-link :to="`/${postRef.repost.user.username}`" class="flex items-center space-x-4 user-info hover-darker-effect p-1 rounded-l">
+          <img :src="`${$apiUrl}/uploads/pfps/${postRef.repost.user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-10 h-10 rounded-full" />
           <div>
             <div class="font-bold">{{ postRef.repost.user.nickname }}</div>
             <div class="text-sm text-gray-500">@{{ postRef.repost.user.username }}</div>
           </div>
-        </div>
+        </router-link>
         <div class="mt-4">{{ postRef.repost.content }}</div>
 
         <div v-if="postRef.repost.attachments" class="mt-4 flex space-x-4">
@@ -47,22 +47,22 @@
         <span class="ml-2">{{ postRef.repliesCount }}</span>
       </span>
       <span
-        @click.stop="openRepostModal"
-        @keydown.enter="openRepostModal"
-        @keydown.space="openRepostModal"
-        class="hover-repost"
-        tabindex="0"
+          @click.stop="openRepostModal"
+          @keydown.enter="openRepostModal"
+          @keydown.space="openRepostModal"
+          class="hover-repost"
+          tabindex="0"
       >
         <img src="../../assets/icons/repost.svg" alt="Repost" class="w-5 h-5 inline-block" />
         <span class="ml-2">{{ postRef.repostsCount }}</span>
       </span>
       <span
-        :class="{ 'text-red-500': postRef.liked }"
-        @click.stop="toggleLike"
-        @keydown.enter="toggleLike"
-        @keydown.space="toggleLike"
-        class="cursor-pointer flex items-center"
-        tabindex="0"
+          :class="{ 'text-red-500': postRef.liked }"
+          @click.stop="toggleLike"
+          @keydown.enter="toggleLike"
+          @keydown.space="toggleLike"
+          class="cursor-pointer flex items-center"
+          tabindex="0"
       >
         <svg v-if="postRef.liked" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
@@ -77,10 +77,10 @@
 
     <!-- Repost Modal -->
     <repost-modal
-      v-if="showRepostModal"
-      :post="postRef"
-      @close="closeRepostModal"
-      @repost="handleRepost"
+        v-if="showRepostModal"
+        :post="postRef"
+        @close="closeRepostModal"
+        @repost="handleRepost"
     />
   </div>
 </template>
@@ -111,7 +111,7 @@ export default defineComponent({
     });
 
     const toggleLike = async () => {
-      if (postRef.value.liked) {
+      if (!postRef.value.liked) {
         await likePost(postRef.value.id);
       } else {
         await unlikePost(postRef.value.id);
@@ -130,6 +130,11 @@ export default defineComponent({
     const isPostClicked = (event: MouseEvent | KeyboardEvent) => {
       const targetElement = event.target as HTMLElement;
       if (targetElement.tagName.toLowerCase() === 'img') {
+        return;
+      }
+
+      if (targetElement.closest('.user-info')) {
+        // router.push(`/${props.post.user.username}`);
         return;
       }
 
@@ -168,5 +173,10 @@ export default defineComponent({
   border-color: #b0b0b0;
   transition: background-color 0.3s, border-color 0.3s;
   cursor: pointer;
+}
+
+.hover-darker-effect:hover {
+  background-color: #e0e0e0;
+  transition: background-color 0.3s;
 }
 </style>

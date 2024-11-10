@@ -4,10 +4,7 @@
 
 <script lang="ts">
 import {
-  defineComponent,
-  onMounted,
-  provide,
-  ref,
+  defineComponent, onMounted, provide, ref,
 } from 'vue';
 import { getUserFromAccessToken, logout } from '@/api/auth';
 import { User } from '@/types/User';

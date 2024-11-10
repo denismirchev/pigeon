@@ -24,7 +24,7 @@
       <div class="relative px-4 py-2 mt-10">
         <div class="flex items-center justify-between space-x-2">
           <div class="flex items-center space-x-2">
-            <img :src="`http://localhost:3000/uploads/pfps/${user?.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="User Avatar" class="w-10 h-10 rounded-full">
+            <img :src="`${$apiUrl}/uploads/pfps/${user?.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="User Avatar" class="w-10 h-10 rounded-full">
             <div>
               <span class="block font-medium">{{ user?.name || 'Loading...' }}</span>
             </div>
