@@ -6,8 +6,7 @@
         <div class="text-xl font-bold text-blue-500">Pigeon</div>
       </div>
       <div class="hidden sm:flex items-center space-x-4">
-        <input type="text" placeholder="Search Pigeon" class="px-4 py-2 rounded-full border border-gray-300 flex-grow">
-      </div>
+        <input type="text" placeholder="Search Pigeon" class="px-4 py-2 rounded-full border border-gray-300 flex-grow" aria-label="Search Pigeon">      </div>
     </div>
   </header>
 </template>

@@ -2,7 +2,7 @@
   <div class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
       <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
-      <form @submit.prevent="login">
+      <form @submit.prevent="handleLogin">
         <div v-if="errorMessage" class="mb-4 text-red-500 text-sm">{{ errorMessage }}</div>
         <div class="mb-4">
           <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
@@ -31,50 +31,38 @@
 
 <script lang="ts">
 import {
-  defineComponent, inject, reactive, ref, onMounted, provide,
+  defineComponent, reactive, ref, onMounted,
 } from 'vue';
-import axios from 'axios';
 import { useRouter } from 'vue-router';
-import { VueCookies } from 'vue-cookies';
-import { User } from '@/types/User';
-import { getUserFromAccessToken } from '@/api/auth';
+import { login } from '@/api/auth';
+import { useCookies } from 'vue3-cookies';
 
 export default defineComponent({
   name: 'UserLogin',
   setup() {
-    const form = reactive({
-      email: '',
-      password: '',
-    });
-
+    const form = reactive({ email: '', password: '' });
     const isLoading = ref(false);
     const errorMessage = ref('');
-    const apiUrl = process.env.VUE_APP_API_URL;
-    const cookies = inject<VueCookies>('$cookies');
     const router = useRouter();
+    const { cookies } = useCookies();
 
     onMounted(() => {
-      if (cookies?.get('accessToken') && cookies?.get('refreshToken')) {
+      if (cookies.get('accessToken') && cookies.get('refreshToken')) {
         router.push('/home');
       }
     });
 
-    const areFieldsEmpty = () => !form.email || !form.password;
-
-    const login = async () => {
+    const handleLogin = async () => {
       errorMessage.value = '';
-      if (areFieldsEmpty()) {
+      if (!form.email || !form.password) {
         errorMessage.value = 'All fields are required';
         return;
       }
 
       isLoading.value = true;
       try {
-        const { data } = await axios.post(`${apiUrl}/api/auth/login`, form);
-        cookies?.set('accessToken', data.accessToken);
-        cookies?.set('refreshToken', data.refreshToken, '30d');
-        // TODO: use router.push('/home') instead of page reload and fix user provide func
-        router.go(0);
+        await login(form.email, form.password);
+        window.location.reload();
       } catch (error: any) {
         if (error.response?.status === 401) {
           errorMessage.value = 'Invalid email or password';
@@ -90,7 +78,7 @@ export default defineComponent({
       form,
       isLoading,
       errorMessage,
-      login,
+      handleLogin,
     };
   },
 });
