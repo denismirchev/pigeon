@@ -14,10 +14,10 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import icon from '@/assets/logo.svg';
+import icon from '../../../public/logo.svg';
 
 export default defineComponent({
-  name: 'Header',
+  name: 'HeaderComponent',
   data() {
     return {
       icon,

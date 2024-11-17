@@ -50,7 +50,7 @@
         @click.stop="openRepostModal"
         @keydown.enter="openRepostModal"
         @keydown.space="openRepostModal"
-        class="hover-repost"
+        class="hover-interaction-btn"
         tabindex="0"
       >
         <img src="../../assets/icons/repost.svg" alt="Repost" class="w-5 h-5 inline-block" />
@@ -61,7 +61,7 @@
         @click.stop="toggleLike"
         @keydown.enter="toggleLike"
         @keydown.space="toggleLike"
-        class="cursor-pointer flex items-center"
+        class="cursor-pointer flex items-center hover-interaction-btn"
         tabindex="0"
       >
         <svg v-if="postRef.liked" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -72,7 +72,13 @@
         </svg>
         <span class="ml-2">{{ postRef.likesCount }}</span>
       </span>
-      <span @click.stop="sharePost" @keydown.enter="sharePost" @keydown.space="sharePost" tabindex="0">
+      <span
+        @click.stop="sharePost"
+        @keydown.enter="sharePost"
+        @keydown.space="sharePost"
+        tabindex="0"
+        class="hover-interaction-btn"
+      >
         <img src="../../assets/icons/share.svg" alt="Repost" class="w-5 h-5 inline-block" />
       </span>
     </div>
@@ -177,21 +183,24 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.hover-repost:hover {
-  transform: scale(1.1);
-  transition: transform 0.3s ease-in-out;
-  cursor: pointer;
-}
+  .hover-effect:hover {
+    background-color: #f0f0f0;
+    border-color: #b0b0b0;
+    transition: background-color 0.3s, border-color 0.3s;
+    cursor: pointer;
+  }
 
-.hover-effect:hover {
-  background-color: #f0f0f0;
-  border-color: #b0b0b0;
-  transition: background-color 0.3s, border-color 0.3s;
-  cursor: pointer;
-}
+  .hover-darker-effect:hover {
+    background-color: #e0e0e0;
+    transition: background-color 0.3s;
+  }
 
-.hover-darker-effect:hover {
-  background-color: #e0e0e0;
-  transition: background-color 0.3s;
-}
+  .hover-interaction-btn {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .hover-interaction-btn:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+  }
 </style>

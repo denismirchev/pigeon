@@ -52,7 +52,7 @@ import { User } from '@/types/User';
 import {logout} from "@/api/auth";
 
 export default defineComponent({
-  name: 'Sidebar',
+  name: 'SidebarComponent',
   setup() {
     const router = useRouter();
     const { cookies } = useCookies();
