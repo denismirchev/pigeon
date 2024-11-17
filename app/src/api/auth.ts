@@ -19,23 +19,17 @@ async function getUserFromAccessToken(): Promise<User> {
     });
     return response.data as User;
   } catch (error) {
-    // console.error('Error fetching user data:', error);
     throw new Error('Failed to fetch user data');
   }
 }
 
 async function logout(): Promise<void> {
-  const refreshToken = cookies.get('refreshToken');
-  if (!refreshToken) {
-    throw new Error('No refresh token found');
-  }
-
   try {
+    const refreshToken = cookies.get('refreshToken');
     await axios.post(`${apiUrl}/api/auth/logout`, {
       token: refreshToken,
     });
   } catch (error) {
-    // console.error('Error logging out:', error);
     throw new Error('Failed to log out');
   } finally {
     cookies.remove('accessToken');

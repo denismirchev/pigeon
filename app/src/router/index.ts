@@ -4,10 +4,9 @@ import UserRegister from '@/components/auth/UserRegister.vue';
 import UserLogin from '@/components/auth/UserLogin.vue';
 import RouteNotFound from '@/components/RouteNotFound.vue';
 import SinglePost from '@/components/main/SinglePost.vue';
-import { inject } from 'vue';
-import { VueCookies } from 'vue-cookies';
 import SettingsPage from '@/components/main/SettingsPage.vue';
 import UserProfilePage from '@/components/main/UserProfilePage.vue';
+import { useCookies } from 'vue3-cookies';
 
 const routes = [
   { path: '/', redirect: '/home' }, // Redirect root path to /home
@@ -25,12 +24,10 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
-  const cookies = inject<VueCookies>('$cookies');
-  if (!cookies) {
-    throw new Error('Vue cookies module not found');
-  }
+const { cookies } = useCookies();
 
+// Check if the user is authenticated before navigating to certain routes
+router.beforeEach((to, from, next) => {
   const hasAccessToken = cookies.get('accessToken');
   const hasRefreshToken = cookies.get('refreshToken');
 
@@ -39,8 +36,6 @@ router.beforeEach((to, from, next) => {
   const is404Path = !routes.some((route) => route.path === to.path);
 
   const requiresAuth = !isPublicPath && !is404Path;
-
-  console.log('requiresAuth', requiresAuth);
 
   if (requiresAuth && !hasAccessToken && !hasRefreshToken) {
     next('/login');
