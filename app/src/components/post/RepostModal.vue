@@ -13,7 +13,7 @@
 <script lang="ts">
 import { defineComponent, ref, PropType } from 'vue';
 import { Post } from '@/types/Post';
-import TweetBox from '@/components/main/TweetBox.vue';
+import TweetBox from '@/components/post/TweetBox.vue';
 
 import { useToast } from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';

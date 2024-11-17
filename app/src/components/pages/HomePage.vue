@@ -22,7 +22,7 @@ import {
 import { VueCookies } from 'vue-cookies';
 import Layout from '@/components/Layout.vue';
 import PostComponent from '@/components/post/PostComponent.vue';
-import TweetBox from '@/components/main/TweetBox.vue';
+import TweetBox from '@/components/post/TweetBox.vue';
 import { Post } from '@/types/Post';
 
 export default defineComponent({

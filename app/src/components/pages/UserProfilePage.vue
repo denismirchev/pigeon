@@ -29,7 +29,7 @@ import { defineComponent, inject, onMounted, ref, } from 'vue';
 import { VueCookies } from 'vue-cookies';
 import Layout from '@/components/Layout.vue';
 import PostComponent from '@/components/post/PostComponent.vue';
-import TweetBox from '@/components/main/TweetBox.vue';
+import TweetBox from '@/components/post/TweetBox.vue';
 import { Post } from '@/types/Post';
 import { useRoute } from 'vue-router';
 import { User } from '@/types/User';

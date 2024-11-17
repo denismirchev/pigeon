@@ -16,7 +16,7 @@ export default defineComponent({
   setup() {
     const router = useRouter();
 
-    // Redirect to the main page after 5 seconds
+    // Redirect to the pages page after 5 seconds
     setTimeout(() => {
       router.push('/');
     }, 5000);

@@ -21,7 +21,7 @@ import { useRoute } from 'vue-router';
 import { useCookies } from 'vue3-cookies';
 import PostComponent from '@/components/post/PostComponent.vue';
 import { Post } from '@/types/Post';
-import TweetBox from '@/components/main/TweetBox.vue';
+import TweetBox from '@/components/post/TweetBox.vue';
 
 export default defineComponent({
   name: 'RepliesSection',
