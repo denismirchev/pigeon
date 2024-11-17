@@ -19,6 +19,7 @@ class PostRepo {
 
   public getPosts = async (
     parentId?: number,
+    currentUserId?: number,
     offset: number = 0,
     limit: number = DEFAULT_POSTS_LIMIT,
     excludedIds: number[] = [],
@@ -27,15 +28,11 @@ class PostRepo {
       ? and(eq(posts.parentId, parentId), notInArray(posts.id, excludedIds))
       : and(isNull(posts.parentId), notInArray(posts.id, excludedIds));
 
-    const query = await db
+    const query = db
       .select()
       .from(posts)
       .where(conditions)
       .innerJoin(users, eq(posts.userId, users.id))
-      .leftJoin(likes, and(
-        eq(posts.id, likes.postId),
-        eq(likes.userId, posts.userId)),
-      )
       .leftJoin(alias(posts, 'repost'),
         eq(posts.repostId, alias(posts, 'repost').id),
       )
@@ -46,19 +43,23 @@ class PostRepo {
       .limit(limit)
       .orderBy(desc(posts.createdAt));
 
-    return query as IPostJoins[];
+    if (currentUserId) {
+      query.leftJoin(likes, and(
+        eq(posts.id, likes.postId),
+        eq(likes.userId, currentUserId),
+      ));
+    }
+
+    return await query as IPostJoins[];
   };
 
-  public getPost = async (id: number): Promise<IPostJoins | null> => {
-    const [post] = await this.db
+  public getPost = async (id: number, currentUserId?: number)
+  : Promise<IPostJoins | null> => {
+    const query = this.db
       .select()
       .from(posts)
       .where(eq(posts.id, id))
       .innerJoin(users, eq(posts.userId, users.id))
-      .leftJoin(likes, and(
-        eq(posts.id, likes.postId),
-        eq(likes.userId, posts.userId),
-      ))
       .leftJoin(alias(posts, 'repost'),
         eq(posts.repostId, alias(posts, 'repost').id),
       )
@@ -66,6 +67,14 @@ class PostRepo {
         eq(alias(posts, 'repost').userId, users.id),
       );
 
+    if (currentUserId) {
+      query.leftJoin(likes, and(
+        eq(posts.id, likes.postId),
+        eq(likes.userId, currentUserId),
+      ));
+    }
+
+    const [ post ] = await query;
     return post as IPostJoins || null;
   };
 
@@ -81,7 +90,7 @@ class PostRepo {
       .where(and(
         eq(posts.userId, userId),
         isNull(posts.parentId),
-        notInArray(posts.id, excludedIds)
+        notInArray(posts.id, excludedIds),
       ))
       .innerJoin(users, eq(posts.userId, users.id))
       .leftJoin(likes, and(

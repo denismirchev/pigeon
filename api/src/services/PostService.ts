@@ -29,23 +29,32 @@ class PostService {
 
   public getPosts = async (
     parentId?: number,
+    currentUserId?: number,
     offset?: number,
     limit?: number,
     excludedIds?: number[],
   ): Promise<IPost[]> => {
     const postsData = await PostRepo
-      .getPosts(parentId, offset, limit, excludedIds);
+      .getPosts(parentId, currentUserId, offset, limit, excludedIds);
 
     return postsData.map((postData) => this.formatPostData(postData));
   };
 
-  public getPost = async (id: number): Promise<IPost | null> => {
-    const postData = await PostRepo.getPost(id);
+  public getPost = async (id: number, currentUserId?: number)
+  : Promise<IPost | null> => {
+    const postData = await PostRepo.getPost(id, currentUserId);
     return postData ? this.formatPostData(postData) : null;
   };
 
-  public getUserPosts = async (userId: number, offset?: number, limit?: number, excludedIds?: number[]): Promise<IPost[]> => {
-    const postsData = await PostRepo.getPostsByUserId(userId, offset, limit, excludedIds);
+  public getUserPosts = async (
+    userId: number,
+    offset?: number,
+    limit?: number,
+    excludedIds?: number[],
+  ): Promise<IPost[]> => {
+    const postsData = await PostRepo.getPostsByUserId(
+      userId, offset, limit, excludedIds,
+    );
     return postsData.map((postData) => this.formatPostData(postData));
   };
 

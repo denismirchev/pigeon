@@ -43,15 +43,17 @@ class PostRoutes {
   public getMainPosts = async (req: IReq, res: IRes) => {
     const offset = Number(req.query.offset) || 0;
     const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
+    const user = res.locals.user;
 
-    const posts = await PostService.getPosts(undefined, offset, limit);
-    return res.status(HttpStatusCodes.OK).json(posts);
+    const posts = PostService.getPosts(undefined, user?.id, offset, limit);
+    return res.status(HttpStatusCodes.OK).json(await posts);
   };
 
   public getPost = async (req: IReq, res: IRes) => {
     const id = Number(req.params.id);
+    const user = res.locals.user;
 
-    const post = await PostService.getPost(id);
+    const post = await PostService.getPost(id, user?.id);
     if (!post) {
       return res.status(HttpStatusCodes.NOT_FOUND).json({
         error: 'Post not found',
@@ -65,8 +67,9 @@ class PostRoutes {
     const offset = Number(req.query.offset) || 0;
     const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
     const id = Number(req.params.id);
+    const user = res.locals.user;
 
-    const replies = await PostService.getPosts(id, offset, limit);
+    const replies = await PostService.getPosts(id, user?.id, offset, limit);
     return res.status(HttpStatusCodes.OK).json(replies);
   };
 
