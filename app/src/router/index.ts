@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '@/components/main/Home.vue';
+import Home from '@/components/pages/HomePage.vue';
 import UserRegister from '@/components/auth/UserRegister.vue';
 import UserLogin from '@/components/auth/UserLogin.vue';
 import RouteNotFound from '@/components/RouteNotFound.vue';
-import SinglePost from '@/components/main/SinglePost.vue';
-import SettingsPage from '@/components/main/SettingsPage.vue';
-import UserProfilePage from '@/components/main/UserProfilePage.vue';
+import SinglePost from '@/components/pages/singlepost/SinglePostPage.vue';
+import SettingsPage from '@/components/pages/settings/SettingsPage.vue';
+import UserProfilePage from '@/components/pages/UserProfilePage.vue';
 import { useCookies } from 'vue3-cookies';
 
 const routes = [
@@ -22,6 +22,9 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0 };
+  },
 });
 
 const { cookies } = useCookies();

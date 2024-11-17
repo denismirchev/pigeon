@@ -47,7 +47,7 @@ import {
 import { Cropper } from 'vue-advanced-cropper';
 import 'vue-advanced-cropper/dist/style.css';
 import Layout from '@/components/Layout.vue';
-import SettingsTextInputField from '@/components/main/SettingsTextInputField.vue';
+import SettingsTextInputField from '@/components/pages/settings/SettingsTextInputField.vue';
 import { useCookies } from 'vue3-cookies';
 import { User } from '@/types/User';
 import axios from 'axios';
