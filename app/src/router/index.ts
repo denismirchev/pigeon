@@ -3,7 +3,7 @@ import Home from '@/components/pages/HomePage.vue';
 import UserRegister from '@/components/auth/UserRegister.vue';
 import UserLogin from '@/components/auth/UserLogin.vue';
 import RouteNotFound from '@/components/RouteNotFound.vue';
-import SinglePost from '@/components/pages/singlepost/SinglePostPage.vue';
+import SinglePost from '@/components/pages/single-post/SinglePostPage.vue';
 import SettingsPage from '@/components/pages/settings/SettingsPage.vue';
 import UserProfilePage from '@/components/pages/UserProfilePage.vue';
 import { useCookies } from 'vue3-cookies';

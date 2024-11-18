@@ -2,7 +2,7 @@
   <Layout>
     <div class="settings-container max-w-lg mx-auto p-6 bg-white border border-gray-300 rounded-lg shadow-md">
       <h2 class="text-2xl font-bold mb-6">Settings</h2>
-      <form v-if="user" @submit.prevent>
+      <form v-if="user?.id" @submit.prevent>
         <SettingsTextInputField v-model="user.name" :label="'Edit nickname'" />
         <SettingsTextInputField v-model="user.username" :label="'Edit username'" />
         <SettingsTextInputField v-model="user.email" :label="'Edit email'" />
@@ -14,6 +14,7 @@
           <div class="flex items-center">
             <input style="cursor: pointer" type="file" id="profilePicture" @change="onFileChange" accept="image/png, image/jpeg" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" />
             <img v-if="croppedImage" :src="croppedImage" alt="Cropped Image" class="ml-4 w-16 h-16 border border-gray-300 rounded-full shadow-md" />
+            <img v-else :src="user.profileImageUrl ? `${$apiUrl}/uploads/pfps/${user.profileImageUrl}` : '/default-user-pfp.jpg'" alt="Profile Picture" class="ml-4 w-16 h-16 border border-gray-300 rounded-full shadow-md" />
           </div>
         </div>
         <button @click="submit" type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">Save Changes</button>
@@ -54,8 +55,7 @@ import axios from 'axios';
 
 import { useToast } from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-sugar.css';
-// eslint-disable-next-line import/no-cycle
-import router from '@/router';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'SettingsPage',
@@ -69,6 +69,7 @@ export default defineComponent({
 
     const originalUser = inject('user') as Ref<User>;
     const user = ref<User>();
+    const router = useRouter();
 
     const apiUrl = process.env.VUE_APP_API_URL;
     watch(originalUser, (newValue) => {

@@ -7,7 +7,7 @@
     tabindex="0"
   >
     <!-- Original Post Content -->
-    <router-link :to="`/${postRef.user.username}`" class="flex items-center space-x-4 user-info hover-darker-effect p-1 rounded-l">
+    <router-link :to="`/${postRef.user.username}`" class="inline-flex items-center space-x-4 user-info hover-darker-effect p-1 rounded">
       <img :src="postRef.user.profileImageUrl ? `${$apiUrl}/uploads/pfps/${postRef.user.profileImageUrl}` : '/default-user-pfp.jpg'" alt="Profile" class="w-10 h-10 rounded-full" />
       <div>
         <div class="font-bold">{{ postRef.user.nickname }}</div>
@@ -25,7 +25,7 @@
         <span class="font-bold">{{ postRef.repost.user.username }}</span> reposted:
       </div>
       <div class="p-4 border border-gray-300 rounded-lg bg-gray-50 mb-4 hover-effect">
-        <router-link :to="`/${postRef.repost.user.username}`" class="flex items-center space-x-4 user-info hover-darker-effect p-1 rounded-l">
+        <router-link :to="`/${postRef.repost.user.username}`" class="inline-flex items-center space-x-4 user-info hover-darker-effect p-1 rounded">
           <img :src="`${$apiUrl}/uploads/pfps/${postRef.repost.user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-10 h-10 rounded-full" />
           <div>
             <div class="font-bold">{{ postRef.repost.user.nickname }}</div>
