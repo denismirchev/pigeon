@@ -102,9 +102,7 @@ import { likePost, unlikePost } from '@/api/post';
 import router from '@/router';
 import RepostModal from '@/components/post/RepostModal.vue';
 import MediaPreview from '@/components/post/MediaPreview.vue';
-
 import { useToast } from 'vue-toast-notification';
-import 'vue-toast-notification/dist/theme-sugar.css';
 
 export default defineComponent({
   name: 'PostComponent',

@@ -1,10 +1,10 @@
 <template>
-  <!-- Textarea for Tweet Status -->
+  <!-- Textarea for Post Content -->
   <textarea
-    id="status"
-    :placeholder="isReply ? 'Reply...' : 'What\'s happening?'"
+    id="content"
+    :placeholder="parentId ? 'Reply...' : 'What\'s happening?'"
     class="w-full border border-gray-200 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent text-gray-700 resize-none"
-    v-model="status"
+    v-model="content"
   />
 
   <!-- File Upload Button -->
@@ -26,7 +26,7 @@
       class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full shadow-md transition duration-300 ease-in-out"
       @click="postTweet"
     >
-      {{ isReply ? 'Reply' : 'Tweet' }}
+      {{ parentId ? 'Reply' : 'Post' }}
     </button>
   </div>
 
@@ -40,13 +40,14 @@
       <!-- Remove Button -->
       <button
         type="button"
-        class="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+        class="absolute top-0 right-0 bg-red-500 text-white text-2xl rounded-full w-6 h-6 flex items-center justify-center"
         @click="removeFile(index)"
       >
-        <i class="fas fa-times text-xs" />
+        &times;
       </button>
       <!-- Image Preview -->
       <img
+        v-zoom
         v-if="media.type.startsWith('image/')"
         :src="media.url"
         alt="Media Preview"
@@ -74,63 +75,36 @@ import {
   inject,
   Ref,
 } from 'vue';
-import axios from 'axios';
-import { useCookies } from 'vue3-cookies';
 import { User } from '@/types/User';
-import { Post } from '@/types/Post';
+import { createPost } from '@/api/post';
+import { useToast } from 'vue-toast-notification';
 
 export default defineComponent({
   name: 'TweetBox',
   props: {
-    parentId: {
-      type: Number,
-      default: null,
-    },
-    repostId: {
-      type: Number,
-      default: null,
-    },
+    parentId: { type: Number, default: null },
+    repostId: { type: Number, default: null },
   },
   emits: ['tweetPosted'],
   setup(props, { emit }) {
-    const status = ref('');
-    const { cookies } = useCookies();
+    const content = ref('');
     const user = inject('user') as Ref<User>;
-    const apiUrl = process.env.VUE_APP_API_URL;
 
     const selectedFiles = ref<File[]>([]);
-    const mediaPreviews = ref<any>([]);
-
-    const isReply = props.parentId != null;
+    const mediaPreviews = ref<{ url: string, type: string }[]>([]);
 
     const postTweet = async () => {
       try {
-        const accessToken = cookies.get('accessToken');
-        const formData = new FormData();
-        formData.append('content', status.value);
-        formData.append('userId', `${user.value.id}`);
+        const response = await createPost(
+          content.value,
+          user.value.id,
+          props.parentId,
+          props.repostId,
+          selectedFiles.value,
+        );
 
-        if (props.parentId) {
-          formData.append('parentId', `${props.parentId}`);
-        }
-
-        if (props.repostId) {
-          formData.append('repostId', `${props.repostId}`);
-        }
-
-        selectedFiles.value.forEach((file) => {
-          formData.append('attachments', file);
-        });
-
-        const response = await axios.post(`${apiUrl}/api/posts`, formData, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-
-        emit('tweetPosted', response.data as Post);
-        status.value = '';
+        emit('tweetPosted', response);
+        content.value = '';
         selectedFiles.value = [];
         mediaPreviews.value = [];
       } catch (error) {
@@ -143,8 +117,10 @@ export default defineComponent({
       if (files) {
         const newFiles = Array.from(files);
         if (selectedFiles.value.length + newFiles.length > 4) {
-          // eslint-disable-next-line no-alert
-          alert('You can only upload up to 4 files.');
+          useToast().error('You can only upload up to 4 files at a time.', {
+            duration: 4000,
+            position: 'bottom-right',
+          });
           return;
         }
         selectedFiles.value = selectedFiles.value.concat(newFiles);
@@ -161,9 +137,8 @@ export default defineComponent({
     };
 
     return {
-      status,
+      content,
       mediaPreviews,
-      isReply,
       postTweet,
       handleFileUpload,
       removeFile,
@@ -171,7 +146,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style>
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
-</style>

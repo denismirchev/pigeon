@@ -9,7 +9,8 @@
     />
     <video v-else controls class="w-full h-full object-cover">
       <source :src="media.url" type="video/mp4" />
-      <track kind="captions" :src="`${media.url}.vtt`" srclang="en" label="English" default />
+      <track kind="captions" srclang="en" label="English captions" src="" />
+      Your browser does not support the video tag.
     </video>
   </div>
 </template>

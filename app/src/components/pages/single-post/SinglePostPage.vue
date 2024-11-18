@@ -21,7 +21,7 @@
       <div v-else class="text-gray-500 text-center mt-4">Loading post...</div>
 
       <!-- Comments Section -->
-      <RepliesSection v-if="post" :newReply="newReply" :post="post" />
+      <RepliesSection v-if="post" :post="post" @reply-added="post.repliesCount += 1" />
     </div>
   </Layout>
 </template>
@@ -37,20 +37,20 @@ import Layout from '@/components/Layout.vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { useCookies } from 'vue3-cookies';
+import { Post } from '@/types/Post';
 import RepliesSection from './RepliesSection.vue';
-import Post from '../../post/PostComponent.vue';
+import PostComponent from '../../post/PostComponent.vue';
 
 export default defineComponent({
   name: 'SinglePostPage',
   components: {
     Layout,
-    Post,
+    Post: PostComponent,
     RepliesSection,
   },
   setup() {
-    const post = ref(null as any);
-    const parentPosts = ref([] as any[]);
-    const newReply = ref('');
+    const post = ref<Post>();
+    const parentPosts = ref<Post[]>([]);
     const route = useRoute();
     const { cookies } = useCookies();
     const apiUrl = process.env.VUE_APP_API_URL;
@@ -91,7 +91,6 @@ export default defineComponent({
     return {
       post,
       parentPosts,
-      newReply,
     };
   },
 });

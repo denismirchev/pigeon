@@ -11,10 +11,7 @@
 
 <script lang="ts">
 import {
-  defineComponent,
-  ref,
-  onMounted,
-  watch,
+  defineComponent, ref, onMounted, watch, computed,
 } from 'vue';
 import axios from 'axios';
 import { useRoute } from 'vue-router';
@@ -27,14 +24,13 @@ export default defineComponent({
   name: 'RepliesSection',
   components: { TweetBox, PostComponent },
   props: {
-    newReply: { type: String, required: true },
     post: { type: Object as () => Post, required: true },
   },
-  setup(props) {
+  emits: ['replyAdded'],
+  setup(props, { emit }) {
     const replies = ref<Post[]>([]);
     const route = useRoute();
     const { cookies } = useCookies();
-    const textarea = ref<HTMLTextAreaElement | null>(null);
     const pageOffset = ref(0);
     const loading = ref(false);
     const reachedEnd = ref(false);
@@ -51,11 +47,7 @@ export default defineComponent({
         if (!data || data.length < 10) {
           reachedEnd.value = true;
         }
-        if (offset === 0) {
-          replies.value = data;
-        } else {
-          replies.value = [...replies.value, ...data];
-        }
+        replies.value = offset === 0 ? data : [...replies.value, ...data];
       } catch (error) {
         console.error('Error fetching replies:', error);
       } finally {
@@ -64,12 +56,10 @@ export default defineComponent({
     };
 
     const handleScroll = () => {
-      if (reachedEnd.value) {
-        return;
-      }
+      if (reachedEnd.value || loading.value) return;
 
       const bottom = document.body.offsetHeight - 500;
-      if ((window.innerHeight + window.scrollY) >= bottom && !loading.value) {
+      if (window.innerHeight + window.scrollY >= bottom) {
         pageOffset.value += 10;
         fetchReplies(pageOffset.value);
       }
@@ -77,7 +67,7 @@ export default defineComponent({
 
     const addNewReply = (newPost: Post) => {
       replies.value.unshift(newPost);
-      props.post.repliesCount += 1;
+      emit('replyAdded');
     };
 
     onMounted(() => {
@@ -89,8 +79,7 @@ export default defineComponent({
 
     return {
       replies,
-      textarea,
-      loading,
+      loading: computed(() => loading.value),
       addNewReply,
       reachedEnd,
     };

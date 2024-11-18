@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '@/components/pages/HomePage.vue';
+import HomePage from '@/components/pages/HomePage.vue';
 import UserRegister from '@/components/auth/UserRegister.vue';
 import UserLogin from '@/components/auth/UserLogin.vue';
 import RouteNotFound from '@/components/RouteNotFound.vue';
-import SinglePost from '@/components/pages/single-post/SinglePostPage.vue';
+import SinglePostPage from '@/components/pages/single-post/SinglePostPage.vue';
 import SettingsPage from '@/components/pages/settings/SettingsPage.vue';
 import UserProfilePage from '@/components/pages/UserProfilePage.vue';
 import { useCookies } from 'vue3-cookies';
@@ -12,8 +12,8 @@ const routes = [
   { path: '/', redirect: '/home' }, // Redirect root path to /home
   { path: '/login', component: UserLogin },
   { path: '/register', component: UserRegister },
-  { path: '/home', component: Home },
-  { path: '/:username/:id', component: SinglePost },
+  { path: '/home', component: HomePage },
+  { path: '/:username/:id', component: SinglePostPage },
   { path: '/:username', component: UserProfilePage },
   { path: '/settings', component: SettingsPage },
   { path: '/:pathMatch(.*)*', component: RouteNotFound }, // Catch-all route for 404

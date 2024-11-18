@@ -16,7 +16,6 @@ import { Post } from '@/types/Post';
 import TweetBox from '@/components/post/TweetBox.vue';
 
 import { useToast } from 'vue-toast-notification';
-import 'vue-toast-notification/dist/theme-sugar.css';
 
 export default defineComponent({
   name: 'RepostModal',

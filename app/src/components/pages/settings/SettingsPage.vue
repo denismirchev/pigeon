@@ -52,9 +52,7 @@ import SettingsTextInputField from '@/components/pages/settings/SettingsTextInpu
 import { useCookies } from 'vue3-cookies';
 import { User } from '@/types/User';
 import axios from 'axios';
-
 import { useToast } from 'vue-toast-notification';
-import 'vue-toast-notification/dist/theme-sugar.css';
 import { useRouter } from 'vue-router';
 
 export default defineComponent({
