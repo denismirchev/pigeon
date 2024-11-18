@@ -1,6 +1,6 @@
 import { db } from '@src/db/setup';
 import { refreshTokens, IRefreshToken } from '@src/db/models/RefreshToken';
-import { eq } from 'drizzle-orm';
+import {eq, lt} from 'drizzle-orm';
 
 class RefreshTokenRepo {
   private db;
@@ -37,6 +37,12 @@ class RefreshTokenRepo {
 
   public async deleteByToken(token: string) {
     await this.db.delete(refreshTokens).where(eq(refreshTokens.token, token));
+  }
+
+  public async deleteExpiredTokens() {
+    await this.db.delete(refreshTokens).where(
+      lt(refreshTokens.expiresAt, new Date()),
+    );
   }
 }
 

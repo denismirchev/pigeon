@@ -151,6 +151,9 @@ async function refreshAccessToken(token: string) {
   });
 }
 
+const removeExpiredTokens = async () => {
+  await RefreshTokenRepo.deleteExpiredTokens();
+};
 
 // **** Export default **** //
 
@@ -160,4 +163,5 @@ export default {
   register,
   logout,
   refreshAccessToken,
+  removeExpiredTokens,
 } as const;

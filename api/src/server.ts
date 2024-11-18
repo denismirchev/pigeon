@@ -14,6 +14,9 @@ import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import { NodeEnvs } from '@src/common/misc';
 
 import RouteError from '@src/common/RouteError';
+import cron from 'node-cron';
+import apiRouter from '@src/routes';
+import AuthService from '@src/services/AuthService';
 
 // **** Variables **** //
 
@@ -60,6 +63,10 @@ app.use((
 });
 
 app.use(express.static('public'));
+
+cron.schedule('*/5 * * * *', async () => {
+  await AuthService.removeExpiredTokens();
+});
 
 // **** Export default **** //
 
