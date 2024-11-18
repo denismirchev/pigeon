@@ -3,7 +3,7 @@
     <div class="user-info border border-gray-300 p-4 rounded-lg" v-if="user">
       <div class="flex items-start justify-between w-full user-info">
         <div class="flex items-center space-x-6">
-          <img :src="`${$apiUrl}/uploads/pfps/${user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-16 h-16 rounded-full" />
+          <img :src="user?.profileImageUrl ? `${$apiUrl}/uploads/pfps/${user.profileImageUrl}` : '/default-user-pfp.jpg'" alt="Profile" class="w-16 h-16 rounded-full" />
           <div>
             <div class="text-xl font-bold">{{ user.name }}</div>
             <div class="text-lg text-gray-500">@{{ user.username }}</div>
@@ -16,7 +16,7 @@
         </div>
       </div>
     </div>
-    <div class="my-4 border-t border-gray-400"></div>
+    <div class="my-4 border-t border-gray-400" />
     <div v-for="post in posts" :key="post.id">
       <PostComponent :post="post" :isLink="true" />
     </div>
@@ -25,11 +25,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, onMounted, ref, } from 'vue';
+import {
+  defineComponent, inject, onMounted, ref,
+} from 'vue';
 import { VueCookies } from 'vue-cookies';
 import Layout from '@/components/Layout.vue';
 import PostComponent from '@/components/post/PostComponent.vue';
-import TweetBox from '@/components/post/TweetBox.vue';
 import { Post } from '@/types/Post';
 import { useRoute } from 'vue-router';
 import { User } from '@/types/User';
@@ -39,7 +40,6 @@ export default defineComponent({
   components: {
     PostComponent,
     Layout,
-    TweetBox,
   },
   setup() {
     const posts = ref<Post[]>([]);

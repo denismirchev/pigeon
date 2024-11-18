@@ -8,7 +8,7 @@
   >
     <!-- Original Post Content -->
     <router-link :to="`/${postRef.user.username}`" class="flex items-center space-x-4 user-info hover-darker-effect p-1 rounded-l">
-      <img :src="`${$apiUrl}/uploads/pfps/${postRef.user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-10 h-10 rounded-full" />
+      <img :src="postRef.user.profileImageUrl ? `${$apiUrl}/uploads/pfps/${postRef.user.profileImageUrl}` : '/default-user-pfp.jpg'" alt="Profile" class="w-10 h-10 rounded-full" />
       <div>
         <div class="font-bold">{{ postRef.user.nickname }}</div>
         <div class="text-sm text-gray-500">@{{ postRef.user.username }}</div>
