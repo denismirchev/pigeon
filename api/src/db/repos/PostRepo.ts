@@ -41,7 +41,8 @@ class PostRepo {
       )
       .offset(offset)
       .limit(limit)
-      .orderBy(desc(posts.createdAt));
+      .orderBy(desc(posts.createdAt))
+      .groupBy(posts.id);
 
     if (currentUserId) {
       query.leftJoin(likes, and(
@@ -105,7 +106,8 @@ class PostRepo {
       )
       .offset(offset)
       .limit(limit)
-      .orderBy(desc(posts.createdAt));
+      .orderBy(desc(posts.createdAt))
+      .groupBy(posts.id);
 
     return query as IPostJoins[];
   };
