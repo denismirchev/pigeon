@@ -24,61 +24,52 @@ interface ILogoutReq {
   token: string;
 }
 
-// **** Functions **** //
+// **** Class **** //
 
-/**
- * Login a user.
- */
-async function login(req: IReq<ILoginReq>, res: IRes) {
-  const { email, password } = req.body;
-  const user = await AuthService.login(email, password);
-  const { accessToken, refreshToken } = await AuthService.createTokens(user);
+class AuthRoutes {
+  public login = async (req: IReq<ILoginReq>, res: IRes) => {
+    const { email, password } = req.body;
+    const user = await AuthService.login(email, password);
+    const { accessToken, refreshToken } = await AuthService.createTokens(user);
 
-  return res.status(HttpStatusCodes.OK).json({
-    accessToken,
-    refreshToken,
-  });
-}
+    return res.status(HttpStatusCodes.OK).json({
+      accessToken,
+      refreshToken,
+    });
+  };
 
-/**
- * Register a new user.
- */
-async function register(req: IReq<IRegisterReq>, res: IRes) {
-  const { email, password, name, username } = req.body;
-  const user = await AuthService.register(email, password, name, username);
-  if (!user) {
-    return res.status(HttpStatusCodes.BAD_REQUEST).end();
-  }
+  public register = async (req: IReq<IRegisterReq>, res: IRes) => {
+    const { email, password, name, username } = req.body;
+    const user = await AuthService.register(email, password, name, username);
+    if (!user) {
+      return res.status(HttpStatusCodes.BAD_REQUEST).end();
+    }
 
-  return res.status(HttpStatusCodes.OK).json({
-    message: 'User registered successfully',
-  });
-}
+    return res.status(HttpStatusCodes.OK).json({
+      message: 'User registered successfully',
+    });
+  };
 
-/**
- * Logout the user.
- */
-async function logout(req: IReq<ILogoutReq>, res: IRes) {
-  const { token } = req.body;
-  await AuthService.logout(token);
-  return res.status(HttpStatusCodes.OK).json({
-    message: 'Logged out successfully',
-  });
-}
+  public logout = async (req: IReq<ILogoutReq>, res: IRes) => {
+    const { token } = req.body;
+    await AuthService.logout(token);
+    return res.status(HttpStatusCodes.OK).json({
+      message: 'Logged out successfully',
+    });
+  };
 
-async function refreshAccessToken(req: IReq<IRefreshTokenReq>, res: IRes) {
-  const { token } = req.body;
-  const accessToken = await AuthService.refreshAccessToken(token);
-  return res.status(HttpStatusCodes.OK).json({
-    accessToken: accessToken,
-  });
+  public refreshAccessToken = async (
+    req: IReq<IRefreshTokenReq>,
+    res: IRes,
+  ) => {
+    const { token } = req.body;
+    const accessToken = await AuthService.refreshAccessToken(token);
+    return res.status(HttpStatusCodes.OK).json({
+      accessToken: accessToken,
+    });
+  };
 }
 
 // **** Export default **** //
 
-export default {
-  login,
-  logout,
-  register,
-  refreshAccessToken,
-} as const;
+export default new AuthRoutes();

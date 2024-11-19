@@ -1,9 +1,5 @@
 import {
-  bigint,
-  mysqlTable,
-  timestamp,
-  varchar,
-  text,
+  bigint, mysqlTable, timestamp, varchar, text,
 } from 'drizzle-orm/mysql-core';
 
 export const users = mysqlTable('users', {
