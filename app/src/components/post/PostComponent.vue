@@ -114,6 +114,7 @@ export default defineComponent({
   setup(props) {
     const postRef = ref(props.post);
     const showRepostModal = ref(false);
+    const justClosedRepostModal = ref(false);
 
     watch(() => props.post, () => {
       postRef.value = props.post;
@@ -130,7 +131,10 @@ export default defineComponent({
     };
 
     const openRepostModal = () => { showRepostModal.value = true; };
-    const closeRepostModal = () => { showRepostModal.value = false; };
+    const closeRepostModal = () => {
+      showRepostModal.value = false;
+      justClosedRepostModal.value = true;
+    };
     const handleRepost = () => {
       postRef.value.repostsCount += 1;
       closeRepostModal();
@@ -139,6 +143,11 @@ export default defineComponent({
     const isPostClicked = (event: MouseEvent | KeyboardEvent) => {
       const targetElement = event.target as HTMLElement;
       if (targetElement.tagName.toLowerCase() === 'img') {
+        return;
+      }
+
+      if (justClosedRepostModal.value) {
+        justClosedRepostModal.value = false;
         return;
       }
 

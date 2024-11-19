@@ -12,10 +12,10 @@
     <div class="flex items-center space-x-4">
       <!-- Custom Styled Upload Button -->
       <label
-        for="file-upload"
+        :for="fileInputId"
         class="cursor-pointer inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold rounded-lg shadow-lg hover:from-green-500 hover:to-blue-600 transition-all duration-300 ease-in-out"
       >
-        <input id="file-upload" type="file" accept=".jpg, .jpeg, .png, .gif, .mp4" multiple class="hidden" @change="handleFileUpload" />
+        <input :id="fileInputId" type="file" accept=".jpg, .jpeg, .png, .gif, .mp4" multiple class="hidden" @change="handleFileUpload" />
         Upload Files
       </label>
     </div>
@@ -93,6 +93,9 @@ export default defineComponent({
     const selectedFiles = ref<File[]>([]);
     const mediaPreviews = ref<{ url: string, type: string }[]>([]);
 
+    // Generate a unique ID for each instance
+    const fileInputId = `file-upload-${Math.random().toString(36).substring(2, 9)}`;
+
     const postTweet = async () => {
       try {
         const response = await createPost(
@@ -142,6 +145,7 @@ export default defineComponent({
       postTweet,
       handleFileUpload,
       removeFile,
+      fileInputId,
     };
   },
 });
