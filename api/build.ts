@@ -14,9 +14,8 @@ import childProcess from 'child_process';
   try {
     // Remove current build
     await remove('./dist/');
-    // Copy front-end files
-    await copy('./src/public', './dist/public');
-    await copy('./src/views', './dist/views');
+    // Copy static files
+    await copy('./public', './dist/public');
     // Copy back-end files
     await exec('tsc --build tsconfig.prod.json', './');
   } catch (err) {

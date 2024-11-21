@@ -76,9 +76,8 @@
     "src/**/*.ts",
     "spec/**/*.ts",
     "build.ts",
-    "drizzle.config.ts"
   ],
   "exclude": [
-    "src/public/"
+    "public/"
   ]
 }
