@@ -1,7 +1,6 @@
 import UserRepo from '@src/db/repos/UserRepo';
 import PwdUtil from '@src/util/PwdUtil';
 import { tick } from '@src/util/misc';
-import { ACCESS_TOKEN_SECRET, REFRESH_TOKEN_SECRET } from '@src/config';
 import {
   extractEntryFromSqlMessage,
   extractFieldFromSqlMessage,
@@ -13,6 +12,7 @@ import jwt from 'jsonwebtoken';
 import { IUser } from '@src/db/models/User';
 import RefreshTokenRepo from '@src/db/repos/RefreshTokenRepo';
 import { IRefreshToken } from '@src/db/models/RefreshToken';
+import EnvVars from '@src/common/EnvVars';
 
 export const Errors = {
   Unauthorized: 'User is unauthorized',
@@ -56,13 +56,13 @@ class AuthService {
       await RefreshTokenRepo.deleteByUserId(user.id);
     }
 
-    const accessToken = jwt.sign(user, ACCESS_TOKEN_SECRET, {
+    const accessToken = jwt.sign(user, EnvVars.Jwt.AccessSecret, {
       expiresIn: '1h',
     });
     const expiresInDays = 30;
     const refreshToken: IRefreshToken = {
       userId: user.id,
-      token: jwt.sign(user, REFRESH_TOKEN_SECRET, {
+      token: jwt.sign(user, EnvVars.Jwt.RefreshSecret, {
         expiresIn: `${expiresInDays}d`,
       }),
       expiresAt: new Date(
@@ -122,7 +122,7 @@ class AuthService {
     if (!refreshToken) {
       throw new RouteError(HttpStatusCodes.FORBIDDEN, 'Token not found');
     }
-    return jwt.verify(token, REFRESH_TOKEN_SECRET, (err, user) => {
+    return jwt.verify(token, EnvVars.Jwt.RefreshSecret, (err, user) => {
       if (err) {
         throw new RouteError(HttpStatusCodes.FORBIDDEN, 'Invalid token');
       }
@@ -134,7 +134,7 @@ class AuthService {
         }
       }
 
-      return jwt.sign(user as IUser, ACCESS_TOKEN_SECRET, {
+      return jwt.sign(user as IUser, EnvVars.Jwt.AccessSecret, {
         expiresIn: '1h',
       });
     });

@@ -2,7 +2,7 @@ import { IReq, IRes } from './types/express/misc';
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import PostService from '@src/services/PostService';
 import UserService from '@src/services/UserService';
-import { DEFAULT_POSTS_LIMIT } from '@src/config';
+import EnvVars from '@src/common/EnvVars';
 
 interface ICreatePostReq {
   userId: number;
@@ -42,7 +42,7 @@ class PostRoutes {
 
   public getMainPosts = async (req: IReq, res: IRes) => {
     const offset = Number(req.query.offset) || 0;
-    const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
+    const limit = Number(req.query.limit) || EnvVars.Posts.DefaultLimit;
     const user = res.locals.user;
 
     const posts = PostService.getPosts(undefined, user?.id, offset, limit);
@@ -65,7 +65,7 @@ class PostRoutes {
 
   public getReplies = async (req: IReq, res: IRes) => {
     const offset = Number(req.query.offset) || 0;
-    const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
+    const limit = Number(req.query.limit) || EnvVars.Posts.DefaultLimit;
     const id = Number(req.params.id);
     const user = res.locals.user;
 
@@ -76,7 +76,7 @@ class PostRoutes {
   public getUserPosts = async (req: IReq, res: IRes) => {
     const username = req.params.username;
     const offset = Number(req.query.offset) || 0;
-    const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
+    const limit = Number(req.query.limit) || EnvVars.Posts.DefaultLimit;
 
     const user = await UserService.getUserByUsername(username);
     if (!user || !user.id) {

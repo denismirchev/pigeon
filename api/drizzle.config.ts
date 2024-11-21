@@ -1,11 +1,11 @@
 import { defineConfig } from 'drizzle-kit';
-import { DB_URL } from '@src/config';
+import EnvVars from '@src/common/EnvVars';
 
 export default defineConfig({
   schema: './src/db/models/*',
   out: './src/db/migrations',
   dbCredentials: {
-    url: DB_URL,
+    url: EnvVars.Db.Url,
   },
   dialect: 'mysql',
 });

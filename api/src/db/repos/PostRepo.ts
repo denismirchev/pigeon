@@ -1,10 +1,10 @@
 import { db } from '@src/db/setup';
 import { IPost, IPostJoins, posts } from '@src/db/models/Post';
 import { and, desc, eq, isNull, notInArray, sql } from 'drizzle-orm';
-import { DEFAULT_POSTS_LIMIT } from '@src/config';
 import { users } from '@src/db/models/User';
 import { likes } from '@src/db/models/Like';
 import { alias } from 'drizzle-orm/mysql-core';
+import EnvVars from '@src/common/EnvVars';
 
 class PostRepo {
   private db;
@@ -21,7 +21,7 @@ class PostRepo {
     parentId?: number,
     currentUserId?: number,
     offset: number = 0,
-    limit: number = DEFAULT_POSTS_LIMIT,
+    limit: number = EnvVars.Posts.DefaultLimit,
     excludedIds: number[] = [],
   ): Promise<IPostJoins[]> => {
     const conditions = parentId
@@ -82,7 +82,7 @@ class PostRepo {
   public getPostsByUserId = async (
     userId: number,
     offset: number = 0,
-    limit: number = DEFAULT_POSTS_LIMIT,
+    limit: number = EnvVars.Posts.DefaultLimit,
     excludedIds: number[] = [],
   ): Promise<IPostJoins[]> => {
     const query = await db

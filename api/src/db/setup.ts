@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/mysql2';
 import mysql from 'mysql2';
-import { DB_URL } from '@src/config';
+import EnvVars from '@src/common/EnvVars';
 
-const connection = mysql.createConnection(DB_URL);
+const connection = mysql.createConnection(EnvVars.Db.Url);
 
 export const db = drizzle(connection);

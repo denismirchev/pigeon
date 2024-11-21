@@ -24,5 +24,14 @@ export default {
   Jwt: {
     Secret: (process.env.JWT_SECRET ??  ''),
     Exp: (process.env.COOKIE_EXP ?? ''), // exp at the same time as the cookie
+    AccessSecret: (process.env.ACCESS_TOKEN_SECRET ?? ''),
+    RefreshSecret: (process.env.REFRESH_TOKEN_SECRET ?? ''),
   },
+  Db: {
+    Url: (process.env.DB_URL ?? ''),
+  },
+  Posts: {
+    DefaultLimit: Number(process.env.DEFAULT_POSTS_LIMIT ?? 10),
+  },
+  RootDir: process.cwd(),
 } as const;

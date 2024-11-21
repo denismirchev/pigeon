@@ -1,8 +1,8 @@
 import multer from 'multer';
 import { Request } from 'express';
 import path from 'path';
-import { ROOT_DIR } from '@src/config';
 import fs from 'fs';
+import EnvVars from '@src/common/EnvVars';
 
 // TODO: add file naming option
 export const createStorage = (uploadDir: string) => multer.diskStorage({
@@ -11,7 +11,7 @@ export const createStorage = (uploadDir: string) => multer.diskStorage({
     _file: Express.Multer.File,
     cb: (error: Error | null, destination: string) => void,
   ) => {
-    const uploadPath = path.join(ROOT_DIR, uploadDir);
+    const uploadPath = path.join(EnvVars.RootDir, uploadDir);
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
