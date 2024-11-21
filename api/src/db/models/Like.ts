@@ -1,12 +1,8 @@
 import {
-  bigint,
-  mysqlTable,
-  timestamp,
-  uniqueIndex,
-  foreignKey,
+  bigint, mysqlTable, timestamp, uniqueIndex,
 } from 'drizzle-orm/mysql-core';
-import {posts} from '@src/db/models/Post';
-import {users} from '@src/db/models/User';
+import { posts } from '@src/db/models/Post';
+import { users } from '@src/db/models/User';
 
 export const likes = mysqlTable('likes', {
   id: bigint('id', { mode: 'number', unsigned: true })

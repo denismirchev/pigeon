@@ -1,8 +1,8 @@
 import {
   AnyMySqlColumn, bigint, mysqlTable, text, timestamp,
 } from 'drizzle-orm/mysql-core';
-import {IUser} from '@src/db/models/User';
-import {ILike} from '@src/db/models/Like';
+import { IUser } from '@src/db/models/User';
+import { ILike } from '@src/db/models/Like';
 
 export const posts = mysqlTable('posts', {
   id: bigint('id', { mode: 'number', unsigned: true })

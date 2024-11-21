@@ -1,8 +1,5 @@
 import {
-  bigint,
-  mysqlTable,
-  timestamp,
-  varchar,
+  bigint, mysqlTable, timestamp, varchar,
 } from 'drizzle-orm/mysql-core';
 import { users } from './User';
 

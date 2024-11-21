@@ -7,8 +7,8 @@
     tabindex="0"
   >
     <!-- Original Post Content -->
-    <router-link :to="`/${postRef.user.username}`" class="flex items-center space-x-4 user-info hover-darker-effect p-1 rounded-l">
-      <img :src="`${$apiUrl}/uploads/pfps/${postRef.user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-10 h-10 rounded-full" />
+    <router-link :to="`/${postRef.user.username}`" class="inline-flex items-center space-x-4 user-info hover-darker-effect p-1 rounded">
+      <img :src="postRef.user.profileImageUrl ? `${$apiUrl}/uploads/pfps/${postRef.user.profileImageUrl}` : '/default-user-pfp.jpg'" alt="Profile" class="w-10 h-10 rounded-full" />
       <div>
         <div class="font-bold">{{ postRef.user.nickname }}</div>
         <div class="text-sm text-gray-500">@{{ postRef.user.username }}</div>
@@ -25,7 +25,7 @@
         <span class="font-bold">{{ postRef.repost.user.username }}</span> reposted:
       </div>
       <div class="p-4 border border-gray-300 rounded-lg bg-gray-50 mb-4 hover-effect">
-        <router-link :to="`/${postRef.repost.user.username}`" class="flex items-center space-x-4 user-info hover-darker-effect p-1 rounded-l">
+        <router-link :to="`/${postRef.repost.user.username}`" class="inline-flex items-center space-x-4 user-info hover-darker-effect p-1 rounded">
           <img :src="`${$apiUrl}/uploads/pfps/${postRef.repost.user.profileImageUrl}` || 'https://via.placeholder.com/150'" alt="Profile" class="w-10 h-10 rounded-full" />
           <div>
             <div class="font-bold">{{ postRef.repost.user.nickname }}</div>
@@ -50,7 +50,7 @@
         @click.stop="openRepostModal"
         @keydown.enter="openRepostModal"
         @keydown.space="openRepostModal"
-        class="hover-repost"
+        class="hover-interaction-btn"
         tabindex="0"
       >
         <img src="../../assets/icons/repost.svg" alt="Repost" class="w-5 h-5 inline-block" />
@@ -61,7 +61,7 @@
         @click.stop="toggleLike"
         @keydown.enter="toggleLike"
         @keydown.space="toggleLike"
-        class="cursor-pointer flex items-center"
+        class="cursor-pointer flex items-center hover-interaction-btn"
         tabindex="0"
       >
         <svg v-if="postRef.liked" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
@@ -72,7 +72,13 @@
         </svg>
         <span class="ml-2">{{ postRef.likesCount }}</span>
       </span>
-      <span @click.stop="sharePost" @keydown.enter="sharePost" @keydown.space="sharePost" tabindex="0">
+      <span
+        @click.stop="sharePost"
+        @keydown.enter="sharePost"
+        @keydown.space="sharePost"
+        tabindex="0"
+        class="hover-interaction-btn"
+      >
         <img src="../../assets/icons/share.svg" alt="Repost" class="w-5 h-5 inline-block" />
       </span>
     </div>
@@ -96,9 +102,7 @@ import { likePost, unlikePost } from '@/api/post';
 import router from '@/router';
 import RepostModal from '@/components/post/RepostModal.vue';
 import MediaPreview from '@/components/post/MediaPreview.vue';
-
 import { useToast } from 'vue-toast-notification';
-import 'vue-toast-notification/dist/theme-sugar.css';
 
 export default defineComponent({
   name: 'PostComponent',
@@ -110,6 +114,7 @@ export default defineComponent({
   setup(props) {
     const postRef = ref(props.post);
     const showRepostModal = ref(false);
+    const justClosedRepostModal = ref(false);
 
     watch(() => props.post, () => {
       postRef.value = props.post;
@@ -126,7 +131,10 @@ export default defineComponent({
     };
 
     const openRepostModal = () => { showRepostModal.value = true; };
-    const closeRepostModal = () => { showRepostModal.value = false; };
+    const closeRepostModal = () => {
+      showRepostModal.value = false;
+      justClosedRepostModal.value = true;
+    };
     const handleRepost = () => {
       postRef.value.repostsCount += 1;
       closeRepostModal();
@@ -135,6 +143,11 @@ export default defineComponent({
     const isPostClicked = (event: MouseEvent | KeyboardEvent) => {
       const targetElement = event.target as HTMLElement;
       if (targetElement.tagName.toLowerCase() === 'img') {
+        return;
+      }
+
+      if (justClosedRepostModal.value) {
+        justClosedRepostModal.value = false;
         return;
       }
 
@@ -177,21 +190,24 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.hover-repost:hover {
-  transform: scale(1.1);
-  transition: transform 0.3s ease-in-out;
-  cursor: pointer;
-}
+  .hover-effect:hover {
+    background-color: #f0f0f0;
+    border-color: #b0b0b0;
+    transition: background-color 0.3s, border-color 0.3s;
+    cursor: pointer;
+  }
 
-.hover-effect:hover {
-  background-color: #f0f0f0;
-  border-color: #b0b0b0;
-  transition: background-color 0.3s, border-color 0.3s;
-  cursor: pointer;
-}
+  .hover-darker-effect:hover {
+    background-color: #e0e0e0;
+    transition: background-color 0.3s;
+  }
 
-.hover-darker-effect:hover {
-  background-color: #e0e0e0;
-  transition: background-color 0.3s;
-}
+  .hover-interaction-btn {
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .hover-interaction-btn:hover {
+    transform: scale(1.2);
+    cursor: pointer;
+  }
 </style>

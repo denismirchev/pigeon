@@ -2,7 +2,7 @@ import { IReq, IRes } from './types/express/misc';
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import PostService from '@src/services/PostService';
 import UserService from '@src/services/UserService';
-import { DEFAULT_POSTS_LIMIT } from '@src/config';
+import EnvVars from '@src/common/EnvVars';
 
 interface ICreatePostReq {
   userId: number;
@@ -42,16 +42,18 @@ class PostRoutes {
 
   public getMainPosts = async (req: IReq, res: IRes) => {
     const offset = Number(req.query.offset) || 0;
-    const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
+    const limit = Number(req.query.limit) || EnvVars.Posts.DefaultLimit;
+    const user = res.locals.user;
 
-    const posts = await PostService.getPosts(undefined, offset, limit);
-    return res.status(HttpStatusCodes.OK).json(posts);
+    const posts = PostService.getPosts(undefined, user?.id, offset, limit);
+    return res.status(HttpStatusCodes.OK).json(await posts);
   };
 
   public getPost = async (req: IReq, res: IRes) => {
     const id = Number(req.params.id);
+    const user = res.locals.user;
 
-    const post = await PostService.getPost(id);
+    const post = await PostService.getPost(id, user?.id);
     if (!post) {
       return res.status(HttpStatusCodes.NOT_FOUND).json({
         error: 'Post not found',
@@ -63,17 +65,18 @@ class PostRoutes {
 
   public getReplies = async (req: IReq, res: IRes) => {
     const offset = Number(req.query.offset) || 0;
-    const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
+    const limit = Number(req.query.limit) || EnvVars.Posts.DefaultLimit;
     const id = Number(req.params.id);
+    const user = res.locals.user;
 
-    const replies = await PostService.getPosts(id, offset, limit);
+    const replies = await PostService.getPosts(id, user?.id, offset, limit);
     return res.status(HttpStatusCodes.OK).json(replies);
   };
 
   public getUserPosts = async (req: IReq, res: IRes) => {
     const username = req.params.username;
     const offset = Number(req.query.offset) || 0;
-    const limit = Number(req.query.limit) || DEFAULT_POSTS_LIMIT;
+    const limit = Number(req.query.limit) || EnvVars.Posts.DefaultLimit;
 
     const user = await UserService.getUserByUsername(username);
     if (!user || !user.id) {

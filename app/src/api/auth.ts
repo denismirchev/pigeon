@@ -19,28 +19,40 @@ async function getUserFromAccessToken(): Promise<User> {
     });
     return response.data as User;
   } catch (error) {
-    // console.error('Error fetching user data:', error);
     throw new Error('Failed to fetch user data');
   }
 }
 
 async function logout(): Promise<void> {
-  const refreshToken = cookies.get('refreshToken');
-  if (!refreshToken) {
-    throw new Error('No refresh token found');
-  }
-
   try {
+    const refreshToken = cookies.get('refreshToken');
     await axios.post(`${apiUrl}/api/auth/logout`, {
       token: refreshToken,
     });
   } catch (error) {
-    // console.error('Error logging out:', error);
-    throw new Error('Failed to log out');
+    //
   } finally {
     cookies.remove('accessToken');
     cookies.remove('refreshToken');
   }
 }
 
-export { getUserFromAccessToken, logout };
+async function login(email: string, password: string): Promise<void> {
+  const { data } = await axios.post(`${apiUrl}/api/auth/login`, { email, password });
+  cookies.set('accessToken', data.accessToken);
+  cookies.set('refreshToken', data.refreshToken, '30d');
+}
+
+async function register(username: string, nickname: string, email: string, password: string)
+  : Promise<void> {
+  await axios.post(`${apiUrl}/api/auth/register`, {
+    username, name: nickname, email, password,
+  });
+  const { data } = await axios.post(`${apiUrl}/api/auth/login`, { email, password });
+  cookies.set('accessToken', data.accessToken);
+  cookies.set('refreshToken', data.refreshToken, '30d');
+}
+
+export {
+  getUserFromAccessToken, logout, login, register,
+};

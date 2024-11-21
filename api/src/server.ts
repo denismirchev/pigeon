@@ -5,8 +5,6 @@ import express, { Request, Response, NextFunction } from 'express';
 import logger from 'jet-logger';
 import cors from 'cors';
 
-import 'express-async-errors';
-
 import BaseRouter from '@src/routes';
 import Paths from '@src/common/Paths';
 import EnvVars from '@src/common/EnvVars';
@@ -14,12 +12,10 @@ import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import { NodeEnvs } from '@src/common/misc';
 
 import RouteError from '@src/common/RouteError';
-
-// **** Variables **** //
+import cron from 'node-cron';
+import AuthService from '@src/services/AuthService';
 
 const app = express();
-
-// **** Setup **** //
 
 // Basic middleware
 app.use(cors());
@@ -37,9 +33,17 @@ if (EnvVars.NodeEnv === NodeEnvs.Production.valueOf()) {
   app.use(helmet());
 }
 
-
 // Add APIs, must be after middleware
 app.use(Paths.Base, BaseRouter);
+
+// Serve static files from the 'public' directory
+app.use(express.static('public', {
+  setHeaders: (res) => {
+    // Set the Cross-Origin-Resource-Policy header
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  },
+}));
+
 
 // Add error handler
 app.use((
@@ -59,8 +63,9 @@ app.use((
   return res.status(status).json({ error: err.message });
 });
 
-app.use(express.static('public'));
 
-// **** Export default **** //
+cron.schedule('*/5 * * * *', async () => {
+  await AuthService.removeExpiredTokens();
+});
 
 export default app;

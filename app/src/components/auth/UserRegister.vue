@@ -2,7 +2,7 @@
   <div class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
       <h2 class="text-2xl font-bold mb-6 text-center">Register</h2>
-      <form @submit.prevent="register">
+      <form @submit.prevent="handleRegister">
         <div v-if="errorMessage" class="mb-4 text-red-500 text-sm">{{ errorMessage }}</div>
         <div class="mb-4">
           <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
@@ -42,10 +42,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, reactive, ref } from 'vue';
-import axios from 'axios';
+import {
+  defineComponent, onMounted, reactive, ref,
+} from 'vue';
 import { useRouter } from 'vue-router';
-import { VueCookies } from "vue-cookies";
+import { register } from '@/api/auth';
+import { useCookies } from 'vue3-cookies';
 
 export default defineComponent({
   name: 'UserRegister',
@@ -57,20 +59,20 @@ export default defineComponent({
       password: '',
       confirmPassword: '',
     });
-
     const isLoading = ref(false);
     const errorMessage = ref('');
-    const apiUrl = process.env.VUE_APP_API_URL;
-    const cookies = inject<VueCookies>('$cookies');
     const router = useRouter();
+    const { cookies } = useCookies();
 
-    const areFieldsEmpty = () => {
-      return !form.username || !form.name || !form.email || !form.password || !form.confirmPassword;
-    };
+    onMounted(() => {
+      if (cookies.get('accessToken') && cookies.get('refreshToken')) {
+        router.push('/home');
+      }
+    });
 
-    const register = async () => {
+    const handleRegister = async () => {
       errorMessage.value = '';
-      if (areFieldsEmpty()) {
+      if (!form.username || !form.name || !form.email || !form.password || !form.confirmPassword) {
         errorMessage.value = 'All fields are required';
         return;
       }
@@ -81,18 +83,13 @@ export default defineComponent({
 
       isLoading.value = true;
       try {
-        await axios.post(`${apiUrl}/api/auth/register`, form);
-        const { data } = await axios.post(`${apiUrl}/api/auth/login`, {
-          email: form.email,
-          password: form.password,
-        });
-        cookies?.set('accessToken', data.accessToken);
-        cookies?.set('refreshToken', data.refreshToken, '30d');
-        await router.push('/home');
+        await register(form.username, form.name, form.email, form.password);
+        window.location.reload();
       } catch (err: any) {
         errorMessage.value = err.response?.data?.error || err.message;
         if (errorMessage.value) {
-          errorMessage.value = errorMessage.value.charAt(0).toUpperCase() + errorMessage.value.slice(1);
+          const errorMsg = errorMessage.value;
+          errorMessage.value = errorMsg.charAt(0).toUpperCase() + errorMsg.slice(1);
         }
       } finally {
         isLoading.value = false;
@@ -103,7 +100,7 @@ export default defineComponent({
       form,
       isLoading,
       errorMessage,
-      register,
+      handleRegister,
     };
   },
 });

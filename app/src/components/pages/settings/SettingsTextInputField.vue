@@ -1,11 +1,12 @@
 <template>
   <div class="form-group mb-4">
-    <label class="block text-sm font-medium text-gray-700">{{ label }}</label>
+    <label :for="inputId" class="block text-sm font-medium text-gray-700">{{ label }}</label>
     <div class="relative">
       <input
         type="text"
         v-model="internalValue"
         :readonly="!isEditing"
+        :id="inputId"
         required
         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       />
@@ -46,6 +47,7 @@ export default defineComponent({
     const originalValue = ref(props.modelValue);
     const internalValue = ref(props.modelValue);
     const isEditing = ref(false);
+    const inputId = ref(`input-${Math.random().toString(36).substring(2, 9)}`);
 
     watch(internalValue, (newValue) => {
       emit('update:modelValue', newValue);
@@ -65,7 +67,12 @@ export default defineComponent({
       isEditing,
       edit,
       cancel,
+      inputId,
     };
   },
 });
 </script>
+
+<style scoped>
+  @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+</style>

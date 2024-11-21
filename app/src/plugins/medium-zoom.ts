@@ -5,7 +5,8 @@ export default {
   install(app: App) {
     // Create a zoom instance and make it globally available
     const zoom = mediumZoom();
-    app.config.globalProperties.$zoom = zoom;
+    const appConfig = app.config;
+    appConfig.globalProperties.$zoom = zoom;
 
     // You can also set default options globally here
     zoom.update({

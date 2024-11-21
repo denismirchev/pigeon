@@ -1,10 +1,10 @@
 import { db } from '@src/db/setup';
 import { IPost, IPostJoins, posts } from '@src/db/models/Post';
 import { and, desc, eq, isNull, notInArray, sql } from 'drizzle-orm';
-import { DEFAULT_POSTS_LIMIT } from '@src/config';
 import { users } from '@src/db/models/User';
 import { likes } from '@src/db/models/Like';
 import { alias } from 'drizzle-orm/mysql-core';
+import EnvVars from '@src/common/EnvVars';
 
 class PostRepo {
   private db;
@@ -19,23 +19,20 @@ class PostRepo {
 
   public getPosts = async (
     parentId?: number,
+    currentUserId?: number,
     offset: number = 0,
-    limit: number = DEFAULT_POSTS_LIMIT,
+    limit: number = EnvVars.Posts.DefaultLimit,
     excludedIds: number[] = [],
   ): Promise<IPostJoins[]> => {
     const conditions = parentId
       ? and(eq(posts.parentId, parentId), notInArray(posts.id, excludedIds))
       : and(isNull(posts.parentId), notInArray(posts.id, excludedIds));
 
-    const query = await db
+    const query = db
       .select()
       .from(posts)
       .where(conditions)
       .innerJoin(users, eq(posts.userId, users.id))
-      .leftJoin(likes, and(
-        eq(posts.id, likes.postId),
-        eq(likes.userId, posts.userId)),
-      )
       .leftJoin(alias(posts, 'repost'),
         eq(posts.repostId, alias(posts, 'repost').id),
       )
@@ -44,21 +41,26 @@ class PostRepo {
       )
       .offset(offset)
       .limit(limit)
-      .orderBy(desc(posts.createdAt));
+      .orderBy(desc(posts.createdAt))
+      .groupBy(posts.id);
 
-    return query as IPostJoins[];
+    if (currentUserId) {
+      query.leftJoin(likes, and(
+        eq(posts.id, likes.postId),
+        eq(likes.userId, currentUserId),
+      ));
+    }
+
+    return await query as IPostJoins[];
   };
 
-  public getPost = async (id: number): Promise<IPostJoins | null> => {
-    const [post] = await this.db
+  public getPost = async (id: number, currentUserId?: number)
+  : Promise<IPostJoins | null> => {
+    const query = this.db
       .select()
       .from(posts)
       .where(eq(posts.id, id))
       .innerJoin(users, eq(posts.userId, users.id))
-      .leftJoin(likes, and(
-        eq(posts.id, likes.postId),
-        eq(likes.userId, posts.userId),
-      ))
       .leftJoin(alias(posts, 'repost'),
         eq(posts.repostId, alias(posts, 'repost').id),
       )
@@ -66,13 +68,21 @@ class PostRepo {
         eq(alias(posts, 'repost').userId, users.id),
       );
 
+    if (currentUserId) {
+      query.leftJoin(likes, and(
+        eq(posts.id, likes.postId),
+        eq(likes.userId, currentUserId),
+      ));
+    }
+
+    const [ post ] = await query;
     return post as IPostJoins || null;
   };
 
   public getPostsByUserId = async (
     userId: number,
     offset: number = 0,
-    limit: number = DEFAULT_POSTS_LIMIT,
+    limit: number = EnvVars.Posts.DefaultLimit,
     excludedIds: number[] = [],
   ): Promise<IPostJoins[]> => {
     const query = await db
@@ -81,7 +91,7 @@ class PostRepo {
       .where(and(
         eq(posts.userId, userId),
         isNull(posts.parentId),
-        notInArray(posts.id, excludedIds)
+        notInArray(posts.id, excludedIds),
       ))
       .innerJoin(users, eq(posts.userId, users.id))
       .leftJoin(likes, and(
@@ -96,7 +106,8 @@ class PostRepo {
       )
       .offset(offset)
       .limit(limit)
-      .orderBy(desc(posts.createdAt));
+      .orderBy(desc(posts.createdAt))
+      .groupBy(posts.id);
 
     return query as IPostJoins[];
   };

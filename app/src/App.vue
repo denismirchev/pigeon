@@ -8,6 +8,7 @@ import {
 } from 'vue';
 import { getUserFromAccessToken, logout } from '@/api/auth';
 import { User } from '@/types/User';
+import router from '@/router';
 
 export default defineComponent({
   name: 'App',
@@ -18,16 +19,14 @@ export default defineComponent({
 
     onMounted(async () => {
       // Check if the access token is still valid
-      // If it is, fetch the user data
-      // If it's not, log the user out
+      // If true fetch the user data, else log the user out
       try {
         user.value = await getUserFromAccessToken();
       } catch (error) {
-        // console.error(error);
         try {
           await logout();
-        } catch (logoutError) {
-          // console.error(logoutError);
+        } finally {
+          await router.push('/login');
         }
       }
     });
