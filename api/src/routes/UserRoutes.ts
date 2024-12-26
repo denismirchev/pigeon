@@ -1,53 +1,52 @@
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
-
-import UserService from '@src/services/UserService';
-import { IUser } from '@src/models/User';
 import { IReq, IRes } from './types/express/misc';
+import UserService from '@src/services/UserService';
 
-
-// **** Functions **** //
-
-/**
- * Get all users.
- */
-async function getAll(_: IReq, res: IRes) {
-  const users = await UserService.getAll();
-  return res.status(HttpStatusCodes.OK).json({ users });
+interface IUpdatePostReq {
+  username?: string;
+  nickname?: string;
+  bio?: string;
+  profileImageUrl?: string;
+  location?: string;
+  website?: string;
+  email?: string;
 }
 
-/**
- * Add one user.
- */
-async function add(req: IReq<{user: IUser}>, res: IRes) {
-  const { user } = req.body;
-  await UserService.addOne(user);
-  return res.status(HttpStatusCodes.CREATED).end();
+class UserRoutes {
+  public update = async (req: IReq<IUpdatePostReq>, res: IRes) => {
+    const updates = {
+      ...req.body,
+      profileImageUrl: req.file?.filename,
+      name: req.body.nickname,
+    };
+
+    const user = res.locals.user;
+    if (!user || !user.id) {
+      return res.status(HttpStatusCodes.BAD_REQUEST).json('User not found');
+    }
+
+    const updatedUser = await UserService.updateUser(user.id, updates);
+
+    return res.status(HttpStatusCodes.OK).json(updatedUser);
+  };
+
+  public getByToken = (req: IReq, res: IRes) => {
+    const user = res.locals.user;
+    if (!user) {
+      return res.status(HttpStatusCodes.NOT_FOUND).json('User not found');
+    }
+
+    return res.status(HttpStatusCodes.OK).json({ ...user });
+  };
+
+  public getByUsername = async (req: IReq, res: IRes) => {
+    const user = await UserService.getUserByUsername(req.params.username);
+    if (!user) {
+      return res.status(HttpStatusCodes.NOT_FOUND).json('User not found');
+    }
+
+    return res.status(HttpStatusCodes.OK).json({ ...user });
+  };
 }
 
-/**
- * Update one user.
- */
-async function update(req: IReq<{user: IUser}>, res: IRes) {
-  const { user } = req.body;
-  await UserService.updateOne(user);
-  return res.status(HttpStatusCodes.OK).end();
-}
-
-/**
- * Delete one user.
- */
-async function delete_(req: IReq, res: IRes) {
-  const id = +req.params.id;
-  await UserService.delete(id);
-  return res.status(HttpStatusCodes.OK).end();
-}
-
-
-// **** Export default **** //
-
-export default {
-  getAll,
-  add,
-  update,
-  delete: delete_,
-} as const;
+export default new UserRoutes();

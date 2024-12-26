@@ -1,52 +1,14 @@
 import { Router } from 'express';
-import jetValidator from 'jet-validator';
+import authRouter from '@src/routes/routers/AuthRouter';
+import postRouter from '@src/routes/routers/PostRouter';
+import userRouter from '@src/routes/routers/UserRouter';
+import Paths from '@src/common/Paths';
+import authenticateMw from '@src/routes/middleware/authenticateMw';
 
-import Paths from '../common/Paths';
-import User from '@src/models/User';
-import UserRoutes from './UserRoutes';
+const apiRouter = Router();
 
-
-// **** Variables **** //
-
-const apiRouter = Router(),
-  validate = jetValidator();
-
-
-// ** Add UserRouter ** //
-
-const userRouter = Router();
-
-// Get all users
-userRouter.get(
-  Paths.Users.Get,
-  UserRoutes.getAll,
-);
-
-// Add one user
-userRouter.post(
-  Paths.Users.Add,
-  validate(['user', User.isUser]),
-  UserRoutes.add,
-);
-
-// Update one user
-userRouter.put(
-  Paths.Users.Update,
-  validate(['user', User.isUser]),
-  UserRoutes.update,
-);
-
-// Delete one user
-userRouter.delete(
-  Paths.Users.Delete,
-  validate(['id', 'number', 'params']),
-  UserRoutes.delete,
-);
-
-// Add UserRouter
+apiRouter.use(Paths.Auth.Base, authRouter);
+apiRouter.use(Paths.Posts.Base, authenticateMw, postRouter);
 apiRouter.use(Paths.Users.Base, userRouter);
-
-
-// **** Export default **** //
 
 export default apiRouter;

@@ -1,4 +1,4 @@
-import { IUser } from '@src/models/User';
+import { IUser } from '@src/models/UserBac';
 import 'supertest';
 
 

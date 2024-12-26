@@ -1,27 +1,39 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <router-view />
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import {
+  defineComponent, onMounted, provide, ref,
+} from 'vue';
+import { getUserFromAccessToken, logout } from '@/api/auth';
+import { User } from '@/types/User';
+import router from '@/router';
 
 export default defineComponent({
   name: 'App',
-  components: {
-    HelloWorld
-  }
+  setup() {
+    const user = ref<User>();
+
+    provide('user', user);
+
+    onMounted(async () => {
+      // Check if the access token is still valid
+      // If true fetch the user data, else log the user out
+      try {
+        user.value = await getUserFromAccessToken();
+      } catch (error) {
+        try {
+          await logout();
+        } finally {
+          await router.push('/login');
+        }
+      }
+    });
+
+    return {
+      user,
+    };
+  },
 });
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>

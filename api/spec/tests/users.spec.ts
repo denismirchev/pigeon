@@ -5,13 +5,14 @@ import insertUrlParams from 'inserturlparams';
 
 import app from '@src/server';
 
-import UserRepo from '@src/repos/UserRepo';
-import User, { IUser } from '@src/models/User';
+import UserRepo from '@src/repos/UserRepoBac';
+import User, { IUser } from '@src/models/UserBac';
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import { USER_NOT_FOUND_ERR } from '@src/services/UserService';
 
 import Paths from 'spec/support/Paths';
 import apiCb from 'spec/support/apiCb';
+import login from 'spec/support/login';
 import { TApiCb } from 'spec/types/misc';
 
 
@@ -31,9 +32,12 @@ describe('UserRouter', () => {
   let agent: TestAgent<Test>;
 
   // Run before all tests
-  beforeAll(done => {
+  beforeAll((done) => {
     agent = supertest.agent(app);
-    done();
+    login(agent, cookie => {
+      agent.set('Cookie', cookie);
+      done();
+    });
   });
 
   // Get all users
@@ -47,7 +51,7 @@ describe('UserRouter', () => {
 
     // Success
     it('should return a JSON object with all the users and a status code ' + 
-    `of "${HttpStatusCodes.OK}" if the request was successful.`, (done) => {
+    `of "${HttpStatusCodes.OK}" if the request was successful.`, done => {
       // Add spy
       const data = getDummyUsers();
       spyOn(UserRepo, 'getAll').and.resolveTo(data);
@@ -75,7 +79,7 @@ describe('UserRouter', () => {
 
     // Test add user success
     it(`should return a status code of "${HttpStatusCodes.CREATED}" if the ` + 
-    'request was successful.', (done) => {
+    'request was successful.', done => {
       // Spy
       spyOn(UserRepo, 'add').and.resolveTo();
       // Call api
@@ -88,7 +92,7 @@ describe('UserRouter', () => {
     // Missing param
     it(`should return a JSON object with an error message of "${ERROR_MSG}" ` + 
     `and a status code of "${HttpStatusCodes.BAD_REQUEST}" if the user ` + 
-    'param was missing.', (done) => {
+    'param was missing.', done => {
       // Call api
       callApi(null, res => {
         expect(res.status).toBe(HttpStatusCodes.BAD_REQUEST);
@@ -113,7 +117,7 @@ describe('UserRouter', () => {
 
     // Success
     it(`should return a status code of "${HttpStatusCodes.OK}" if the ` + 
-    'request was successful.', (done) => {
+    'request was successful.', done => {
       // Setup spies
       spyOn(UserRepo, 'update').and.resolveTo();
       spyOn(UserRepo, 'persists').and.resolveTo(true);
@@ -127,7 +131,7 @@ describe('UserRouter', () => {
     // Param missing
     it(`should return a JSON object with an error message of "${ERROR_MSG}" ` +
     `and a status code of "${HttpStatusCodes.BAD_REQUEST}" if the user ` + 
-    'param was missing.', (done) => {
+    'param was missing.', done => {
       // Call api
       callApi(null, res => {
         expect(res.status).toBe(HttpStatusCodes.BAD_REQUEST);
