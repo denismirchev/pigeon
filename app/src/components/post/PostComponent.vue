@@ -14,7 +14,7 @@
         <div class="text-sm text-gray-500">@{{ postRef.user.username }}</div>
       </div>
     </router-link>
-    <div class="mt-4">{{ postRef.content }}</div>
+    <div class="mt-4" v-html="postRef.content"/>
     <div v-if="postRef.attachments" class="mt-4 flex space-x-4">
       <MediaPreview :media="postRef.attachments" />
     </div>
@@ -32,7 +32,7 @@
             <div class="text-sm text-gray-500">@{{ postRef.repost.user.username }}</div>
           </div>
         </router-link>
-        <div class="mt-4">{{ postRef.repost.content }}</div>
+        <div class="mt-4" v-html="postRef.repost.content" />
 
         <div v-if="postRef.repost.attachments" class="mt-4 flex space-x-4">
           <MediaPreview :media="postRef.repost.attachments" />
@@ -112,7 +112,14 @@ export default defineComponent({
     isLink: { type: Boolean, default: false },
   },
   setup(props) {
+    const formatContent = (content: string) => content.replace(/\n/g, '<br>');
+
     const postRef = ref(props.post);
+    postRef.value.content = formatContent(postRef.value.content);
+    if (postRef.value.repost) {
+      postRef.value.repost.content = formatContent(postRef.value.repost.content);
+    }
+
     const showRepostModal = ref(false);
     const justClosedRepostModal = ref(false);
 
@@ -174,6 +181,7 @@ export default defineComponent({
         position: 'bottom-right',
       });
     };
+
 
     return {
       postRef,

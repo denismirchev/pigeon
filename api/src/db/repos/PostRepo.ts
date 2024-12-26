@@ -37,7 +37,7 @@ class PostRepo {
         eq(posts.repostId, alias(posts, 'repost').id),
       )
       .leftJoin(alias(users, 'repostUser'),
-        eq(alias(posts, 'repost').userId, users.id),
+        eq(alias(posts, 'repost').userId, alias(users, 'repostUser').id),
       )
       .offset(offset)
       .limit(limit)
@@ -65,7 +65,7 @@ class PostRepo {
         eq(posts.repostId, alias(posts, 'repost').id),
       )
       .leftJoin(alias(users, 'repostUser'),
-        eq(alias(posts, 'repost').userId, users.id),
+        eq(alias(posts, 'repost').userId, alias(users, 'repostUser').id),
       );
 
     if (currentUserId) {

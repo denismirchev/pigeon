@@ -5,6 +5,7 @@
 import fs from 'fs-extra';
 import logger from 'jet-logger';
 import childProcess from 'child_process';
+import path from 'path';
 
 
 /**
@@ -18,6 +19,9 @@ import childProcess from 'child_process';
     await copy('./public', './dist/public');
     // Copy back-end files
     await exec('tsc --build tsconfig.prod.json', './');
+    // Move contents from ./dist/src/ to ./dist/
+    await moveContents('./dist/src/', './dist/');
+    await remove('./dist/src/');
   } catch (err) {
     logger.err(err);
     process.exit(1);
@@ -59,6 +63,24 @@ function exec(cmd: string, loc: string): Promise<void> {
         logger.warn(stderr);
       }
       return (!!err ? rej(err) : res());
+    });
+  });
+}
+
+/**
+ * Move contents from source to destination.
+ */
+function moveContents(src: string, dest: string): Promise<void> {
+  return new Promise((res, rej) => {
+    fs.readdir(src, (err, files) => {
+      if (err) {
+        return rej(err);
+      }
+      Promise.all(files.map(file => {
+        return fs.move(path.join(src, file), path.join(dest, file));
+      }))
+        .then(() => res())
+        .catch(rej);
     });
   });
 }
