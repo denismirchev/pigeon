@@ -15,7 +15,7 @@ import path from 'path';
   try {
     // Remove current build
     await remove('./dist/');
-    // Copy front-end files
+    // Copy static files
     await copy('./public', './dist/public');
     // Copy back-end files
     await exec('tsc --build tsconfig.prod.json', './');
