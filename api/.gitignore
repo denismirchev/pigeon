@@ -2,6 +2,5 @@
 dist/
 **/**/*.log
 **/db/migrations/
-.env
 **/uploads/
 .idea/
