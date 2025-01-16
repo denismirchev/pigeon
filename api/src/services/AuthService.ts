@@ -13,6 +13,7 @@ import { IUser } from '@src/db/models/User';
 import RefreshTokenRepo from '@src/db/repos/RefreshTokenRepo';
 import { IRefreshToken } from '@src/db/models/RefreshToken';
 import EnvVars from '@src/common/EnvVars';
+import ErrorsUtil from '@src/common/errors';
 
 export const Errors = {
   Unauthorized: 'User is unauthorized',
@@ -32,16 +33,19 @@ class AuthService {
     const user = await UserRepo.getUserByEmail(email);
     if (!user) {
       throw new RouteError(
-        HttpStatusCodes.UNAUTHORIZED,
-        Errors.EmailNotFound(email),
+        ErrorsUtil.InvalidUserDetails.status,
+        ErrorsUtil.InvalidUserDetails.message,
       );
     }
 
-    const hash = user.passwordHash ?? '';
-    const passwordPassed = await PwdUtil.compare(password, hash);
-    if (!passwordPassed) {
+    const hash = user.passwordHash;
+    const isPasswordValid = await PwdUtil.compare(password, hash);
+    if (!isPasswordValid) {
       await tick(500);
-      throw new RouteError(HttpStatusCodes.UNAUTHORIZED, Errors.Unauthorized);
+      throw new RouteError(
+        ErrorsUtil.InvalidUserDetails.status,
+        ErrorsUtil.InvalidUserDetails.message,
+      );
     }
 
     return user;
@@ -49,7 +53,10 @@ class AuthService {
 
   public createTokens = async (user: IUser) => {
     if (!user.id) {
-      throw new Error('User must have an id to create a refresh token');
+      throw new RouteError(
+        ErrorsUtil.UnexpectedError.status,
+        ErrorsUtil.UnexpectedError.message,
+      );
     }
 
     if (await RefreshTokenRepo.getOneByUserId(user.id)) {

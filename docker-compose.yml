@@ -1,6 +1,6 @@
 services:
   db:
-    image: mysql:5.7.24
+    image: mariadb:latest
     container_name: db
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
