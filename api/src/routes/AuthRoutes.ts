@@ -1,6 +1,7 @@
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import AuthService from '@src/services/AuthService';
 import { IReq, IRes } from './types/express/misc';
+import ErrorsUtil from '@src/common/errors';
 
 // **** Types **** //
 
@@ -29,13 +30,15 @@ interface ILogoutReq {
 class AuthRoutes {
   public login = async (req: IReq<ILoginReq>, res: IRes) => {
     const { email, password } = req.body;
-    const user = await AuthService.login(email, password);
-    const { accessToken, refreshToken } = await AuthService.createTokens(user);
+    try {
+      const user = await AuthService.login(email, password);
+      const tokens = await AuthService.createTokens(user);
 
-    return res.status(HttpStatusCodes.OK).json({
-      accessToken,
-      refreshToken,
-    });
+      return res.status(HttpStatusCodes.OK).json(tokens);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
+    }
   };
 
   public register = async (req: IReq<IRegisterReq>, res: IRes) => {
