@@ -23,10 +23,17 @@ class UserRoutes {
 
     const user = res.locals.user;
     if (!user || !user.id) {
-      return res.status(HttpStatusCodes.BAD_REQUEST).json('User not found');
+      return res.status(ErrorsUtil.UnexpectedError.status)
+        .json(ErrorsUtil.UnexpectedError.message);
     }
 
-    const updatedUser = await UserService.updateUser(user.id, updates);
+    let updatedUser;
+    try {
+      updatedUser = await UserService.updateUser(user.id, updates);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
+    }
 
     return res.status(HttpStatusCodes.OK).json(updatedUser);
   };
