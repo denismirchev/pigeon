@@ -34,7 +34,8 @@ class UserRoutes {
   public getByToken = (req: IReq, res: IRes) => {
     const user = res.locals.user;
     if (!user) {
-      return res.status(HttpStatusCodes.NOT_FOUND).json('User not found');
+      return res.status(ErrorsUtil.UserNotFound.status)
+        .json(ErrorsUtil.UserNotFound.message);
     }
 
     return res.status(HttpStatusCodes.OK).json({ ...user });
