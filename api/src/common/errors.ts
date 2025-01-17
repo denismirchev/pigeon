@@ -32,6 +32,11 @@ class ErrorsUtil {
     message: 'User not found',
   };
 
+  public static PostLikeFailed = {
+    status: HttpStatusCodes.BAD_REQUEST,
+    message: 'Failed to like post',
+  };
+
   public static getError(error: unknown) {
     if (!(error instanceof RouteError)) {
       return this.UnexpectedError;
