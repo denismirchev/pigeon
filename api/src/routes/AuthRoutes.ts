@@ -57,9 +57,15 @@ class AuthRoutes {
 
   public logout = async (req: IReq<ILogoutReq>, res: IRes) => {
     const { token } = req.body;
-    await AuthService.logout(token);
+    try {
+      await AuthService.logout(token);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
+    }
+
     return res.status(HttpStatusCodes.OK).json({
-      message: 'Logged out successfully',
+      message: 'User logged out successfully',
     });
   };
 

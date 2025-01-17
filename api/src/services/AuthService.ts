@@ -119,7 +119,10 @@ class AuthService {
 
   public logout = async (token: string) => {
     if (!await RefreshTokenRepo.getOneByToken(token)) {
-      throw new RouteError(HttpStatusCodes.FORBIDDEN, 'Token not found');
+      throw new RouteError(
+        ErrorsUtil.InvalidToken.status,
+        ErrorsUtil.InvalidToken.message,
+      );
     }
     await RefreshTokenRepo.deleteByToken(token);
   };

@@ -12,6 +12,11 @@ class ErrorsUtil {
     message: 'Invalid user details',
   };
 
+  public static InvalidToken = {
+    status: HttpStatusCodes.FORBIDDEN,
+    message: 'Invalid token',
+  };
+
   public static UnexpectedError = {
     status: HttpStatusCodes.INTERNAL_SERVER_ERROR,
     message: 'Unexpected error occurred',
