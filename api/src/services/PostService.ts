@@ -1,9 +1,10 @@
-import { IPost, IPostJoins } from '@src/db/models/Post';
-import { ILike } from '@src/db/models/Like';
+import {IPost, IPostJoins} from '@src/db/models/Post';
+import {ILike} from '@src/db/models/Like';
 import PostRepo from '@src/db/repos/PostRepo';
 import LikeRepo from '@src/db/repos/LikeRepo';
 import RouteError from '@src/common/RouteError';
 import ErrorsUtil from '@src/common/errors';
+import HttpStatusCodes from '@src/common/HttpStatusCodes';
 
 class PostService {
   public createPost = async (
@@ -84,14 +85,17 @@ class PostService {
       await LikeRepo.create(newLike);
     } catch (e) {
       // TODO: handle errors
-      throw new Error('Failed to like post');
+      throw new RouteError(
+        ErrorsUtil.PostLikeFailed.status,
+        ErrorsUtil.PostLikeFailed.message,
+      );
     }
     await PostRepo.incLikeCount(postId);
   };
 
   public unlikePost = async (postId: number, userId: number): Promise<void> => {
     if (!(await LikeRepo.get(postId, userId))) {
-      throw new Error('Like not found');
+      throw new RouteError(HttpStatusCodes.NOT_FOUND, 'Like not found');
     }
 
     await LikeRepo.delete(postId, userId);

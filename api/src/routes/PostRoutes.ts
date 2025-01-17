@@ -14,13 +14,15 @@ interface ICreatePostReq {
 
 class PostRoutes {
   public createPost = async (req: IReq<ICreatePostReq>, res: IRes) => {
-    const { content, parentId, repostId } = req.body;
+    const content = req.body.content;
+    const parentId = req.body.parentId ? Number(req.body.parentId) : undefined;
+    const repostId = req.body.repostId ? Number(req.body.repostId) : undefined;
 
     const userId = res.locals.user?.id;
 
     if (!userId) {
       return res.status(ErrorsUtil.UnexpectedError.status)
-        .json(ErrorsUtil.UnexpectedError.message);
+        .json({ error: ErrorsUtil.UnexpectedError.message });
     }
 
     if (parentId && repostId) {
@@ -86,14 +88,19 @@ class PostRoutes {
     const offset = Number(req.query.offset) || 0;
     const limit = Number(req.query.limit) || EnvVars.Posts.DefaultLimit;
 
-    const user = await UserService.getUserByUsername(username);
-    if (!user || !user.id) {
-      return res.status(HttpStatusCodes.NOT_FOUND).json({
-        error: 'User not found',
-      });
+    let posts;
+    try {
+      const user = await UserService.getUserByUsername(username);
+      if (!user.id) {
+        return res.status(ErrorsUtil.UserNotFound.status)
+          .json({ error: ErrorsUtil.UserNotFound.message });
+      }
+      posts = await PostService.getUserPosts(user.id, offset, limit);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
     }
 
-    const posts = await PostService.getUserPosts(user.id, offset, limit);
     return res.status(HttpStatusCodes.OK).json(posts);
   };
 
@@ -116,11 +123,16 @@ class PostRoutes {
   public likePost = async (req: IReq, res: IRes) => {
     const user = res.locals.user;
     if (!user || !user.id) {
-      throw new Error('User not found');
+      return res.status(ErrorsUtil.UnexpectedError.status)
+        .json({ error: ErrorsUtil.UnexpectedError.message });
     }
 
-    const postId = Number(req.params.id);
-    await PostService.likePost(postId, user.id);
+    try {
+      await PostService.likePost(Number(req.params.id), user.id);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
+    }
 
     return res.status(HttpStatusCodes.OK).json({
       message: 'Post liked successfully',
@@ -133,8 +145,13 @@ class PostRoutes {
       return;
     }
 
-    const postId = Number(req.params.id);
-    await PostService.unlikePost(postId, user.id);
+    try {
+      const postId = Number(req.params.id);
+      await PostService.unlikePost(postId, user.id);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
+    }
 
     return res.status(HttpStatusCodes.OK).json({
       message: 'Post unliked successfully',

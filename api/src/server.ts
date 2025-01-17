@@ -1,4 +1,3 @@
-import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import express, { Request, Response, NextFunction } from 'express';
@@ -14,6 +13,10 @@ import { NodeEnvs } from '@src/common/misc';
 import RouteError from '@src/common/RouteError';
 import cron from 'node-cron';
 import AuthService from '@src/services/AuthService';
+import fs from 'fs';
+import path from 'path';
+import swaggerUi from 'swagger-ui-express';
+
 
 const app = express();
 
@@ -43,6 +46,8 @@ app.use(express.static('public', {
   },
 }));
 
+const swaggerDocument = JSON.parse(fs.readFileSync(path.join(__dirname, '../apidoc.json'), 'utf8'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Add error handler
 app.use((

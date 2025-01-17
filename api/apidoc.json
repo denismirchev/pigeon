@@ -1,0 +1,1037 @@
+{
+  "openapi": "3.0.0",
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "info": {
+    "title": "Pigeon API",
+    "version": "1.0.0",
+    "description": "Pigeon API Swagger documentation."
+  },
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Login and retrieve access and refresh tokens",
+        "requestBody": {
+          "description": "Login credentials",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "test@test.com",
+                    "description": "The user's email address"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "testtest",
+                    "description": "The user's password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "accessToken": "eyJhbGciOiJIUzI1NiIsInR...",
+                  "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2gtdG9rZW4="
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid email or password",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid user details"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Register a new user",
+        "requestBody": {
+          "description": "User registration details",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "nickname": {
+                    "type": "string",
+                    "example": "John Doe",
+                    "description": "The user's nickname"
+                  },
+                  "username": {
+                    "type": "string",
+                    "example": "johndoe123",
+                    "description": "The user's username"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "johndoe@example.com",
+                    "description": "The user's email address"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "example": "securepassword",
+                    "description": "The user's password"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful registration",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User registered successfully"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Value for field already exists",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Email already exists"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Logout the user and invalidate the provided refresh token",
+        "requestBody": {
+          "description": "Refresh token validation request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "The refresh token to be invalidated",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR..."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful logout",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User logged out successfully"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid token"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/token": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Refresh access token",
+        "requestBody": {
+          "description": "Refresh token validation request",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "The refresh token to be invalidated",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR..."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "accessToken": "eyJhbGciOiJIUzI1NiIsInR..."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid token"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/{username}": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get user details by username",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The username of the user to retrieve",
+            "example": "test"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with user details",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 6,
+                  "name": "test",
+                  "email": "test@test.com",
+                  "passwordHash": "$2b$12$/UenP3VgrMXJbgXRuk2j/eI5EqybojloL.GL5nswXXEN145VmKFfu",
+                  "username": "test",
+                  "bio": "",
+                  "location": "",
+                  "website": "",
+                  "profileImageUrl": "1735230447254-profile-picture.png",
+                  "createdAt": "2024-12-25T16:16:55.000Z",
+                  "updatedAt": "2024-12-27T02:23:06.000Z"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "User not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/user": {
+      "get": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get user details by Bearer token",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with user details",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 6,
+                  "name": "test",
+                  "email": "test@test.com",
+                  "passwordHash": "$2b$12$/UenP3VgrMXJbgXRuk2j/eI5EqybojloL.GL5nswXXEN145VmKFfu",
+                  "username": "test",
+                  "bio": "",
+                  "location": "",
+                  "website": "",
+                  "profileImageUrl": "1735230447254-profile-picture.png",
+                  "createdAt": "2024-12-25T16:16:55.000Z",
+                  "updatedAt": "2024-12-27T02:23:06.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users": {
+      "patch": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Update user details, including profile image upload",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "User update details, including optional profile image upload",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "The user's updated name",
+                    "example": "John Doe"
+                  },
+                  "username": {
+                    "type": "string",
+                    "description": "The user's updated username",
+                    "example": "johndoe123"
+                  },
+                  "bio": {
+                    "type": "string",
+                    "description": "The user's updated bio",
+                    "example": "A passionate developer"
+                  },
+                  "location": {
+                    "type": "string",
+                    "description": "The user's updated location",
+                    "example": "San Francisco, CA"
+                  },
+                  "website": {
+                    "type": "string",
+                    "description": "The user's updated website URL",
+                    "example": "https://johndoe.com"
+                  },
+                  "profileImageUrl": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The user's updated profile image file"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User details updated successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 6,
+                  "name": "John Doe",
+                  "email": "test@test.com",
+                  "username": "johndoe123",
+                  "bio": "A passionate developer",
+                  "location": "San Francisco, CA",
+                  "website": "https://johndoe.com",
+                  "profileImageUrl": "1735230447254-updated-profile-picture.png",
+                  "createdAt": "2024-12-25T16:16:55.000Z",
+                  "updatedAt": "2025-01-17T12:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Validation or input errors",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid input data"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type - Only JPEG and PNG are allowed",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unsupported Media Type - Only JPEG, PNG, and GIF are allowed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts": {
+      "post": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Create a new post with optional file attachments",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Post details, including optional file attachments (NOTE: ParentId and RepostId CANNOT BE SET TOGETHER)",
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parentId": {
+                    "type": "integer",
+                    "description": "The ID of the parent post (optional)",
+                    "nullable": true
+                  },
+                  "repostId": {
+                    "type": "integer",
+                    "description": "The ID of the repost (optional)",
+                    "nullable": true
+                  },
+                  "content": {
+                    "type": "string",
+                    "description": "The content of the post",
+                    "example": "This is a new post"
+                  },
+                  "attachments": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Optional files attached to the post"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Post created successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 101,
+                  "userId": 6,
+                  "content": "This is a new post",
+                  "attachments": [
+                    "attachment1.png",
+                    "attachment2.pdf"
+                  ],
+                  "createdAt": "2025-01-17T12:00:00.000Z"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Validation or input errors",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Invalid input data"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Unsupported Media Type - Only JPEG, JPG, PNG and MP4 are allowed.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unsupported Media Type - Only JPEG, JPG, PNG and MP4 are allowed."
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Retrieve all main posts",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Fetch all posts that are not replies (main posts only).",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "description": "The number of posts to skip before starting to return results",
+              "example": 0
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "description": "The maximum number of posts to return",
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with a list of main posts",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 101,
+                    "userId": 6,
+                    "content": "This is a main post",
+                    "attachments": [
+                      "attachment1.png",
+                      "attachment2.pdf"
+                    ],
+                    "createdAt": "2025-01-17T12:00:00.000Z",
+                    "updatedAt": "2025-01-17T13:00:00.000Z"
+                  },
+                  {
+                    "id": 102,
+                    "userId": 7,
+                    "content": "Another main post",
+                    "attachments": [],
+                    "createdAt": "2025-01-17T14:00:00.000Z",
+                    "updatedAt": "2025-01-17T15:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{id}": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Retrieve a specific post by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Fetch the details of a single post by its unique ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The unique identifier of the post",
+            "example": 101
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with the post details",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": 101,
+                  "userId": 6,
+                  "content": "This is a specific post",
+                  "attachments": [
+                    "attachment1.png",
+                    "attachment2.pdf"
+                  ],
+                  "parentId": null,
+                  "repostId": null,
+                  "createdAt": "2025-01-17T12:00:00.000Z",
+                  "updatedAt": "2025-01-17T13:00:00.000Z"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Post not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{id}/parents": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Retrieve all parent posts of a specific post",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Fetch all parent posts of a given post by its unique ID. Returns an empty array if the post has no parents.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The unique identifier of the post",
+            "example": 101
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with a list of parent posts",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 100,
+                    "userId": 5,
+                    "content": "This is the first parent post",
+                    "attachments": [
+                      "attachment1.png"
+                    ],
+                    "parentId": null,
+                    "repostId": null,
+                    "createdAt": "2025-01-17T10:00:00.000Z",
+                    "updatedAt": "2025-01-17T11:00:00.000Z"
+                  },
+                  {
+                    "id": 99,
+                    "userId": 4,
+                    "content": "This is the second parent post",
+                    "attachments": [],
+                    "parentId": null,
+                    "repostId": null,
+                    "createdAt": "2025-01-16T08:00:00.000Z",
+                    "updatedAt": "2025-01-16T09:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{id}/replies": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Retrieve all replies for a specific post",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Fetch all replies to a given post by its unique ID. Returns an empty array if the post has no replies.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The unique identifier of the post",
+            "example": 101
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with a list of replies",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 201,
+                    "userId": 7,
+                    "content": "This is a reply to the post",
+                    "attachments": [],
+                    "parentId": 101,
+                    "repostId": null,
+                    "createdAt": "2025-01-17T15:00:00.000Z",
+                    "updatedAt": "2025-01-17T15:30:00.000Z"
+                  },
+                  {
+                    "id": 202,
+                    "userId": 8,
+                    "content": "Another reply to the post",
+                    "attachments": [
+                      "reply_attachment1.png"
+                    ],
+                    "parentId": 101,
+                    "repostId": null,
+                    "createdAt": "2025-01-17T16:00:00.000Z",
+                    "updatedAt": "2025-01-17T16:30:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/users/{username}": {
+      "get": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Retrieve all posts by a specific user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Fetch all posts created by a user identified by their unique username.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The unique username of the user",
+            "example": "johndoe"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The number of posts to skip before starting to return results",
+            "example": 0
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The maximum number of posts to return",
+            "example": 10
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with a list of posts by the user",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": 101,
+                    "userId": 6,
+                    "username": "johndoe",
+                    "content": "This is one of my posts",
+                    "attachments": [
+                      "attachment1.png"
+                    ],
+                    "createdAt": "2025-01-17T12:00:00.000Z",
+                    "updatedAt": "2025-01-17T13:00:00.000Z"
+                  },
+                  {
+                    "id": 102,
+                    "userId": 6,
+                    "username": "johndoe",
+                    "content": "Another post by me",
+                    "attachments": [],
+                    "createdAt": "2025-01-17T14:00:00.000Z",
+                    "updatedAt": "2025-01-17T15:00:00.000Z"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found or no posts available",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "User with the specified username does not exist or has no posts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{id}/like": {
+      "post": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Like a specific post by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Like a post identified by its unique ID. The user must be authenticated, and each user can like a post only once.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The unique identifier of the post to like",
+            "example": 101
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post liked successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Post liked successfully"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Post with the specified ID does not exist"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Post already liked by the user",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Conflict - Post already liked by this user"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/posts/{id}/unlike": {
+      "post": {
+        "tags": [
+          "posts"
+        ],
+        "summary": "Unlike a specific post by ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Remove a like from a post identified by its unique ID. The user must be authenticated and must have previously liked the post.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The unique identifier of the post to unlike",
+            "example": 101
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Post unliked successfully",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Post unliked successfully"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing token",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Unauthorized - Bearer token is missing or invalid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Post not found or not previously liked by the user",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Post with the specified ID does not exist or was not liked by this user"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
