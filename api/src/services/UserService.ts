@@ -1,5 +1,7 @@
 import UserRepo from '@src/db/repos/UserRepo';
 import { IUser } from '@src/db/models/User';
+import RouteError from '@src/common/RouteError';
+import ErrorsUtil from '@src/common/errors';
 
 class UserService {
   public async getUserById(id: number) {
@@ -7,7 +9,15 @@ class UserService {
   }
 
   public async getUserByUsername(username: string) {
-    return UserRepo.getUserByUsername(username);
+    const user = await UserRepo.getUserByUsername(username);
+    if (!user) {
+      throw new RouteError(
+        ErrorsUtil.UserNotFound.status,
+        ErrorsUtil.UserNotFound.message,
+      );
+    }
+
+    return user;
   }
 
   public async updateUser(id: number, updates: Partial<IUser>) {

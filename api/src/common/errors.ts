@@ -27,6 +27,11 @@ class ErrorsUtil {
     message: `${field} "${value}" already exists`,
   });
 
+  public static UserNotFound = {
+    status: HttpStatusCodes.NOT_FOUND,
+    message: 'User not found',
+  };
+
   public static getError(error: unknown) {
     if (!(error instanceof RouteError)) {
       return this.UnexpectedError;

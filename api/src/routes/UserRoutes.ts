@@ -1,6 +1,7 @@
 import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import { IReq, IRes } from './types/express/misc';
 import UserService from '@src/services/UserService';
+import ErrorsUtil from '@src/common/errors';
 
 interface IUpdatePostReq {
   username?: string;
@@ -40,9 +41,12 @@ class UserRoutes {
   };
 
   public getByUsername = async (req: IReq, res: IRes) => {
-    const user = await UserService.getUserByUsername(req.params.username);
-    if (!user) {
-      return res.status(HttpStatusCodes.NOT_FOUND).json('User not found');
+    let user;
+    try {
+      user = await UserService.getUserByUsername(req.params.username);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
     }
 
     return res.status(HttpStatusCodes.OK).json({ ...user });
