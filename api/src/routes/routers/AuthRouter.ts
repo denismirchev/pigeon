@@ -14,7 +14,7 @@ authRouter.post(
 );
 authRouter.post(
   Paths.Auth.Register,
-  validate('name', 'username', 'email', 'password'),
+  validate('nickname', 'username', 'email', 'password'),
   AuthRoutes.register,
 );
 authRouter.post(

@@ -90,31 +90,31 @@ class AuthService {
     password: string,
     name: string,
     username: string,
-  ): Promise<IUser> => {
-    const passwordHash = await PwdUtil.getHash(password);
-
-    const newUser: IUser = {
-      email,
-      name,
-      username,
-      passwordHash,
-    };
-
+  ) => {
     try {
-      await UserRepo.create(newUser);
+      await UserRepo.create({
+        email,
+        name,
+        username,
+        passwordHash: await PwdUtil.getHash(password),
+      });
     } catch (err) {
       if (isDatabaseError(err) && err.code === 'ER_DUP_ENTRY') {
-        const entry = extractEntryFromSqlMessage(err.sqlMessage);
         const field = extractFieldFromSqlMessage(err.sqlMessage);
+        const entry = extractEntryFromSqlMessage(err.sqlMessage);
+
+        const error = ErrorsUtil.FieldAlreadyExists(field, entry);
         throw new RouteError(
-          HttpStatusCodes.CONFLICT,
-          Errors.FieldAlreadyExists(field, entry),
+          error.status,
+          error.message,
         );
       }
-      throw err;
-    }
 
-    return newUser;
+      throw new RouteError(
+        ErrorsUtil.UnexpectedError.status,
+        ErrorsUtil.UnexpectedError.message,
+      );
+    }
   };
 
   public logout = async (token: string) => {

@@ -11,7 +11,7 @@ interface ILoginReq {
 }
 
 interface IRegisterReq {
-  name: string;
+  nickname: string;
   username: string;
   email: string;
   password: string;
@@ -42,13 +42,15 @@ class AuthRoutes {
   };
 
   public register = async (req: IReq<IRegisterReq>, res: IRes) => {
-    const { email, password, name, username } = req.body;
-    const user = await AuthService.register(email, password, name, username);
-    if (!user) {
-      return res.status(HttpStatusCodes.BAD_REQUEST).end();
+    const { email, password, nickname, username } = req.body;
+    try {
+      await AuthService.register(email, password, nickname, username);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
     }
 
-    return res.status(HttpStatusCodes.OK).json({
+    return res.status(HttpStatusCodes.CREATED).json({
       message: 'User registered successfully',
     });
   };
