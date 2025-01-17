@@ -130,11 +130,17 @@ class AuthService {
   public refreshAccessToken = async (token: string) => {
     const refreshToken = await RefreshTokenRepo.getOneByToken(token);
     if (!refreshToken) {
-      throw new RouteError(HttpStatusCodes.FORBIDDEN, 'Token not found');
+      throw new RouteError(
+        ErrorsUtil.InvalidToken.status,
+        ErrorsUtil.InvalidToken.message,
+      );
     }
     return jwt.verify(token, EnvVars.Jwt.RefreshSecret, (err, user) => {
       if (err) {
-        throw new RouteError(HttpStatusCodes.FORBIDDEN, 'Invalid token');
+        throw new RouteError(
+          ErrorsUtil.InvalidToken.status,
+          ErrorsUtil.InvalidToken.message,
+        );
       }
 
       user = user as IUser;

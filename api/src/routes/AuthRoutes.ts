@@ -3,8 +3,6 @@ import AuthService from '@src/services/AuthService';
 import { IReq, IRes } from './types/express/misc';
 import ErrorsUtil from '@src/common/errors';
 
-// **** Types **** //
-
 interface ILoginReq {
   email: string;
   password: string;
@@ -24,8 +22,6 @@ interface IRefreshTokenReq {
 interface ILogoutReq {
   token: string;
 }
-
-// **** Class **** //
 
 class AuthRoutes {
   public login = async (req: IReq<ILoginReq>, res: IRes) => {
@@ -74,13 +70,19 @@ class AuthRoutes {
     res: IRes,
   ) => {
     const { token } = req.body;
-    const accessToken = await AuthService.refreshAccessToken(token);
+
+    let accessToken;
+    try {
+      accessToken = await AuthService.refreshAccessToken(token);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
+    }
+
     return res.status(HttpStatusCodes.OK).json({
-      accessToken: accessToken,
+      accessToken,
     });
   };
 }
-
-// **** Export default **** //
 
 export default new AuthRoutes();
