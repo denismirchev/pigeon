@@ -2,6 +2,8 @@ import { IPost, IPostJoins } from '@src/db/models/Post';
 import { ILike } from '@src/db/models/Like';
 import PostRepo from '@src/db/repos/PostRepo';
 import LikeRepo from '@src/db/repos/LikeRepo';
+import RouteError from '@src/common/RouteError';
+import ErrorsUtil from '@src/common/errors';
 
 class PostService {
   public createPost = async (
@@ -24,7 +26,14 @@ class PostService {
       await PostRepo.incReplyCount(parentId);
     }
 
-    return postData ? this.formatPostData(postData) : null;
+    if (!postData) {
+      throw new RouteError(
+        ErrorsUtil.UnexpectedError.status,
+        ErrorsUtil.UnexpectedError.message,
+      );
+    }
+
+    return this.formatPostData(postData);
   };
 
   public getPosts = async (
