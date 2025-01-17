@@ -3,6 +3,7 @@ import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import PostService from '@src/services/PostService';
 import UserService from '@src/services/UserService';
 import EnvVars from '@src/common/EnvVars';
+import ErrorsUtil from '@src/common/errors';
 
 interface ICreatePostReq {
   userId: number;
@@ -13,7 +14,14 @@ interface ICreatePostReq {
 
 class PostRoutes {
   public createPost = async (req: IReq<ICreatePostReq>, res: IRes) => {
-    const { userId, content, parentId, repostId } = req.body;
+    const { content, parentId, repostId } = req.body;
+
+    const userId = res.locals.user?.id;
+
+    if (!userId) {
+      return res.status(ErrorsUtil.UnexpectedError.status)
+        .json(ErrorsUtil.UnexpectedError.message);
+    }
 
     if (parentId && repostId) {
       return res.status(HttpStatusCodes.BAD_REQUEST).json({
@@ -28,16 +36,16 @@ class PostRoutes {
       attachments = files.map((file) => file.filename).join(',');
     }
 
-    const post = await PostService
-      .createPost(userId, content, attachments, parentId, repostId);
-
-    if (!post) {
-      return res.status(HttpStatusCodes.BAD_REQUEST).json({
-        error: 'Failed to create post',
-      });
+    let post;
+    try {
+      post = await PostService
+        .createPost(userId, content, attachments, parentId, repostId);
+    } catch (e) {
+      const error = ErrorsUtil.getError(e);
+      return res.status(error.status).json({ error: error.message });
     }
 
-    return res.status(HttpStatusCodes.OK).json(post);
+    return res.status(HttpStatusCodes.CREATED).json(post);
   };
 
   public getMainPosts = async (req: IReq, res: IRes) => {

@@ -5,18 +5,33 @@ import Paths from '@src/common/Paths';
 import PostRoutes from '@src/routes/PostRoutes';
 import multer from 'multer';
 import { createStorage } from '@src/routes/routers/utils';
+import RouteError from '@src/common/RouteError';
+import HttpStatusCodes from '@src/common/HttpStatusCodes';
 
 const postRouter = Router();
 const validate = jetValidator();
 const uploadAttachments = multer({
   storage: createStorage('public/uploads/attachments'),
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      'image/jpeg', 'image/jpg', 'image/png', 'video/mp4',
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new RouteError(
+        HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE,
+        'Unsupported Media Type - Only JPEG, JPG, PNG and MP4 are allowed.',
+      ));
+    }
+  },
 });
 
 
 postRouter.post(
   Paths.Posts.Create,
   uploadAttachments.any(),
-  validate('userId', 'content'),
+  validate('content'),
   PostRoutes.createPost,
 );
 
