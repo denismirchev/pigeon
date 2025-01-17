@@ -2,6 +2,11 @@ import UserRepo from '@src/db/repos/UserRepo';
 import { IUser } from '@src/db/models/User';
 import RouteError from '@src/common/RouteError';
 import ErrorsUtil from '@src/common/errors';
+import {
+  extractEntryFromSqlMessage,
+  extractFieldFromSqlMessage,
+  isDatabaseError,
+} from '@src/db/utils';
 
 class UserService {
   public async getUserById(id: number) {
@@ -21,7 +26,25 @@ class UserService {
   }
 
   public async updateUser(id: number, updates: Partial<IUser>) {
-    await UserRepo.updateUser(id, updates);
+    try {
+      await UserRepo.updateUser(id, updates);
+    } catch (err) {
+      if (isDatabaseError(err) && err.code === 'ER_DUP_ENTRY') {
+        const field = extractFieldFromSqlMessage(err.sqlMessage);
+        const entry = extractEntryFromSqlMessage(err.sqlMessage);
+
+        const error = ErrorsUtil.FieldAlreadyExists(field, entry);
+        throw new RouteError(
+          error.status,
+          error.message,
+        );
+      }
+
+      throw new RouteError(
+        ErrorsUtil.UnexpectedError.status,
+        ErrorsUtil.UnexpectedError.message,
+      );
+    }
     return UserRepo.getUserById(id);
   }
 }
