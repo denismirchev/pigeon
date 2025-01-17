@@ -46,7 +46,7 @@ async function login(email: string, password: string): Promise<void> {
 async function register(username: string, nickname: string, email: string, password: string)
   : Promise<void> {
   await axios.post(`${apiUrl}/api/auth/register`, {
-    username, name: nickname, email, password,
+    username, nickname, email, password,
   });
   const { data } = await axios.post(`${apiUrl}/api/auth/login`, { email, password });
   cookies.set('accessToken', data.accessToken);

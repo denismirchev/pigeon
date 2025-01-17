@@ -17,6 +17,11 @@ class ErrorsUtil {
     message: 'Unexpected error occurred',
   };
 
+  public static FieldAlreadyExists = (field: string, value: string) => ({
+    status: HttpStatusCodes.CONFLICT,
+    message: `${field} "${value}" already exists`,
+  });
+
   public static getError(error: unknown) {
     if (!(error instanceof RouteError)) {
       return this.UnexpectedError;
