@@ -24,7 +24,14 @@ if (result2.error) {
   throw result2.error;
 }
 
-// Setup command line options. 
+const result1 = dotenv.config({
+  path: './.env',
+});
+if (result1.error) {
+  throw result1.error;
+}
+
+// Setup command line options.
 const args = parse<IArgs>({
   testFile: {
     type: String,

@@ -46,7 +46,9 @@ app.use(express.static('public', {
   },
 }));
 
-const swaggerDocument = JSON.parse(fs.readFileSync(path.join(__dirname, '../apidoc.json'), 'utf8'));
+const swaggerDocument = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '../apidoc.json'), 'utf8'),
+);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Add error handler
