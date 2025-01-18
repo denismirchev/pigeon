@@ -1,6 +1,7 @@
 import { users, IUser } from '@src/db/models/User';
 import { db } from '@src/db/setup';
 import { eq } from 'drizzle-orm';
+import {refreshTokens} from '@src/db/models/RefreshToken';
 
 class UserRepo {
   private db;
@@ -42,6 +43,16 @@ class UserRepo {
 
   public updateUser = async (id: number, updates: Partial<IUser>): Promise<void> => {
     await this.db.update(users).set(updates).where(eq(users.id, id));
+  };
+
+  public deleteUserByEmail = async (email: string): Promise<void> => {
+    const user = await this.getUserByEmail(email);
+    if (user && user.id) {
+      await this.db.delete(refreshTokens).where(
+        eq(refreshTokens.userId, user.id),
+      );
+      await this.db.delete(users).where(eq(users.email, email));
+    }
   };
 }
 
