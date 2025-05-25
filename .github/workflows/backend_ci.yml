@@ -35,7 +35,7 @@ jobs:
       - name: Run tests
         run: |
           cd api
-          npm test:no-reloading
+          npm run test:no-reloading
 
       - name: Tear down database container
         if: always()
