@@ -3,6 +3,7 @@ import find from 'find';
 import Jasmine from 'jasmine';
 import { parse } from 'ts-command-line-args';
 import logger from 'jet-logger';
+import * as process from "node:process";
 
 
 // **** Types **** //
@@ -77,8 +78,12 @@ if (args.testFile) {
     const info = await execResp;
     if (info.overallStatus === 'passed') {
       logger.info('All tests have passed :)');
+      // eslint-disable-next-line no-process-exit
+      process.exit(0);
     } else {
       logger.err('At least one test has failed :(');
+      // eslint-disable-next-line no-process-exit
+      process.exit(1);
     }
   }
 })();
