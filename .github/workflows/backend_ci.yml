@@ -6,24 +6,21 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+      - name: Create .env file
+        run: cp example.env .env
 
-      - name: Install dependencies
-        run: npm install
-        working-directory: ./api
+      - name: Set up Docker Compose
+        run: docker-compose up -d db backend
 
-      - name: Run tests
-        run: npm test
-        working-directory: ./api
+      - name: Run tests in backend container
+        run: docker exec backend npm test
+
+      - name: Tear down Docker Compose
+        if: always()
+        run: docker-compose down
