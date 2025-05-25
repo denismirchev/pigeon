@@ -16,7 +16,7 @@ jobs:
         run: cp example.env .env
 
       - name: Set up Docker Compose
-        run: docker compose up
+        run: docker compose up -d
 
       - name: Run tests in backend container
         run: docker exec backend npm test
