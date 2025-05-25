@@ -20,19 +20,23 @@ This project is a web application built using **Vue.js** for the frontend, **Exp
    ```bash
    git clone https://github.com/denismirchev/pigeon.git
    cd https://github.com/denismirchev/pigeon.git
-   ``` 
+   ```
+   
 2. Create an .env file based on example.env:
     ```bash
     cp example.env .env
     ```
+    
 3. Build and start the containers:
-4. ```bash
+   ```bash
    docker-compose up --build
    ```
-5. Access the application (default ports):
+   
+4. Access the application (default ports):
    - Frontend: http://localhost:8080
    - Backend API: http://localhost:3000
-6. To stop the containers:
+
+5. To stop the containers:
    ```bash
    docker-compose down
    ```
