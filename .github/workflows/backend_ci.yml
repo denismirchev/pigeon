@@ -12,15 +12,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Create .env file
-        run: cp example.env .env
+      - name: Setup docker env
+        run: |
+          echo "MYSQL_ROOT_PASSWORD=test" > .env
+          echo "DB_PORT=3306" >> .env
 
-      - name: Set up Docker Compose
-        run: docker compose up -d
+      - name: Start database container
+        run: docker compose up -d db
 
-      - name: Run tests in backend container
-        run: docker exec backend npm test
+      - name: Navigate to API folder and create .env file
+        run: |
+          cd api
+          echo "DB_URL=mysql://root:test@localhost:3306/pigeon" > .env
+          echo "ACCESS_TOKEN_SECRET=test" >> .env
+          echo "REFRESH_TOKEN_SECRET=test" >> .env
 
-      - name: Tear down Docker Compose
+      - name: Install dependencies
+        run: |
+          cd api
+          npm install
+
+      - name: Run tests
+        run: |
+          cd api
+          npm test
+
+      - name: Tear down database container
         if: always()
         run: docker-compose down
