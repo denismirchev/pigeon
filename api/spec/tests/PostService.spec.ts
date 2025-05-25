@@ -2,12 +2,8 @@ import PostService from '@src/services/PostService';
 import PostRepo from '@src/db/repos/PostRepo';
 import LikeRepo from '@src/db/repos/LikeRepo';
 import RouteError from '@src/common/RouteError';
-import ErrorsUtil from '@src/common/errors';
-import HttpStatusCodes from '@src/common/HttpStatusCodes';
 import UserRepo from '@src/db/repos/UserRepo';
-import UserService from '@src/services/UserService';
 import AuthService from '@src/services/AuthService';
-import { IUser } from '@src/db/models/User';
 import { IPost } from '@src/db/models/Post';
 
 
