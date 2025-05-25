@@ -1,4 +1,4 @@
-name: CI - Run Unit Tests
+name: CI - Run Backend Unit Tests
 
 on:
   push:
@@ -22,6 +22,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: ./api
 
       - name: Run tests
         run: npm test
+        working-directory: ./api
