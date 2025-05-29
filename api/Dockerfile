@@ -5,6 +5,8 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
+COPY --from=parent example-media/ ./public/
+
 COPY wait-for-it.sh .
 COPY --from=parent .env ./
 
