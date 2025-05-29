@@ -29,7 +29,7 @@ This project is a web application built using **Vue.js** for the frontend, **Exp
     
 3. Build and start the containers:
    ```bash
-   docker-compose up --build
+   docker compose up --build
    ```
    
 4. Access the application (default ports):
@@ -38,7 +38,7 @@ This project is a web application built using **Vue.js** for the frontend, **Exp
 
 5. To stop the containers:
    ```bash
-   docker-compose down
+   docker compose down
    ```
 
 ## Additional Notes
