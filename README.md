@@ -19,7 +19,7 @@ This project is a web application built using **Vue.js** for the frontend, **Exp
 1. Clone the repository:
    ```bash
    git clone https://github.com/denismirchev/pigeon.git
-   cd https://github.com/denismirchev/pigeon.git
+   cd pigeon
    ```
    
 2. Create an .env file based on example.env:
