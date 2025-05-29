@@ -44,5 +44,5 @@ This project is a web application built using **Vue.js** for the frontend, **Exp
 ## Additional Notes
 - For more details about the frontend app or backend API, check the README.md files in the app or api folders.
 - Example auth credentials:
-  - Username: `test@test.com`
+  - Email: `test@test.com`
   - Password: `testtest`
